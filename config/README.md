@@ -31,7 +31,7 @@ This file contains the network and contract configurations for the NFT metadata 
 
 - **Network**: Bon-Soleil Testnet
 - **RPC URL**: https://dev2.bon-soleil.com/rpc
-- **MetadataBank Contract**: 0x730a3Cf80b45d2262a278b2FEddCcF5504BFD1EC
+- **MetadataBank Contract**: 0x5143f16dA9bE850da6c11cB50A7359A36e1D349b
 
 ### Usage
 
