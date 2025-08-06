@@ -716,9 +716,24 @@
                     window.updateWalletUI(account);
                 } catch (error) {
                     console.error('Connection failed:', error);
-                    showTransactionStatus('error', error.message);
+                    
+                    // Check if MetaMask is not installed
+                    if (error.message.includes('MetaMask is not installed')) {
+                        showTransactionStatus('error', 
+                            'MetaMask is not installed!', 
+                            `Please install MetaMask to mint NFTs.<br><br>
+                            <a href="https://metamask.io/download/" target="_blank" 
+                               style="color: #A78BFA; text-decoration: none; font-weight: bold;">
+                               🦊 Download MetaMask →
+                            </a><br><br>
+                            <small style="color: #888;">After installation, please refresh this page and try again.</small>`
+                        );
+                    } else {
+                        showTransactionStatus('error', error.message);
+                    }
                 } finally {
                     connectBtn.disabled = false;
+                    connectBtn.textContent = 'Connect MetaMask';
                 }
             }
         }

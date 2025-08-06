@@ -78,7 +78,7 @@ class Web3Integration {
     // Initialize Web3 connection
     async init() {
         if (typeof window.ethereum === 'undefined') {
-            throw new Error('MetaMask is not installed! Please install MetaMask to mint NFTs.');
+            throw new Error('MetaMask is not installed! Please install MetaMask from https://metamask.io/download/ to mint NFTs.');
         }
 
         try {
