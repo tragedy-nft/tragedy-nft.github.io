@@ -96,6 +96,11 @@
         padding-left: 30px;
       }
       
+      .section-title.lead-title {
+        text-align: center;
+        padding-left: 0;
+      }
+      
       .section-title::before {
         content: "#";
         position: absolute;
@@ -104,6 +109,10 @@
         transform: translateY(-50%);
         color: #6B46C1;
         font-weight: bold;
+      }
+      
+      .section-title.lead-title::before {
+        display: none;
       }
       
       .manifest-text {
@@ -253,7 +262,7 @@
         <!-- Japanese Version -->
         <div id="ja-content" style="display: none;">
           <div class="section">
-            <h2 class="section-title">NFTの終結と、再出発</h2>
+            <h2 class="section-title lead-title">NFTの終結と、再出発</h2>
             <p class="manifest-text" style="text-align: center;">
               大量生産され、焼き捨てられ、忘れられた無数のNFTたち。<br>
               アートワークは消え、URIは404となり、「誰が、なぜ作ったか」は風化した。
@@ -338,7 +347,7 @@
         <!-- English Version (Default) -->
         <div id="en-content">
           <div class="section">
-            <h2 class="section-title">The End and Rebirth of NFTs</h2>
+            <h2 class="section-title lead-title">The End and Rebirth of NFTs</h2>
             <p class="manifest-text" style="text-align: center;">
               Mass-produced, burned, and forgotten.<br>
               Countless NFTs with artworks vanished, URIs returning 404.<br>
@@ -425,7 +434,7 @@
         <!-- Chinese Version -->
         <div id="zh-content" style="display: none;">
           <div class="section">
-            <h2 class="section-title">NFT的终结与重生</h2>
+            <h2 class="section-title lead-title">NFT的终结与重生</h2>
             <p class="manifest-text" style="text-align: center;">
               大量生产、焚烧、被遗忘。<br>
               无数NFT，艺术作品消失了，URI返回404错误。<br>
@@ -512,7 +521,7 @@
         <!-- Korean Version -->
         <div id="ko-content" style="display: none;">
           <div class="section">
-            <h2 class="section-title">NFT의 종말과 재탄생</h2>
+            <h2 class="section-title lead-title">NFT의 종말과 재탄생</h2>
             <p class="manifest-text" style="text-align: center;">
               대량 생산되고, 소각되고, 잊혀진 수많은 NFT들.<br>
               아트워크는 사라지고, URI는 404 오류를 반환하며,<br>
@@ -599,7 +608,7 @@
         <!-- French Version -->
         <div id="fr-content" style="display: none;">
           <div class="section">
-            <h2 class="section-title">La Fin et la Renaissance des NFT</h2>
+            <h2 class="section-title lead-title">La Fin et la Renaissance des NFT</h2>
             <p class="manifest-text" style="text-align: center;">
               Produits en masse, brûlés et oubliés.<br>
               D'innombrables NFT perdus dans des erreurs 404.<br>
@@ -686,7 +695,7 @@
         <!-- German Version -->
         <div id="de-content" style="display: none;">
           <div class="section">
-            <h2 class="section-title">Das Ende und die Wiedergeburt der NFTs</h2>
+            <h2 class="section-title lead-title">Das Ende und die Wiedergeburt der NFTs</h2>
             <p class="manifest-text" style="text-align: center;">
               Massenproduziert, verbrannt und vergessen.<br>
               Unzählige NFTs verloren in 404-Fehlern.<br>
