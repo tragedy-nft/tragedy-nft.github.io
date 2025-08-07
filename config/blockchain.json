@@ -6,7 +6,7 @@
       "chainId": 21201,
       "contracts": {
         "metadataBank": {
-          "address": "0xbB49b3d30C7a92A7Ea3C9EeA28A6050ec82f0fa2",
+          "address": "0x565B793c191FE9C0D9980eCDB05A1471aBA198b4",
           "deploymentBlock": 0,
           "abi": [
             "function getMetadataCount() view returns (uint256)",
