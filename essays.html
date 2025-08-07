@@ -70,6 +70,19 @@
         margin-bottom: 15px;
       }
       
+      div.story-thumbnail {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      
+      div.story-thumbnail svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      
       .story-title {
         font-size: 1.3em;
         color: #E9D5FF;
@@ -239,7 +252,7 @@
               rpcUrl: "https://dev2.bon-soleil.com/rpc",
               contracts: {
                 metadataBank: {
-                  address: "0x446697246d89Ac256a48359a5b6DeAEb29D192Db",
+                  address: "0xbB49b3d30C7a92A7Ea3C9EeA28A6050ec82f0fa2",
                   abi: [
                     "function getMetadataCount() view returns (uint256)",
                     "function getMetadata(uint256 index) view returns (string)"
@@ -415,9 +428,27 @@
           badgeHtml = '<div class="story-badge">✨ SPECIAL</div>';
         }
         
+        // Create image HTML with SVG support
+        let imageHtml = '';
+        if (story.image && story.image.startsWith('data:image/svg+xml;base64,')) {
+          try {
+            const base64Svg = story.image.replace('data:image/svg+xml;base64,', '');
+            const svg = atob(base64Svg);
+            // Wrap SVG in a div to control sizing
+            imageHtml = `<div class="story-thumbnail">${svg}</div>`;
+          } catch (e) {
+            console.error('Failed to decode SVG:', e);
+            // Fallback to img tag
+            imageHtml = `<img src="${story.image}" alt="${story.name}" class="story-thumbnail">`;
+          }
+        } else {
+          // For non-base64 SVG images, use img tag
+          imageHtml = `<img src="${story.image}" alt="${story.name}" class="story-thumbnail">`;
+        }
+        
         card.innerHTML = `
           ${badgeHtml}
-          <img src="${story.image}" alt="${story.name}" class="story-thumbnail">
+          ${imageHtml}
           <div class="story-title">${story.name}</div>
           <div class="story-excerpt">${story.description}</div>
           <div class="story-meta">

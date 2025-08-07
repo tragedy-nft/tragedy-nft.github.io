@@ -177,7 +177,7 @@
               rpcUrl: "https://dev2.bon-soleil.com/rpc",
               contracts: {
                 metadataBank: {
-                  address: "0x446697246d89Ac256a48359a5b6DeAEb29D192Db", // 正しいアドレス
+                  address: "0xbB49b3d30C7a92A7Ea3C9EeA28A6050ec82f0fa2", // 正しいアドレス
                   abi: [
                     "function getMetadataCount() view returns (uint256)",
                     "function getMetadata(uint256 index) view returns (string)",
@@ -376,6 +376,16 @@
             console.error("Failed to copy:", err);
           });
       }
+      
+      // HTML escape helper
+      function escapeHtml(unsafe) {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
       // Display metadata
       function displayMetadata(metadataArray) {
@@ -433,37 +443,84 @@
           badgesHtml += '<span class="special-badge">✨ SPECIAL COMBO</span>';
         }
 
-        // Build HTML
-        display.innerHTML = `
-                <img src="${metadata.image}" alt="${
-          metadata.name
-        }" class="metadata-image">
-                <div class="metadata-header">
-                    ${badgesHtml}
+        // Build HTML using DOM methods for safety
+        display.innerHTML = ''; // Clear existing content
+        
+        // Create image container
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'metadata-image-container';
+        
+        // Decode SVG if it's base64 encoded
+        if (metadata.image && metadata.image.startsWith('data:image/svg+xml;base64,')) {
+          try {
+            const base64Svg = metadata.image.replace('data:image/svg+xml;base64,', '');
+            const svg = atob(base64Svg);
+            imgContainer.innerHTML = svg;
+            // Apply class to the SVG element
+            const svgElement = imgContainer.querySelector('svg');
+            if (svgElement) {
+              svgElement.classList.add('metadata-image');
+            }
+          } catch (e) {
+            console.error('Failed to decode SVG:', e);
+            // Fallback to img tag
+            const img = document.createElement('img');
+            img.src = metadata.image;
+            img.alt = metadata.name;
+            img.className = 'metadata-image';
+            imgContainer.appendChild(img);
+          }
+        } else {
+          // For non-base64 images, use img tag
+          const img = document.createElement('img');
+          img.src = metadata.image;
+          img.alt = metadata.name;
+          img.className = 'metadata-image';
+          imgContainer.appendChild(img);
+        }
+        
+        display.appendChild(imgContainer);
+        
+        // Create header div
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'metadata-header';
+        headerDiv.innerHTML = badgesHtml;
+        display.appendChild(headerDiv);
+        
+        // Create name div
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'metadata-name';
+        nameDiv.textContent = metadata.name;
+        display.appendChild(nameDiv);
+        
+        // Create description div
+        const descDiv = document.createElement('div');
+        descDiv.className = 'metadata-description';
+        descDiv.textContent = `"${metadata.description}"`;
+        display.appendChild(descDiv);
+        
+        // Create attributes div
+        const attrsDiv = document.createElement('div');
+        attrsDiv.className = 'attributes';
+        attrsDiv.innerHTML = attributesHtml;
+        display.appendChild(attrsDiv);
+        
+        // Create JSON container
+        const jsonContainer = document.createElement('div');
+        jsonContainer.className = 'json-container';
+        jsonContainer.innerHTML = `
+            <div class="json-toggle" onclick="toggleJson(this)">
+                <span class="toggle-icon">▶</span> View JSON
+                <div>
+                    <button class="copy-json-button" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-json'), this)" data-json='${jsonString.replace(/'/g, '&#39;')}'>Copy</button>
+                    <button class="copy-json-button" onclick="event.stopPropagation(); downloadSingle(JSON.parse(this.getAttribute('data-metadata')))" data-metadata='${JSON.stringify(metadata).replace(/'/g, '&#39;')}'>Download</button>
                 </div>
-                <div class="metadata-name">${metadata.name}</div>
-                <div class="metadata-description">"${
-                  metadata.description
-                }"</div>
-                <div class="attributes">${attributesHtml}</div>
-                <div class="json-container">
-                    <div class="json-toggle" onclick="toggleJson(this)">
-                        <span class="toggle-icon">▶</span> View JSON
-                        <div>
-                            <button class="copy-json-button" onclick="event.stopPropagation(); copyToClipboard(\`${jsonString.replace(
-                              /`/g,
-                              "\\`"
-                            )}\`, this)">Copy</button>
-                            <button class="copy-json-button" onclick="event.stopPropagation(); downloadSingle(${JSON.stringify(
-                              metadata
-                            ).replace(/"/g, "&quot;")})">Download</button>
-                        </div>
-                    </div>
-                    <div class="json-display" style="display: none;">
-                        <pre>${jsonString}</pre>
-                    </div>
-                </div>
-            `;
+            </div>
+            <div class="json-display" style="display: none;">
+                <pre>${escapeHtml(jsonString)}</pre>
+            </div>
+        `;
+        display.appendChild(jsonContainer);
       }
 
       // Toggle JSON display

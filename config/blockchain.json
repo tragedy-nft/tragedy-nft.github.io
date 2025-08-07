@@ -6,7 +6,7 @@
       "chainId": 21201,
       "contracts": {
         "metadataBank": {
-          "address": "0x446697246d89Ac256a48359a5b6DeAEb29D192Db",
+          "address": "0xbB49b3d30C7a92A7Ea3C9EeA28A6050ec82f0fa2",
           "deploymentBlock": 0,
           "abi": [
             "function getMetadataCount() view returns (uint256)",
@@ -17,11 +17,11 @@
           ]
         },
         "bankedNFT": {
-          "address": "0xdEa70EcCd1eb4CbCD8ff55Ca6233bf90C7c1f171",
+          "address": "0xb168700022606D0e833B2A56C90f5A4BEd0a38aA",
           "deploymentBlock": 0
         },
         "composerV5": {
-          "address": "0xC0a517f366aFb56640eD2eD92C8957a8C9007adD",
+          "address": "0x5FbFa836052aF5eE6d10f4B2A6521B5CAcc16bcd",
           "deploymentBlock": 0
         }
       }

@@ -178,11 +178,20 @@ button:hover {
   display: block;
 }
 
+.metadata-image-container {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .metadata-image {
   width: 200px;
   height: 200px;
   border-radius: 10px;
-  margin: 20px auto;
+  margin: 0;
   display: block;
   box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
 }
