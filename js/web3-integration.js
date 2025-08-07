@@ -47,7 +47,7 @@ const CONTRACT_CONFIG = {
     addresses: {
         8453: '0x0000000000000000000000000000000000000000',  // Base Mainnet
         84532: '0x0000000000000000000000000000000000000000', // Base Sepolia
-        21201: '0x0F11e1B8857C44E279754a096281B0c3B364f6fE'  // Bon Soleil Testnet - BankedNFT Contract
+        21201: '0xdEa70EcCd1eb4CbCD8ff55Ca6233bf90C7c1f171'  // Bon Soleil Testnet - BankedNFT Contract
     },
     abi: [
         // BankedNFT ABI for minting
