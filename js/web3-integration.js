@@ -1,53 +1,76 @@
 // MetaMask integration for The Mythical Cursed-Nightmare NFT minting
 // Using ethers.js v6 for Web3 interaction
 
-// Base Chain Configuration
-const BASE_CHAIN_CONFIG = {
-    chainId: '0x2105', // 8453 in hex
-    chainName: 'Base',
-    rpcUrls: ['https://mainnet.base.org'],
+// Load centralized contract configuration
+// Note: This assumes contracts-config.js is loaded before this file in HTML
+const contractsConfig = typeof CONTRACTS_CONFIG !== 'undefined' ? CONTRACTS_CONFIG : null;
+
+// Network configurations - dynamically built from contracts config if available
+const BASE_CHAIN_CONFIG = contractsConfig ? {
+    chainId: contractsConfig.networks[8453].chainIdHex,
+    chainName: contractsConfig.networks[8453].name,
+    rpcUrls: [contractsConfig.networks[8453].rpcUrl],
     nativeCurrency: {
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18
     },
+    blockExplorerUrls: [contractsConfig.networks[8453].blockExplorer]
+} : {
+    chainId: '0x2105',
+    chainName: 'Base',
+    rpcUrls: ['https://mainnet.base.org'],
+    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
     blockExplorerUrls: ['https://basescan.org']
 };
 
-// Base Testnet (Sepolia) Configuration for testing
-const BASE_TESTNET_CONFIG = {
-    chainId: '0x14a34', // 84532 in hex
-    chainName: 'Base Sepolia',
-    rpcUrls: ['https://sepolia.base.org'],
+const BASE_TESTNET_CONFIG = contractsConfig ? {
+    chainId: contractsConfig.networks[84532].chainIdHex,
+    chainName: contractsConfig.networks[84532].name,
+    rpcUrls: [contractsConfig.networks[84532].rpcUrl],
     nativeCurrency: {
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18
     },
+    blockExplorerUrls: [contractsConfig.networks[84532].blockExplorer]
+} : {
+    chainId: '0x14a34',
+    chainName: 'Base Sepolia',
+    rpcUrls: ['https://sepolia.base.org'],
+    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
     blockExplorerUrls: ['https://sepolia.basescan.org']
 };
 
-// Custom Testnet Configuration
-const CUSTOM_TESTNET_CONFIG = {
-    chainId: '0x52d1', // 21201 in hex
-    chainName: 'Bon Soleil Testnet',
-    rpcUrls: ['https://dev2.bon-soleil.com/rpc'],
+const CUSTOM_TESTNET_CONFIG = contractsConfig ? {
+    chainId: contractsConfig.networks[21201].chainIdHex,
+    chainName: contractsConfig.networks[21201].name,
+    rpcUrls: [contractsConfig.networks[21201].rpcUrl],
     nativeCurrency: {
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18
     },
-    blockExplorerUrls: ['https://dev2.bon-soleil.com/explorer'] // エクスプローラーがあれば
+    blockExplorerUrls: [contractsConfig.networks[21201].blockExplorer]
+} : {
+    chainId: '0x52d1',
+    chainName: 'Bon Soleil Testnet',
+    rpcUrls: ['https://dev2.bon-soleil.com/rpc'],
+    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+    blockExplorerUrls: ['https://dev2.bon-soleil.com/explorer']
 };
 
-// Contract configuration (will be updated with actual contract address)
-// Different contracts for different networks
+// Contract configuration - use centralized config if available, fallback to hardcoded
 const CONTRACT_CONFIG = {
-    // Network-specific contract addresses
-    addresses: {
-        8453: '0x0000000000000000000000000000000000000000',  // Base Mainnet
-        84532: '0x0000000000000000000000000000000000000000', // Base Sepolia
-        21201: '0xD8543363D99314fdE362014CF89CF6b5417d2B68'  // Bon Soleil Testnet - BankedNFT Contract (With LegendaryBank)
+    // Network-specific contract addresses from centralized config
+    addresses: contractsConfig ? {
+        8453: contractsConfig.getContract(8453, 'bankedNFT'),
+        84532: contractsConfig.getContract(84532, 'bankedNFT'),
+        21201: contractsConfig.getContract(21201, 'bankedNFT')
+    } : {
+        8453: '0x0000000000000000000000000000000000000000',
+        84532: '0x0000000000000000000000000000000000000000',
+        21201: '0xD8543363D99314fdE362014CF89CF6b5417d2B68'
     },
     abi: [
         // BankedNFT ABI for minting

@@ -25,6 +25,9 @@
 
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- Centralized Contract Configuration -->
+    <script src="js/contracts-config.js"></script>
   </head>
   <body>
     <div class="container">
@@ -158,18 +161,49 @@
       
       // Load blockchain configuration
       async function loadBlockchainConfig() {
+        // Try to use centralized config first
+        if (typeof CONTRACTS_CONFIG !== 'undefined') {
+          const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
+          if (network) {
+            blockchainConfig = {
+              networks: {
+                bonsoleil: {
+                  name: network.name,
+                  rpcUrl: network.rpcUrl,
+                  contracts: {
+                    metadataBank: {
+                      address: network.contracts.metadataBank,
+                      abi: [
+                        "function getMetadataCount() view returns (uint256)",
+                        "function getMetadata(uint256 index) view returns (string)",
+                        "function composer() view returns (address)",
+                        "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
+                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)"
+                      ]
+                    }
+                  }
+                }
+              },
+              defaultNetwork: "bonsoleil"
+            };
+            console.log('Using centralized contract configuration');
+            return true;
+          }
+        }
+        
+        // Fallback to loading blockchain.json
         try {
           const response = await fetch('config/blockchain.json');
           if (response.ok) {
             blockchainConfig = await response.json();
-            console.log('Blockchain configuration loaded');
+            console.log('Blockchain configuration loaded from JSON');
             return true;
           }
         } catch (error) {
           console.log('Failed to load blockchain config, using defaults');
         }
         
-        // Fallback configuration - 正しいアドレスを使用
+        // Final fallback configuration
         blockchainConfig = {
           networks: {
             bonsoleil: {
@@ -177,7 +211,7 @@
               rpcUrl: "https://dev2.bon-soleil.com/rpc",
               contracts: {
                 metadataBank: {
-                  address: "0xbB49b3d30C7a92A7Ea3C9EeA28A6050ec82f0fa2", // 正しいアドレス
+                  address: "0x565B793c191FE9C0D9980eCDB05A1471aBA198b4",
                   abi: [
                     "function getMetadataCount() view returns (uint256)",
                     "function getMetadata(uint256 index) view returns (string)",

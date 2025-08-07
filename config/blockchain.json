@@ -20,10 +20,6 @@
         "bankedNFT": {
           "address": "0xD8543363D99314fdE362014CF89CF6b5417d2B68",
           "deploymentBlock": 0
-        },
-        "composerV5": {
-          "address": "0x7B6c09495557C3E3Fa78F899806FB849bd24A933",
-          "deploymentBlock": 0
         }
       }
     }
