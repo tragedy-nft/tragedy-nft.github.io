@@ -91,43 +91,9 @@
 
       <div class="legendary-ids">
         <h3>🔥 Legendary IDs</h3>
-        <div class="legendary-ids-list">
-          <button class="legendary-id-button" onclick="generateSpecificId(666)">
-            666 - The Beast
-          </button>
-          <button
-            class="legendary-id-button"
-            onclick="generateSpecificId(1337)"
-          >
-            1337 - The Chosen
-          </button>
-          <button
-            class="legendary-id-button"
-            onclick="generateSpecificId(9999)"
-          >
-            9999 - Final Guardian
-          </button>
-          <button class="legendary-id-button" onclick="generateSpecificId(404)">
-            404 - Lost Soul
-          </button>
-          <button
-            class="legendary-id-button"
-            onclick="generateSpecificId(7777)"
-          >
-            7777 - Fortune's Avatar
-          </button>
-          <button class="legendary-id-button" onclick="generateSpecificId(13)">
-            13 - The Cursed
-          </button>
-          <button
-            class="legendary-id-button"
-            onclick="generateSpecificId(1000)"
-          >
-            1000 - The Millennial
-          </button>
-          <button class="legendary-id-button" onclick="generateSpecificId(42)">
-            42 - The Answer
-          </button>
+        <div class="legendary-ids-list" id="legendaryIdsList">
+          <!-- Legendary IDs will be loaded dynamically -->
+          <p style="text-align: center; color: #C084FC;">Loading legendary IDs...</p>
         </div>
       </div>
 
@@ -157,6 +123,7 @@
       let currentMetadata = [];
       let provider;
       let metadataBank;
+      let legendaryBankContract;
       let blockchainConfig = null;
       
       // Load blockchain configuration
@@ -259,6 +226,23 @@
           
           console.log(`Connected to ${network.name || 'Network'} at ${network.rpcUrl}`);
           console.log(`MetadataBank address: ${contractAddress}`);
+          
+          // Initialize LegendaryBank contract
+          if (typeof CONTRACTS_CONFIG !== 'undefined') {
+            const legendaryBankAddress = CONTRACTS_CONFIG.getContract('legendaryBank', 21201);
+            if (legendaryBankAddress) {
+              legendaryBankContract = new ethers.Contract(
+                legendaryBankAddress,
+                [
+                  "function getLegendaryCount() view returns (uint256)",
+                  "function legendaryIds(uint256 index) view returns (uint256)",
+                  "function getLegendaryTitle(uint256 tokenId) view returns (string)"
+                ],
+                provider
+              );
+              console.log('LegendaryBank contract initialized:', legendaryBankAddress);
+            }
+          }
           
           // Test connection - but don't fail if getMetadataCount doesn't work
           try {
@@ -611,6 +595,53 @@
         linkElement.click();
       }
 
+      // Load legendary IDs from blockchain
+      async function loadLegendaryIds() {
+        const legendaryIdsList = document.getElementById('legendaryIdsList');
+        
+        if (!legendaryBankContract) {
+          legendaryIdsList.innerHTML = '<p style="text-align: center; color: #ff6b6b;">LegendaryBank contract not available</p>';
+          return;
+        }
+        
+        try {
+          const count = await legendaryBankContract.getLegendaryCount();
+          console.log(`Total legendary tokens: ${count.toString()}`);
+          
+          let buttonsHtml = '';
+          for (let i = 0; i < count; i++) {
+            const tokenId = await legendaryBankContract.legendaryIds(i);
+            let title = '';
+            
+            try {
+              title = await legendaryBankContract.getLegendaryTitle(tokenId);
+            } catch (error) {
+              // Fallback titles if contract doesn't return one
+              const fallbackTitles = {
+                666: 'The Beast',
+                1337: 'The Chosen',
+                9999: 'Final Guardian',
+                404: 'Lost Soul',
+                7777: "Fortune's Avatar",
+                13: 'The Cursed',
+                1000: 'The Millennial',
+                42: 'The Answer'
+              };
+              title = fallbackTitles[Number(tokenId)] || `ID ${tokenId}`;
+            }
+            
+            buttonsHtml += `<button class="legendary-id-button" onclick="generateSpecificId(${tokenId})">
+              ${tokenId} - ${title}
+            </button>`;
+          }
+          
+          legendaryIdsList.innerHTML = buttonsHtml || '<p style="text-align: center; color: #666;">No legendary IDs found</p>';
+        } catch (error) {
+          console.error('Failed to load legendary IDs:', error);
+          legendaryIdsList.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Failed to load legendary IDs</p>';
+        }
+      }
+
       // Handle URL parameters on load
       window.addEventListener("DOMContentLoaded", async () => {
         // Initialize blockchain connection
@@ -621,6 +652,9 @@
             '<div style="text-align: center; padding: 40px; color: #ff6b6b;">Failed to connect to blockchain. Please refresh the page.</div>';
           return;
         }
+        
+        // Load legendary IDs
+        await loadLegendaryIds();
         
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get("id");
