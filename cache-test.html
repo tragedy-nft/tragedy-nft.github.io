@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RPC Cache Test - The Mythical Cursed-Nightmare</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      .test-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid var(--color-primary);
+        border-radius: 10px;
+      }
+
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
+
+      .test-button {
+        margin: 5px;
+        padding: 10px 20px;
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .test-button:hover {
+        background: var(--color-secondary);
+        transform: scale(1.05);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 20px 0;
+      }
+
+      .stat-card {
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2em;
+        font-weight: bold;
+        color: var(--color-primary);
+      }
+
+      .log-area {
+        background: #000;
+        color: #0f0;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+
+      .cache-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .toggle-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--color-primary);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🔧 RPC Cache Test Suite</h1>
+
+      <div class="test-section">
+        <h2>📊 Cache Statistics</h2>
+        <div class="stats" id="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="hits">0</div>
+            <div>Cache Hits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="misses">0</div>
+            <div>Cache Misses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="hitRate">0%</div>
+            <div>Hit Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="cacheSize">0</div>
+            <div>Cached Items</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🎮 Cache Controls</h2>
+        <div class="cache-controls">
+          <div class="toggle-switch">
+            <label for="cacheToggle">Cache Enabled:</label>
+            <label class="switch">
+              <input type="checkbox" id="cacheToggle" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <button class="test-button" onclick="clearCache()">
+            🗑️ Clear Cache
+          </button>
+          <button class="test-button" onclick="clearExpired()">
+            🧹 Clear Expired
+          </button>
+          <button class="test-button" onclick="resetStats()">
+            📊 Reset Stats
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🧪 Test Operations</h2>
+        <button class="test-button" onclick="connectWallet()">
+          🔗 Connect Wallet
+        </button>
+        <button class="test-button" onclick="testImmutableData()">
+          📜 Test Immutable Data
+        </button>
+        <button class="test-button" onclick="testDynamicData()">
+          ⚡ Test Dynamic Data
+        </button>
+        <button class="test-button" onclick="testBatchOperations()">
+          🔄 Test Batch Operations
+        </button>
+        <button class="test-button" onclick="testCacheExpiry()">
+          ⏰ Test Cache Expiry
+        </button>
+        <button class="test-button" onclick="runAllTests()">
+          🚀 Run All Tests
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h2>📝 Test Log</h2>
+        <div class="log-area" id="logArea"></div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script src="js/contracts-config.js"></script>
+    <script src="js/rpc-cache.js"></script>
+    <script src="js/web3-integration.js"></script>
+
+    <script>
+      let web3;
+      const logArea = document.getElementById("logArea");
+
+      // Initialize on page load
+      window.addEventListener("load", async () => {
+        web3 = window.web3Integration;
+        updateStats();
+        log("RPC Cache Test Suite initialized");
+
+        // Setup cache toggle
+        document
+          .getElementById("cacheToggle")
+          .addEventListener("change", (e) => {
+            web3.setCacheEnabled(e.target.checked);
+            log(`Cache ${e.target.checked ? "enabled" : "disabled"}`);
+          });
+      });
+
+      // Logging function
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix =
+          type === "error" ? "❌" : type === "success" ? "✅" : "ℹ️";
+        logArea.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+        logArea.scrollTop = logArea.scrollHeight;
+      }
+
+      // Update statistics display
+      async function updateStats() {
+        const stats = await web3.getCacheStats();
+        if (stats) {
+          document.getElementById("hits").textContent = stats.hits;
+          document.getElementById("misses").textContent = stats.misses;
+          document.getElementById("hitRate").textContent = stats.hitRate;
+        }
+
+        const size = await web3.getCacheSize();
+        document.getElementById("cacheSize").textContent = size;
+      }
+
+      // Connect wallet
+      async function connectWallet() {
+        try {
+          log("Connecting wallet...");
+          const account = await web3.connectWallet();
+          log(`Wallet connected: ${account}`, "success");
+          updateStats();
+        } catch (error) {
+          log(`Failed to connect wallet: ${error.message}`, "error");
+        }
+      }
+
+      // Test immutable data caching
+      async function testImmutableData() {
+        if (!web3.isConnected()) {
+          log("Please connect wallet first", "error");
+          return;
+        }
+
+        log("Testing immutable data caching...");
+
+        try {
+          // First call - should miss cache
+          const start1 = performance.now();
+          const name1 = await web3.getContractName();
+          const time1 = performance.now() - start1;
+          log(`First call (cache miss): ${name1} - ${time1.toFixed(2)}ms`);
+
+          // Second call - should hit cache
+          const start2 = performance.now();
+          const name2 = await web3.getContractName();
+          const time2 = performance.now() - start2;
+          log(
+            `Second call (cache hit): ${name2} - ${time2.toFixed(2)}ms`,
+            "success"
+          );
+
+          // Test symbol too
+          await web3.getContractSymbol();
+          await web3.getContractSymbol();
+
+          updateStats();
+        } catch (error) {
+          log(`Test failed: ${error.message}`, "error");
+        }
+      }
+
+      // Test dynamic data caching
+      async function testDynamicData() {
+        if (!web3.isConnected()) {
+          log("Please connect wallet first", "error");
+          return;
+        }
+
+        log("Testing dynamic data caching (30s TTL)...");
+
+        try {
+          // First call
+          const supply1 = await web3.getTotalSupply();
+          log(`Total supply (cache miss): ${supply1}`);
+
+          // Second call - should hit cache
+          const supply2 = await web3.getTotalSupply();
+          log(`Total supply (cache hit): ${supply2}`, "success");
+
+          // Test balance too
+          await web3.getBalance();
+          await web3.getBalance();
+
+          updateStats();
+        } catch (error) {
+          log(`Test failed: ${error.message}`, "error");
+        }
+      }
+
+      // Test batch operations
+      async function testBatchOperations() {
+        if (!web3.isConnected()) {
+          log("Please connect wallet first", "error");
+          return;
+        }
+
+        log("Testing batch operations...");
+
+        try {
+          const start = performance.now();
+
+          // Run multiple operations in parallel
+          const promises = [
+            web3.getContractName(),
+            web3.getContractSymbol(),
+            web3.getTotalSupply(),
+            web3.getMaxSupply(),
+            web3.getNFTPrice(),
+            web3.getBalance(),
+          ];
+
+          const results = await Promise.all(promises);
+          const time = performance.now() - start;
+
+          log(`Batch operations completed in ${time.toFixed(2)}ms`, "success");
+          log(`Results: ${JSON.stringify(results, null, 2)}`);
+
+          updateStats();
+        } catch (error) {
+          log(`Test failed: ${error.message}`, "error");
+        }
+      }
+
+      // Test cache expiry
+      async function testCacheExpiry() {
+        log("Testing cache expiry (this will take 35 seconds)...");
+
+        try {
+          // Get dynamic data
+          const supply1 = await web3.getTotalSupply();
+          log(`Initial supply: ${supply1}`);
+
+          // Wait for cache to expire (30s + 5s buffer)
+          log("Waiting for cache to expire...");
+          await new Promise((resolve) => setTimeout(resolve, 35000));
+
+          // Should miss cache now
+          const supply2 = await web3.getTotalSupply();
+          log(
+            `Supply after expiry: ${supply2} (should be cache miss)`,
+            "success"
+          );
+
+          updateStats();
+        } catch (error) {
+          log(`Test failed: ${error.message}`, "error");
+        }
+      }
+
+      // Clear cache
+      async function clearCache() {
+        try {
+          await web3.clearCache();
+          log("Cache cleared", "success");
+          updateStats();
+        } catch (error) {
+          log(`Failed to clear cache: ${error.message}`, "error");
+        }
+      }
+
+      // Clear expired entries
+      async function clearExpired() {
+        try {
+          if (web3.cache) {
+            await web3.cache.clearExpired();
+            log("Expired entries cleared", "success");
+            updateStats();
+          }
+        } catch (error) {
+          log(`Failed to clear expired: ${error.message}`, "error");
+        }
+      }
+
+      // Reset statistics
+      function resetStats() {
+        if (web3.cache) {
+          web3.cache.resetStats();
+          log("Statistics reset", "success");
+          updateStats();
+        }
+      }
+
+      // Run all tests
+      async function runAllTests() {
+        log("Running all tests...");
+        await testImmutableData();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await testDynamicData();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await testBatchOperations();
+        log("All tests completed!", "success");
+      }
+    </script>
+  </body>
+</html>

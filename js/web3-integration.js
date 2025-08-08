@@ -96,6 +96,65 @@ class Web3Integration {
         this.currentAccount = null;
         this.isTestnet = true; // Default to testnet for development
         this.useCustomTestnet = true; // Use Bon Soleil testnet
+        
+        // Initialize RPC cache
+        this.cache = null;
+        this.cacheEnabled = true;
+        this.initCache();
+    }
+    
+    // Initialize cache asynchronously
+    async initCache() {
+        try {
+            if (typeof window.RPCCache !== 'undefined') {
+                this.cache = new window.RPCCache();
+                await this.cache.init();
+                console.log('RPC cache initialized successfully');
+            } else {
+                console.warn('RPCCache not available, caching disabled');
+                this.cacheEnabled = false;
+            }
+        } catch (error) {
+            console.error('Failed to initialize RPC cache:', error);
+            this.cacheEnabled = false;
+        }
+    }
+    
+    // Wrapper method for cached calls
+    async cachedCall(method, params, contractCall) {
+        // If cache is not enabled, execute directly
+        if (!this.cacheEnabled || !this.cache) {
+            return await contractCall();
+        }
+        
+        try {
+            // Get current chain ID
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            const chainIdDecimal = parseInt(chainId, 16);
+            
+            // Create cache key
+            const cacheKey = this.cache.createCacheKey(method, params, chainIdDecimal);
+            
+            // Check cache first
+            const cachedValue = await this.cache.get(cacheKey);
+            if (cachedValue !== null) {
+                console.log(`Cache hit for ${method}`);
+                return cachedValue;
+            }
+            
+            // Cache miss, execute contract call
+            console.log(`Cache miss for ${method}, calling contract`);
+            const result = await contractCall();
+            
+            // Store in cache
+            await this.cache.set(cacheKey, result, method);
+            
+            return result;
+        } catch (error) {
+            console.error(`Cached call error for ${method}:`, error);
+            // On error, fall back to direct call
+            return await contractCall();
+        }
     }
 
     // Initialize Web3 connection
@@ -275,8 +334,10 @@ class Web3Integration {
             throw new Error('Wallet not connected');
         }
         
-        const balance = await this.provider.getBalance(this.currentAccount);
-        return ethers.formatEther(balance);
+        return this.cachedCall('getBalance', { address: this.currentAccount }, async () => {
+            const balance = await this.provider.getBalance(this.currentAccount);
+            return ethers.formatEther(balance);
+        });
     }
 
     // Get NFT price from contract
@@ -286,20 +347,22 @@ class Web3Integration {
             throw new Error('Contract not initialized');
         }
         
-        try {
-            console.log('Calling mintFee() on contract:', this.contract.target || this.contract.address);
-            const mintFee = await this.contract.mintFee();
-            console.log('mintFee raw value:', mintFee.toString());
-            const formattedFee = ethers.formatEther(mintFee);
-            console.log('mintFee formatted:', formattedFee);
-            return formattedFee;
-        } catch (error) {
-            console.error('Failed to get NFT price:', error);
-            console.error('Error details:', error.message);
-            // Default price if contract doesn't have mintFee function
-            console.log('Returning default price: 0.005 ETH');
-            return '0.005'; // 0.005 ETH default
-        }
+        return this.cachedCall('getNFTPrice', null, async () => {
+            try {
+                console.log('Calling mintFee() on contract:', this.contract.target || this.contract.address);
+                const mintFee = await this.contract.mintFee();
+                console.log('mintFee raw value:', mintFee.toString());
+                const formattedFee = ethers.formatEther(mintFee);
+                console.log('mintFee formatted:', formattedFee);
+                return formattedFee;
+            } catch (error) {
+                console.error('Failed to get NFT price:', error);
+                console.error('Error details:', error.message);
+                // Default price if contract doesn't have mintFee function
+                console.log('Returning default price: 0.005 ETH');
+                return '0.005'; // 0.005 ETH default
+            }
+        });
     }
 
     // Get total supply
@@ -309,18 +372,20 @@ class Web3Integration {
             throw new Error('Contract not initialized');
         }
         
-        try {
-            console.log('Calling totalSupply() on contract:', this.contract.target || this.contract.address);
-            const supply = await this.contract.totalSupply();
-            console.log('totalSupply raw value:', supply);
-            const supplyString = supply.toString();
-            console.log('totalSupply formatted:', supplyString);
-            return supplyString;
-        } catch (error) {
-            console.error('Failed to get total supply:', error);
-            console.error('Error details:', error.message);
-            throw error;
-        }
+        return this.cachedCall('getTotalSupply', null, async () => {
+            try {
+                console.log('Calling totalSupply() on contract:', this.contract.target || this.contract.address);
+                const supply = await this.contract.totalSupply();
+                console.log('totalSupply raw value:', supply);
+                const supplyString = supply.toString();
+                console.log('totalSupply formatted:', supplyString);
+                return supplyString;
+            } catch (error) {
+                console.error('Failed to get total supply:', error);
+                console.error('Error details:', error.message);
+                throw error;
+            }
+        });
     }
 
     // Get max supply
@@ -329,13 +394,15 @@ class Web3Integration {
             throw new Error('Contract not initialized');
         }
         
-        try {
-            const maxSupply = await this.contract.maxSupply();
-            return maxSupply.toString();
-        } catch (error) {
-            // If maxSupply function doesn't exist, return a default
-            return '10000';
-        }
+        return this.cachedCall('getMaxSupply', null, async () => {
+            try {
+                const maxSupply = await this.contract.maxSupply();
+                return maxSupply.toString();
+            } catch (error) {
+                // If maxSupply function doesn't exist, return a default
+                return '10000';
+            }
+        });
     }
 
     // Get contract name
@@ -345,16 +412,18 @@ class Web3Integration {
             throw new Error('Contract not initialized');
         }
         
-        try {
-            console.log('Calling name() on contract:', this.contract.target || this.contract.address);
-            const contractName = await this.contract.name();
-            console.log('Contract name:', contractName);
-            return contractName;
-        } catch (error) {
-            console.error('Failed to get contract name:', error);
-            console.error('Error details:', error.message);
-            return 'Unknown Collection';
-        }
+        return this.cachedCall('getContractName', null, async () => {
+            try {
+                console.log('Calling name() on contract:', this.contract.target || this.contract.address);
+                const contractName = await this.contract.name();
+                console.log('Contract name:', contractName);
+                return contractName;
+            } catch (error) {
+                console.error('Failed to get contract name:', error);
+                console.error('Error details:', error.message);
+                return 'Unknown Collection';
+            }
+        });
     }
 
     // Get contract symbol
@@ -364,16 +433,18 @@ class Web3Integration {
             throw new Error('Contract not initialized');
         }
         
-        try {
-            console.log('Calling symbol() on contract:', this.contract.target || this.contract.address);
-            const contractSymbol = await this.contract.symbol();
-            console.log('Contract symbol:', contractSymbol);
-            return contractSymbol;
-        } catch (error) {
-            console.error('Failed to get contract symbol:', error);
-            console.error('Error details:', error.message);
-            return 'UNKNOWN';
-        }
+        return this.cachedCall('getContractSymbol', null, async () => {
+            try {
+                console.log('Calling symbol() on contract:', this.contract.target || this.contract.address);
+                const contractSymbol = await this.contract.symbol();
+                console.log('Contract symbol:', contractSymbol);
+                return contractSymbol;
+            } catch (error) {
+                console.error('Failed to get contract symbol:', error);
+                console.error('Error details:', error.message);
+                return 'UNKNOWN';
+            }
+        });
     }
 
     // Mint NFT
@@ -433,13 +504,15 @@ class Web3Integration {
             return 0;
         }
         
-        try {
-            const balance = await this.contract.balanceOf(this.currentAccount);
-            return balance.toString();
-        } catch (error) {
-            console.error('Failed to check ownership:', error);
-            return 0;
-        }
+        return this.cachedCall('checkOwnership', { address: this.currentAccount }, async () => {
+            try {
+                const balance = await this.contract.balanceOf(this.currentAccount);
+                return balance.toString();
+            } catch (error) {
+                console.error('Failed to check ownership:', error);
+                return 0;
+            }
+        });
     }
 
     // Format address for display
@@ -463,6 +536,33 @@ class Web3Integration {
         if (window.updateWalletUI) {
             window.updateWalletUI(null);
         }
+    }
+    
+    // Cache management methods
+    async clearCache() {
+        if (this.cache) {
+            await this.cache.clear();
+            console.log('RPC cache cleared');
+        }
+    }
+    
+    async getCacheStats() {
+        if (this.cache) {
+            return this.cache.getStats();
+        }
+        return null;
+    }
+    
+    async getCacheSize() {
+        if (this.cache) {
+            return await this.cache.getCacheSize();
+        }
+        return 0;
+    }
+    
+    setCacheEnabled(enabled) {
+        this.cacheEnabled = enabled;
+        console.log(`RPC cache ${enabled ? 'enabled' : 'disabled'}`);
     }
 }
 
