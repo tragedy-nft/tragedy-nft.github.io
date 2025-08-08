@@ -370,8 +370,8 @@
             return false;
           }
           
-          provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
-          await provider.ready;
+          provider = new ethers.JsonRpcProvider(network.rpcUrl);
+          await provider.getNetwork();
           
           const metadataBankConfig = network.contracts.metadataBank;
           metadataBank = new ethers.Contract(metadataBankConfig.address, metadataBankConfig.abi, provider);
@@ -398,7 +398,7 @@
       async function generateMetadataFromBlockchain(id) {
         try {
           // Use id - 1 as index (no modulo to avoid wrapping)
-          const index = id - 1;
+          const index = Number(id) - 1;
           console.log(`Generating metadata for ID: ${id}, using index: ${index}`);
           let metadataUri = await metadataBank.getMetadata(index);
           
@@ -477,7 +477,7 @@
           legendaryTokenIds = [];
           for (let i = 0; i < count; i++) {
             const tokenId = await legendaryBankContract.legendaryIds(i);
-            legendaryTokenIds.push(tokenId.toNumber());
+            legendaryTokenIds.push(Number(tokenId));
           }
           
           console.log('Legendary token IDs:', legendaryTokenIds);

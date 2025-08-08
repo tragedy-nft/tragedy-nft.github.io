@@ -245,8 +245,8 @@
             return false;
           }
           
-          provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
-          await provider.ready;
+          provider = new ethers.JsonRpcProvider(network.rpcUrl);
+          await provider.getNetwork();
           
           const metadataBankConfig = network.contracts.metadataBank;
           console.log('Using MetadataBank configuration:', metadataBankConfig);
@@ -280,7 +280,7 @@
         try {
           
           // Get metadata from blockchain
-          const index = (id - 1) % 10000; // Convert ID to index (0-based)
+          const index = (Number(id) - 1) % 10000; // Convert ID to index (0-based)
           let metadataUri = await metadataBank.getMetadata(index);
           
           // Check if the result is an address (proxy pattern)
