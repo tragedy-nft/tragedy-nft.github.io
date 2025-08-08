@@ -228,20 +228,34 @@
           console.log(`MetadataBank address: ${contractAddress}`);
           
           // Initialize LegendaryBank contract
+          let legendaryBankAddress = null;
+          
+          // Try centralized config first
           if (typeof CONTRACTS_CONFIG !== 'undefined') {
-            const legendaryBankAddress = CONTRACTS_CONFIG.getContract('legendaryBank', 21201);
-            if (legendaryBankAddress) {
-              legendaryBankContract = new ethers.Contract(
-                legendaryBankAddress,
-                [
-                  "function getLegendaryCount() view returns (uint256)",
-                  "function legendaryIds(uint256 index) view returns (uint256)",
-                  "function getLegendaryTitle(uint256 tokenId) view returns (string)"
-                ],
-                provider
-              );
-              console.log('LegendaryBank contract initialized:', legendaryBankAddress);
-            }
+            legendaryBankAddress = CONTRACTS_CONFIG.getContract('legendaryBank', 21201);
+          }
+          
+          // Fallback to blockchain config
+          if (!legendaryBankAddress && network.contracts && network.contracts.legendaryBank) {
+            legendaryBankAddress = network.contracts.legendaryBank.address || network.contracts.legendaryBank;
+          }
+          
+          // Final fallback to hardcoded address
+          if (!legendaryBankAddress) {
+            legendaryBankAddress = "0x9b803d317a5eF9C2b02b12fc6e6cfb1DEA48d97f";
+          }
+          
+          if (legendaryBankAddress) {
+            legendaryBankContract = new ethers.Contract(
+              legendaryBankAddress,
+              [
+                "function getLegendaryCount() view returns (uint256)",
+                "function legendaryIds(uint256 index) view returns (uint256)",
+                "function getLegendaryTitle(uint256 tokenId) view returns (string)"
+              ],
+              provider
+            );
+            console.log('LegendaryBank contract initialized:', legendaryBankAddress);
           }
           
           // Test connection - but don't fail if getMetadataCount doesn't work
