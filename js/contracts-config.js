@@ -11,31 +11,18 @@ const CONTRACTS_CONFIG = {
       rpcUrl: "https://dev2.bon-soleil.com/rpc",
       blockExplorer: "https://dev2.bon-soleil.com/explorer",
       contracts: {
-        bankedNFT: "0xE75cfA80c8e0d85E8fefb2A7934cB02363F3aB25",
-        metadataBank: "0x145121aF5c10C52726f576086b9c2bA778b00971",
-        legendaryBank: "0x9b803d317a5eF9C2b02b12fc6e6cfb1DEA48d97f",
-        composer: "0xDFCcfD3678EDd42021FC055b1A17A29dE386fC73",
+        bankedNFT: "0x7569AcDd1397D73c881340df4faB2917F946E914",
+        metadataBank: "0x1658C5Bd050C351E0DBf154913FFA4c9b666447f",
+        legendaryBank: "0xb552A7b29BF637667C0f2313D9617d448dd3aB8d",
+        composer: "0xfAB3DdC97d66a09A590f054004A3981EA2D7A8E4",
       },
     },
-    // Base Mainnet (Production)
-    8453: {
-      name: "Base",
-      chainIdHex: "0x2105",
-      rpcUrl: "https://mainnet.base.org",
-      blockExplorer: "https://basescan.org",
-      contracts: {
-        bankedNFT: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-        metadataBank: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-        legendaryBank: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-        composer: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
-      },
-    },
-    // Base Sepolia (Testing)
-    84532: {
-      name: "Base Sepolia",
-      chainIdHex: "0x14a34",
-      rpcUrl: "https://sepolia.base.org",
-      blockExplorer: "https://sepolia.basescan.org",
+    // Polygon Mainnet (Production)
+    137: {
+      name: "Polygon",
+      chainIdHex: "0x89",
+      rpcUrl: "https://polygon-rpc.com",
+      blockExplorer: "https://polygonscan.com",
       contracts: {
         bankedNFT: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
         metadataBank: "0x0000000000000000000000000000000000000000", // TODO: Deploy and update
@@ -46,7 +33,7 @@ const CONTRACTS_CONFIG = {
   },
 
   // Default network for the application
-  defaultNetworkId: 21201,
+  defaultNetworkId: 21201, // Bon-Soleil Testnet for testing
 
   // Helper function to get contract address by network
   getContract: function (networkId, contractName) {

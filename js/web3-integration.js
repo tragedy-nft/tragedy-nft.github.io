@@ -6,43 +6,25 @@
 const contractsConfig = typeof CONTRACTS_CONFIG !== 'undefined' ? CONTRACTS_CONFIG : null;
 
 // Network configurations - dynamically built from contracts config if available
-const BASE_CHAIN_CONFIG = contractsConfig ? {
-    chainId: contractsConfig.networks[8453].chainIdHex,
-    chainName: contractsConfig.networks[8453].name,
-    rpcUrls: [contractsConfig.networks[8453].rpcUrl],
+const POLYGON_MAINNET_CONFIG = contractsConfig ? {
+    chainId: contractsConfig.networks[137].chainIdHex,
+    chainName: contractsConfig.networks[137].name,
+    rpcUrls: [contractsConfig.networks[137].rpcUrl],
     nativeCurrency: {
-        name: 'Ethereum',
-        symbol: 'ETH',
+        name: 'MATIC',
+        symbol: 'MATIC',
         decimals: 18
     },
-    blockExplorerUrls: [contractsConfig.networks[8453].blockExplorer]
+    blockExplorerUrls: [contractsConfig.networks[137].blockExplorer]
 } : {
-    chainId: '0x2105',
-    chainName: 'Base',
-    rpcUrls: ['https://mainnet.base.org'],
-    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
-    blockExplorerUrls: ['https://basescan.org']
+    chainId: '0x89',
+    chainName: 'Polygon',
+    rpcUrls: ['https://polygon-rpc.com'],
+    nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+    blockExplorerUrls: ['https://polygonscan.com']
 };
 
-const BASE_TESTNET_CONFIG = contractsConfig ? {
-    chainId: contractsConfig.networks[84532].chainIdHex,
-    chainName: contractsConfig.networks[84532].name,
-    rpcUrls: [contractsConfig.networks[84532].rpcUrl],
-    nativeCurrency: {
-        name: 'Ethereum',
-        symbol: 'ETH',
-        decimals: 18
-    },
-    blockExplorerUrls: [contractsConfig.networks[84532].blockExplorer]
-} : {
-    chainId: '0x14a34',
-    chainName: 'Base Sepolia',
-    rpcUrls: ['https://sepolia.base.org'],
-    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
-    blockExplorerUrls: ['https://sepolia.basescan.org']
-};
-
-const CUSTOM_TESTNET_CONFIG = contractsConfig ? {
+const BON_SOLEIL_CONFIG = contractsConfig ? {
     chainId: contractsConfig.networks[21201].chainIdHex,
     chainName: contractsConfig.networks[21201].name,
     rpcUrls: [contractsConfig.networks[21201].rpcUrl],
@@ -54,7 +36,7 @@ const CUSTOM_TESTNET_CONFIG = contractsConfig ? {
     blockExplorerUrls: [contractsConfig.networks[21201].blockExplorer]
 } : {
     chainId: '0x52d1',
-    chainName: 'Bon Soleil Testnet',
+    chainName: 'Bon-Soleil Testnet',
     rpcUrls: ['https://dev2.bon-soleil.com/rpc'],
     nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
     blockExplorerUrls: ['https://dev2.bon-soleil.com/explorer']
@@ -64,12 +46,10 @@ const CUSTOM_TESTNET_CONFIG = contractsConfig ? {
 const CONTRACT_CONFIG = {
     // Network-specific contract addresses from centralized config
     addresses: contractsConfig ? {
-        8453: contractsConfig.getContract(8453, 'bankedNFT'),
-        84532: contractsConfig.getContract(84532, 'bankedNFT'),
+        137: contractsConfig.getContract(137, 'bankedNFT'),
         21201: contractsConfig.getContract(21201, 'bankedNFT')
     } : {
-        8453: '0x0000000000000000000000000000000000000000',
-        84532: '0x0000000000000000000000000000000000000000',
+        137: '0x0000000000000000000000000000000000000000',
         21201: '0xD8543363D99314fdE362014CF89CF6b5417d2B68'
     },
     abi: [
@@ -246,9 +226,8 @@ class Web3Integration {
         
         // Check if already on a supported network
         const supportedNetworks = {
-            8453: BASE_CHAIN_CONFIG,        // Base Mainnet
-            84532: BASE_TESTNET_CONFIG,     // Base Sepolia
-            21201: CUSTOM_TESTNET_CONFIG    // Bon Soleil
+            137: POLYGON_MAINNET_CONFIG,    // Polygon Mainnet (Production)
+            21201: BON_SOLEIL_CONFIG        // Bon-Soleil Testnet (Testing)
         };
         
         if (supportedNetworks[currentChainIdDecimal]) {

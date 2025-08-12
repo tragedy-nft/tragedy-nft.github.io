@@ -1,0 +1,19 @@
+{
+  "network": "chain-21201",
+  "timestamp": "2025-08-12T10:57:02.793Z",
+  "contracts": {
+    "monsterBank1": "0x37DBf2d47906830fa52DEdaeeFaCF8411f630b04",
+    "monsterBank2": "0xe4d79Dc6d1fC3444e6D21a55C0Fe6e7845C4bbF1",
+    "itemBank1": "0x47C148551792d93bea8c5d31b28184a658693437",
+    "itemBank2": "0xBB313e6AfeeAcF846Ca924283722827df6fd1576",
+    "backgroundBank": "0xf1A21921927D2036D7d243c0394F16f6e6245500",
+    "effectBank": "0x9fc65448889fEa075E347724b280f0ab8c2Ba9a8",
+    "legendaryBank": "0xb552A7b29BF637667C0f2313D9617d448dd3aB8d",
+    "monsterBank": "0xd4d6953416DE82D63AF57a56506f4B5B6622B269",
+    "itemBank": "0xb0aD21778D2525bF44837B6873913ee4A4321e49",
+    "tragedyComposer": "0xfAB3DdC97d66a09A590f054004A3981EA2D7A8E4",
+    "tragedyMetadata": "0x7532c924baCFc4B3BB92b343cddDb8e797A30756",
+    "metadataBank": "0x1658C5Bd050C351E0DBf154913FFA4c9b666447f",
+    "bankedNFT": "0x7569AcDd1397D73c881340df4faB2917F946E914"
+  }
+}

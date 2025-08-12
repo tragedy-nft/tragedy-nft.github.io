@@ -1,12 +1,12 @@
 {
   "networks": {
-    "bonsoleil": {
-      "name": "Bon-Soleil Testnet",
-      "rpcUrl": "https://dev2.bon-soleil.com/rpc",
-      "chainId": 21201,
+    "polygon": {
+      "name": "Polygon Mainnet",
+      "rpcUrl": "https://polygon-rpc.com",
+      "chainId": 137,
       "contracts": {
         "metadataBank": {
-          "address": "0xa6E47cd8fdc759FD8A831027dd4243342bf420AA",
+          "address": "0x0000000000000000000000000000000000000000",
           "deploymentBlock": 0,
           "abi": [
             "function getMetadataCount() view returns (uint256)",
@@ -18,7 +18,30 @@
           ]
         },
         "bankedNFT": {
-          "address": "0xE48E5476543411D158eBD48bCF19B4f5e3C488bf",
+          "address": "0x0000000000000000000000000000000000000000",
+          "deploymentBlock": 0
+        }
+      }
+    },
+    "bonsoleil": {
+      "name": "Bon-Soleil Testnet",
+      "rpcUrl": "https://dev2.bon-soleil.com/rpc",
+      "chainId": 21201,
+      "contracts": {
+        "metadataBank": {
+          "address": "0xaed940e6480B289285702025e1aa7d904e16227B",
+          "deploymentBlock": 0,
+          "abi": [
+            "function getMetadataCount() view returns (uint256)",
+            "function getMetadata(uint256 index) view returns (string)",
+            "function composer() view returns (address)",
+            "function legendaryBank() view returns (address)",
+            "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
+            "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)"
+          ]
+        },
+        "bankedNFT": {
+          "address": "0xF77c7545A2F6795C609615855De45131B77447Fd",
           "deploymentBlock": 0
         }
       }

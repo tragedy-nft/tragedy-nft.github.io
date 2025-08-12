@@ -2,7 +2,10 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>The Mythical Cursed-Nightmare: Essays on Generative Tragedy</title>
 
     <!-- Favicon -->
@@ -11,10 +14,13 @@
 
     <!-- Apple Touch Icon (180x180 for iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.svg" />
-    
+
     <!-- PWA対応 -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#6B46C1" />
@@ -25,7 +31,7 @@
 
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
-    
+
     <!-- Centralized Contract Configuration -->
     <script src="js/contracts-config.js"></script>
   </head>
@@ -67,7 +73,6 @@
         </button>
       </div>
 
-
       <div id="metadataDisplay" class="metadata-display"></div>
 
       <div class="id-controls">
@@ -93,7 +98,9 @@
         <h3>🔥 Legendary IDs</h3>
         <div class="legendary-ids-list" id="legendaryIdsList">
           <!-- Legendary IDs will be loaded dynamically -->
-          <p style="text-align: center; color: #C084FC;">Loading legendary IDs...</p>
+          <p style="text-align: center; color: #c084fc">
+            Loading legendary IDs...
+          </p>
         </div>
       </div>
 
@@ -125,11 +132,11 @@
       let metadataBank;
       let legendaryBankContract;
       let blockchainConfig = null;
-      
+
       // Load blockchain configuration
       async function loadBlockchainConfig() {
         // Try to use centralized config first
-        if (typeof CONTRACTS_CONFIG !== 'undefined') {
+        if (typeof CONTRACTS_CONFIG !== "undefined") {
           const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
           if (network) {
             blockchainConfig = {
@@ -145,31 +152,31 @@
                         "function getMetadata(uint256 index) view returns (string)",
                         "function composer() view returns (address)",
                         "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)"
-                      ]
-                    }
-                  }
-                }
+                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+                      ],
+                    },
+                  },
+                },
               },
-              defaultNetwork: "bonsoleil"
+              defaultNetwork: "bonsoleil",
             };
-            console.log('Using centralized contract configuration');
+            console.log("Using centralized contract configuration");
             return true;
           }
         }
-        
+
         // Fallback to loading blockchain.json
         try {
-          const response = await fetch('config/blockchain.json');
+          const response = await fetch("config/blockchain.json");
           if (response.ok) {
             blockchainConfig = await response.json();
-            console.log('Blockchain configuration loaded from JSON');
+            console.log("Blockchain configuration loaded from JSON");
             return true;
           }
         } catch (error) {
-          console.log('Failed to load blockchain config, using defaults');
+          console.log("Failed to load blockchain config, using defaults");
         }
-        
+
         // Final fallback configuration
         blockchainConfig = {
           networks: {
@@ -184,140 +191,177 @@
                     "function getMetadata(uint256 index) view returns (string)",
                     "function composer() view returns (address)",
                     "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-                    "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)"
-                  ]
-                }
-              }
-            }
+                    "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+                  ],
+                },
+              },
+            },
           },
-          defaultNetwork: "bonsoleil"
+          defaultNetwork: "bonsoleil",
         };
         return true;
       }
-      
+
       // Initialize blockchain connection
       async function initBlockchain() {
         try {
-          if (typeof ethers === 'undefined') {
-            alert('ethers.js library not loaded. Please check your internet connection.');
+          if (typeof ethers === "undefined") {
+            alert(
+              "ethers.js library not loaded. Please check your internet connection."
+            );
             return false;
           }
-          
+
           // Load configuration first
           await loadBlockchainConfig();
-          
-          const network = blockchainConfig.networks[blockchainConfig.defaultNetwork];
+
+          const network =
+            blockchainConfig.networks[blockchainConfig.defaultNetwork];
           if (!network) {
-            console.error('Network configuration not found');
+            console.error("Network configuration not found");
             return false;
           }
-          
+
           provider = new ethers.JsonRpcProvider(network.rpcUrl);
           await provider.getNetwork();
-          
+
           const metadataBankConfig = network.contracts.metadataBank;
-          console.log('Using MetadataBank configuration:', metadataBankConfig);
-          
+          console.log("Using MetadataBank configuration:", metadataBankConfig);
+
           // 明示的にアドレスを確認
           const contractAddress = metadataBankConfig.address;
-          console.log(`Creating contract instance with address: ${contractAddress}`);
-          
-          metadataBank = new ethers.Contract(contractAddress, metadataBankConfig.abi, provider);
-          
-          console.log(`Connected to ${network.name || 'Network'} at ${network.rpcUrl}`);
+          console.log(
+            `Creating contract instance with address: ${contractAddress}`
+          );
+
+          metadataBank = new ethers.Contract(
+            contractAddress,
+            metadataBankConfig.abi,
+            provider
+          );
+
+          console.log(
+            `Connected to ${network.name || "Network"} at ${network.rpcUrl}`
+          );
           console.log(`MetadataBank address: ${contractAddress}`);
-          
+
           // Initialize LegendaryBank contract
           let legendaryBankAddress = null;
-          
+
           // Try centralized config first
-          if (typeof CONTRACTS_CONFIG !== 'undefined') {
-            legendaryBankAddress = CONTRACTS_CONFIG.getContract('legendaryBank', 21201);
+          if (typeof CONTRACTS_CONFIG !== "undefined") {
+            legendaryBankAddress = CONTRACTS_CONFIG.getContract(
+              "legendaryBank",
+              21201
+            );
           }
-          
+
           // Fallback to blockchain config
-          if (!legendaryBankAddress && network.contracts && network.contracts.legendaryBank) {
-            legendaryBankAddress = network.contracts.legendaryBank.address || network.contracts.legendaryBank;
+          if (
+            !legendaryBankAddress &&
+            network.contracts &&
+            network.contracts.legendaryBank
+          ) {
+            legendaryBankAddress =
+              network.contracts.legendaryBank.address ||
+              network.contracts.legendaryBank;
           }
-          
+
           // Final fallback to hardcoded address
           if (!legendaryBankAddress) {
-            legendaryBankAddress = "0x9b803d317a5eF9C2b02b12fc6e6cfb1DEA48d97f";
+            legendaryBankAddress = "0xB5056b388d18000c95af0Eaf061b4428d5b71f0E";
           }
-          
+
           if (legendaryBankAddress) {
             legendaryBankContract = new ethers.Contract(
               legendaryBankAddress,
               [
                 "function getLegendaryCount() view returns (uint256)",
                 "function legendaryIds(uint256 index) view returns (uint256)",
-                "function getLegendaryTitle(uint256 tokenId) view returns (string)"
+                "function getLegendaryTitle(uint256 tokenId) view returns (string)",
               ],
               provider
             );
-            console.log('LegendaryBank contract initialized:', legendaryBankAddress);
+            console.log(
+              "LegendaryBank contract initialized:",
+              legendaryBankAddress
+            );
           }
-          
+
           // Test connection - but don't fail if getMetadataCount doesn't work
           try {
             const count = await metadataBank.getMetadataCount();
-            console.log('MetadataBank total metadata:', count.toString());
+            console.log("MetadataBank total metadata:", count.toString());
           } catch (error) {
-            console.log('getMetadataCount not available, but contract may still work');
+            console.log(
+              "getMetadataCount not available, but contract may still work"
+            );
           }
-          
+
           return true;
         } catch (error) {
-          console.error('Failed to connect to blockchain:', error);
+          console.error("Failed to connect to blockchain:", error);
           return false;
         }
       }
-      
+
       // Generate metadata from blockchain
       async function generateMetadataFromBlockchain(id) {
         try {
-          
           // Get metadata from blockchain
           const index = (Number(id) - 1) % 10000; // Convert ID to index (0-based)
           let metadataUri = await metadataBank.getMetadata(index);
-          
+
           // Check if the result is an address (proxy pattern)
-          if (metadataUri.startsWith('0x') && metadataUri.length === 42) {
-            console.log('MetadataBank returned an address, likely a proxy pattern:', metadataUri);
+          if (metadataUri.startsWith("0x") && metadataUri.length === 42) {
+            console.log(
+              "MetadataBank returned an address, likely a proxy pattern:",
+              metadataUri
+            );
             // Try using the returned address as a new metadata bank
             const proxyMetadataBank = new ethers.Contract(
-              metadataUri, 
-              blockchainConfig.networks[blockchainConfig.defaultNetwork].contracts.metadataBank.abi, 
+              metadataUri,
+              blockchainConfig.networks[
+                blockchainConfig.defaultNetwork
+              ].contracts.metadataBank.abi,
               provider
             );
-            
+
             try {
               metadataUri = await proxyMetadataBank.getMetadata(index);
             } catch (proxyError) {
-              console.error('Failed to get metadata from proxy contract:', proxyError);
+              console.error(
+                "Failed to get metadata from proxy contract:",
+                proxyError
+              );
               throw proxyError;
             }
           }
-          
+
           // Decode the metadata
-          if (metadataUri.startsWith('data:application/json;base64,')) {
-            const base64Json = metadataUri.replace('data:application/json;base64,', '');
+          if (metadataUri.startsWith("data:application/json;base64,")) {
+            const base64Json = metadataUri.replace(
+              "data:application/json;base64,",
+              ""
+            );
             const jsonString = atob(base64Json);
             const metadata = JSON.parse(jsonString);
-            
-            console.log('Fetched metadata from blockchain:', metadata);
+
+            console.log("Fetched metadata from blockchain:", metadata);
             return metadata;
-          } else if (metadataUri.startsWith('{')) {
+          } else if (metadataUri.startsWith("{")) {
             // Plain JSON string
             const metadata = JSON.parse(metadataUri);
-            console.log('Fetched metadata from blockchain:', metadata);
+            console.log("Fetched metadata from blockchain:", metadata);
             return metadata;
           }
-          
-          throw new Error('Invalid metadata format: ' + metadataUri.substring(0, 50));
+
+          throw new Error(
+            "Invalid metadata format: " + metadataUri.substring(0, 50)
+          );
         } catch (error) {
-          console.error('Error fetching from blockchain:', error);
-          alert('Error loading NFT data from blockchain. Please try again.');
+          console.error("Error fetching from blockchain:", error);
+          alert("Error loading NFT data from blockchain. Please try again.");
           throw error;
         }
       }
@@ -325,21 +369,22 @@
       // Generate single random NFT
       async function generateSingle() {
         const id = Math.floor(Math.random() * 10000) + 1;
-        
+
         if (!metadataBank) {
-          alert('Blockchain connection not available. Please refresh the page.');
+          alert(
+            "Blockchain connection not available. Please refresh the page."
+          );
           return;
         }
-        
+
         try {
           const metadata = await generateMetadataFromBlockchain(id);
           currentMetadata = [metadata];
           displayMetadata(currentMetadata);
         } catch (error) {
-          console.error('Failed to generate NFT:', error);
+          console.error("Failed to generate NFT:", error);
         }
       }
-
 
       // Generate specific legendary ID
       async function generateSpecificId(id) {
@@ -356,9 +401,11 @@
           alert("Please enter a valid ID between 1 and 10000");
           return;
         }
-        
+
         if (!metadataBank) {
-          alert('Blockchain connection not available. Please refresh the page.');
+          alert(
+            "Blockchain connection not available. Please refresh the page."
+          );
           return;
         }
 
@@ -367,7 +414,7 @@
           currentMetadata = [metadata];
           displayMetadata(currentMetadata);
         } catch (error) {
-          console.error('Failed to generate NFT:', error);
+          console.error("Failed to generate NFT:", error);
         }
       }
 
@@ -408,7 +455,7 @@
             console.error("Failed to copy:", err);
           });
       }
-      
+
       // HTML escape helper
       function escapeHtml(unsafe) {
         return unsafe
@@ -476,76 +523,87 @@
         }
 
         // Build HTML using DOM methods for safety
-        display.innerHTML = ''; // Clear existing content
-        
+        display.innerHTML = ""; // Clear existing content
+
         // Create image container
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'metadata-image-container';
-        
+        const imgContainer = document.createElement("div");
+        imgContainer.className = "metadata-image-container";
+
         // Decode SVG if it's base64 encoded
-        if (metadata.image && metadata.image.startsWith('data:image/svg+xml;base64,')) {
+        if (
+          metadata.image &&
+          metadata.image.startsWith("data:image/svg+xml;base64,")
+        ) {
           try {
-            const base64Svg = metadata.image.replace('data:image/svg+xml;base64,', '');
+            const base64Svg = metadata.image.replace(
+              "data:image/svg+xml;base64,",
+              ""
+            );
             const svg = atob(base64Svg);
             imgContainer.innerHTML = svg;
             // Apply class to the SVG element
-            const svgElement = imgContainer.querySelector('svg');
+            const svgElement = imgContainer.querySelector("svg");
             if (svgElement) {
-              svgElement.classList.add('metadata-image');
+              svgElement.classList.add("metadata-image");
             }
           } catch (e) {
-            console.error('Failed to decode SVG:', e);
+            console.error("Failed to decode SVG:", e);
             // Fallback to img tag
-            const img = document.createElement('img');
+            const img = document.createElement("img");
             img.src = metadata.image;
             img.alt = metadata.name;
-            img.className = 'metadata-image';
+            img.className = "metadata-image";
             imgContainer.appendChild(img);
           }
         } else {
           // For non-base64 images, use img tag
-          const img = document.createElement('img');
+          const img = document.createElement("img");
           img.src = metadata.image;
           img.alt = metadata.name;
-          img.className = 'metadata-image';
+          img.className = "metadata-image";
           imgContainer.appendChild(img);
         }
-        
+
         display.appendChild(imgContainer);
-        
+
         // Create header div
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'metadata-header';
+        const headerDiv = document.createElement("div");
+        headerDiv.className = "metadata-header";
         headerDiv.innerHTML = badgesHtml;
         display.appendChild(headerDiv);
-        
+
         // Create name div
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'metadata-name';
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "metadata-name";
         nameDiv.textContent = metadata.name;
         display.appendChild(nameDiv);
-        
+
         // Create description div
-        const descDiv = document.createElement('div');
-        descDiv.className = 'metadata-description';
+        const descDiv = document.createElement("div");
+        descDiv.className = "metadata-description";
         descDiv.textContent = `"${metadata.description}"`;
         display.appendChild(descDiv);
-        
+
         // Create attributes div
-        const attrsDiv = document.createElement('div');
-        attrsDiv.className = 'attributes';
+        const attrsDiv = document.createElement("div");
+        attrsDiv.className = "attributes";
         attrsDiv.innerHTML = attributesHtml;
         display.appendChild(attrsDiv);
-        
+
         // Create JSON container
-        const jsonContainer = document.createElement('div');
-        jsonContainer.className = 'json-container';
+        const jsonContainer = document.createElement("div");
+        jsonContainer.className = "json-container";
         jsonContainer.innerHTML = `
             <div class="json-toggle" onclick="toggleJson(this)">
                 <span class="toggle-icon">▶</span> View JSON
                 <div>
-                    <button class="copy-json-button" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-json'), this)" data-json='${jsonString.replace(/'/g, '&#39;')}'>Copy</button>
-                    <button class="copy-json-button" onclick="event.stopPropagation(); downloadSingle(JSON.parse(this.getAttribute('data-metadata')))" data-metadata='${JSON.stringify(metadata).replace(/'/g, '&#39;')}'>Download</button>
+                    <button class="copy-json-button" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-json'), this)" data-json='${jsonString.replace(
+                      /'/g,
+                      "&#39;"
+                    )}'>Copy</button>
+                    <button class="copy-json-button" onclick="event.stopPropagation(); downloadSingle(JSON.parse(this.getAttribute('data-metadata')))" data-metadata='${JSON.stringify(
+                      metadata
+                    ).replace(/'/g, "&#39;")}'>Download</button>
                 </div>
             </div>
             <div class="json-display" style="display: none;">
@@ -611,48 +669,52 @@
 
       // Load legendary IDs from blockchain
       async function loadLegendaryIds() {
-        const legendaryIdsList = document.getElementById('legendaryIdsList');
-        
+        const legendaryIdsList = document.getElementById("legendaryIdsList");
+
         if (!legendaryBankContract) {
-          legendaryIdsList.innerHTML = '<p style="text-align: center; color: #ff6b6b;">LegendaryBank contract not available</p>';
+          legendaryIdsList.innerHTML =
+            '<p style="text-align: center; color: #ff6b6b;">LegendaryBank contract not available</p>';
           return;
         }
-        
+
         try {
           const count = await legendaryBankContract.getLegendaryCount();
           console.log(`Total legendary tokens: ${count.toString()}`);
-          
-          let buttonsHtml = '';
+
+          let buttonsHtml = "";
           for (let i = 0; i < count; i++) {
             const tokenId = await legendaryBankContract.legendaryIds(i);
-            let title = '';
-            
+            let title = "";
+
             try {
               title = await legendaryBankContract.getLegendaryTitle(tokenId);
             } catch (error) {
               // Fallback titles if contract doesn't return one
               const fallbackTitles = {
-                666: 'The Beast',
-                1337: 'The Chosen',
-                9999: 'Final Guardian',
-                404: 'Lost Soul',
+                666: "The Beast",
+                1337: "The Chosen",
+                9999: "Final Guardian",
+                404: "Lost Soul",
                 7777: "Fortune's Avatar",
-                13: 'The Cursed',
-                1000: 'The Millennial',
-                42: 'The Answer'
+                13: "The Cursed",
+                1000: "The Millennial",
+                42: "The Answer",
               };
               title = fallbackTitles[Number(tokenId)] || `ID ${tokenId}`;
             }
-            
+
             buttonsHtml += `<button class="legendary-id-button" onclick="generateSpecificId(${tokenId})">
               ${tokenId} - ${title}
             </button>`;
           }
-          
-          legendaryIdsList.innerHTML = buttonsHtml || '<p style="text-align: center; color: #666;">No legendary IDs found</p>';
+
+          legendaryIdsList.innerHTML =
+            buttonsHtml ||
+            '<p style="text-align: center; color: #666;">No legendary IDs found</p>';
         } catch (error) {
-          console.error('Failed to load legendary IDs:', error);
-          legendaryIdsList.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Failed to load legendary IDs</p>';
+          console.error("Failed to load legendary IDs:", error);
+          legendaryIdsList.innerHTML =
+            '<p style="text-align: center; color: #ff6b6b;">Failed to load legendary IDs</p>';
         }
       }
 
@@ -660,16 +722,16 @@
       window.addEventListener("DOMContentLoaded", async () => {
         // Initialize blockchain connection
         const connected = await initBlockchain();
-        
+
         if (!connected) {
-          document.getElementById("metadataDisplay").innerHTML = 
+          document.getElementById("metadataDisplay").innerHTML =
             '<div style="text-align: center; padding: 40px; color: #ff6b6b;">Failed to connect to blockchain. Please refresh the page.</div>';
           return;
         }
-        
+
         // Load legendary IDs
         await loadLegendaryIds();
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get("id");
 
