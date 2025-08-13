@@ -1137,50 +1137,50 @@
           const text = await response.text();
           console.log("Response text:", text);
           DEPLOYMENT = JSON.parse(text);
-          BANKED_NFT_ADDRESS = DEPLOYMENT.contracts.bankedNFT;
-          METADATA_BANK_ADDRESS = DEPLOYMENT.contracts.metadataBank;
-          COMPOSER_ADDRESS = DEPLOYMENT.contracts.tragedyComposer;
+          BANKED_NFT_ADDRESS = DEPLOYMENT.contracts.BankedNFT;
+          METADATA_BANK_ADDRESS = DEPLOYMENT.contracts.MetadataBank;
+          COMPOSER_ADDRESS = DEPLOYMENT.contracts.TragedyComposer;
           console.log("Loaded deployment:", DEPLOYMENT);
           console.log("Metadata address:", METADATA_BANK_ADDRESS);
 
           // Update Material Explorer contract info
           updateContractDisplay(
             "material-monster-bank",
-            DEPLOYMENT.contracts.monsterBank
+            DEPLOYMENT.contracts.MonsterBank
           );
           updateContractDisplay(
             "material-item-bank",
-            DEPLOYMENT.contracts.itemBank
+            DEPLOYMENT.contracts.ItemBank
           );
           updateContractDisplay(
             "material-background-bank",
-            DEPLOYMENT.contracts.backgroundBank
+            DEPLOYMENT.contracts.BackgroundBank
           );
           updateContractDisplay(
             "material-effect-bank",
-            DEPLOYMENT.contracts.effectBank
+            DEPLOYMENT.contracts.EffectBank
           );
 
           // Update Composer Explorer contract info
           updateContractDisplay(
             "composer-address-info",
-            DEPLOYMENT.contracts.tragedyComposer
+            DEPLOYMENT.contracts.TragedyComposer
           );
           updateContractDisplay(
             "composer-monster-bank",
-            DEPLOYMENT.contracts.monsterBank
+            DEPLOYMENT.contracts.MonsterBank
           );
           updateContractDisplay(
             "composer-item-bank",
-            DEPLOYMENT.contracts.itemBank
+            DEPLOYMENT.contracts.ItemBank
           );
           updateContractDisplay(
             "composer-background-bank",
-            DEPLOYMENT.contracts.backgroundBank
+            DEPLOYMENT.contracts.BackgroundBank
           );
           updateContractDisplay(
             "composer-effect-bank",
-            DEPLOYMENT.contracts.effectBank
+            DEPLOYMENT.contracts.EffectBank
           );
         } catch (error) {
           console.error("Failed to load deployment.json:", error);
@@ -2398,19 +2398,19 @@
 
           const BANKS = {
             monster: {
-              main: DEPLOYMENT.contracts.monsterBank,
+              main: DEPLOYMENT.contracts.MonsterBank,
               type: "svg",
             },
             item: {
-              main: DEPLOYMENT.contracts.itemBank,
+              main: DEPLOYMENT.contracts.ItemBank,
               type: "svg",
             },
             background: {
-              main: DEPLOYMENT.contracts.backgroundBank,
+              main: DEPLOYMENT.contracts.BackgroundBank,
               type: "url",
             },
             effect: {
-              main: DEPLOYMENT.contracts.effectBank,
+              main: DEPLOYMENT.contracts.EffectBank,
               type: "url",
             },
           };
@@ -2652,7 +2652,7 @@
               <div class="error">Deployment not loaded</div>`;
             return;
           }
-          const composerAddress = DEPLOYMENT.contracts.tragedyComposer;
+          const composerAddress = DEPLOYMENT.contracts.TragedyComposer;
           const composerAbi = [
             "function composeSVG(uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
           ];
