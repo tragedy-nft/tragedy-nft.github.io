@@ -6,8 +6,8 @@
       "directory": "characters",
       "weight": 40,
       "items": [
-        { 
-          "name": "Hero", 
+        {
+          "name": "Hero",
           "file": "hero.svg",
           "rarity": 10,
           "traits": {
@@ -15,8 +15,8 @@
             "wisdom": 6
           }
         },
-        { 
-          "name": "Wizard", 
+        {
+          "name": "Wizard",
           "file": "wizard.svg",
           "rarity": 20,
           "traits": {
@@ -35,11 +35,11 @@
       "enabled": true,
       "conditions": [
         {
-          "if": {"slot1": "Hero", "slot2": "Sword"},
+          "if": { "slot1": "Hero", "slot2": "Sword" },
           "description": "A valiant hero mastering the legendary blade."
         },
         {
-          "if": {"slot1": "Wizard", "slot4": "Lightning"},
+          "if": { "slot1": "Wizard", "slot4": "Lightning" },
           "description": "A storm wizard channeling the power of thunder."
         }
       ],

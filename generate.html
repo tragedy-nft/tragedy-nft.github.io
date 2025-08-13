@@ -1,11 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>The Mythical Cursed-Nightmare: Essays on Generative Tragedy</title>
 
     <!-- Favicon -->
@@ -17,10 +14,7 @@
 
     <!-- PWA対応 -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#6B46C1" />
@@ -30,33 +24,18 @@
     />
 
     <link rel="stylesheet" href="css/styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
     <!-- Centralized Contract Configuration -->
-    <script src="js/contracts-config.js"></script>
+    <script src="js/config/contracts.js"></script>
   </head>
   <body>
     <div class="container">
       <h1>The Mythical Cursed-Nightmare</h1>
-      <p
-        style="
-          font-size: 15px;
-          color: #ddd;
-          margin-top: 4px;
-          text-align: center;
-          font-weight: 500;
-        "
-      >
+      <p style="font-size: 15px; color: #ddd; margin-top: 4px; text-align: center; font-weight: 500">
         Essays on Generative Tragedy
       </p>
-      <p
-        style="
-          font-size: 13px;
-          color: #666;
-          margin-top: 4px;
-          text-align: center;
-        "
-      >
+      <p style="font-size: 13px; color: #666; margin-top: 4px; text-align: center">
         Discover legendary tales and hidden tragedies.
       </p>
 
@@ -68,25 +47,15 @@
         >
           Narrative
         </button>
-        <button onclick="window.location.href='essays.html'" class="nav-button">
-          Collection
-        </button>
+        <button onclick="window.location.href='essays.html'" class="nav-button">Collection</button>
       </div>
 
       <div id="metadataDisplay" class="metadata-display"></div>
 
       <div class="id-controls">
         <div class="id-controls-inner">
-          <input
-            type="number"
-            id="idInput"
-            placeholder="ID"
-            min="1"
-            max="10000"
-          />
-          <button onclick="generateById()" class="generate-button">
-            Generate
-          </button>
+          <input type="number" id="idInput" placeholder="ID" min="1" max="10000" />
+          <button onclick="generateById()" class="generate-button">Generate</button>
           <div class="nav-buttons">
             <button onclick="generatePrev()" class="nav-button">Prev</button>
             <button onclick="generateNext()" class="nav-button">Next</button>
@@ -98,21 +67,11 @@
         <h3>🔥 Legendary IDs</h3>
         <div class="legendary-ids-list" id="legendaryIdsList">
           <!-- Legendary IDs will be loaded dynamically -->
-          <p style="text-align: center; color: #c084fc">
-            Loading legendary IDs...
-          </p>
+          <p style="text-align: center; color: #c084fc">Loading legendary IDs...</p>
         </div>
       </div>
 
-      <footer
-        style="
-          text-align: center;
-          margin-top: 40px;
-          padding-top: 20px;
-          color: #c084fc;
-          font-size: 14px;
-        "
-      >
+      <footer style="text-align: center; margin-top: 40px; padding-top: 20px; color: #c084fc; font-size: 14px">
         © 2025 The Mythical Cursed-Nightmare
         <a
           href="http://bon-soleil.com"
@@ -131,14 +90,17 @@
       let provider;
       let metadataBank;
       let legendaryBankContract;
-      let blockchainConfig = null;
+      // blockchainConfig is already declared in contracts-config.js
 
       // Load blockchain configuration
       async function loadBlockchainConfig() {
         // Try to use centralized config first
-        if (typeof CONTRACTS_CONFIG !== "undefined") {
+        if (typeof CONTRACTS_CONFIG !== 'undefined') {
+          // Ensure deployment is loaded first
+          await CONTRACTS_CONFIG.loadDeployment();
+
           const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
-          if (network) {
+          if (network && network.contracts && network.contracts.metadataBank) {
             blockchainConfig = {
               networks: {
                 bonsoleil: {
@@ -146,199 +108,145 @@
                   rpcUrl: network.rpcUrl,
                   contracts: {
                     metadataBank: {
-                      address: network.contracts.metadataBank,
+                      address: network.contracts.metadataBank || network.contracts.MetadataBank,
                       abi: [
-                        "function getMetadataCount() view returns (uint256)",
-                        "function getMetadata(uint256 index) view returns (string)",
-                        "function composer() view returns (address)",
-                        "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+                        'function getMetadataCount() view returns (uint256)',
+                        'function getMetadata(uint256 index) view returns (string)',
+                        'function composer() view returns (address)',
+                        'function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)',
+                        'function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)',
                       ],
+                    },
+                    LegendaryBank: {
+                      address: network.contracts.LegendaryBank,
                     },
                   },
                 },
               },
-              defaultNetwork: "bonsoleil",
+              defaultNetwork: 'bonsoleil',
             };
-            console.log("Using centralized contract configuration");
+            console.log('Using centralized contract configuration');
             return true;
           }
         }
 
         // Try to load deployment.json first
         try {
-          const deploymentResponse = await fetch("config/deployment.json");
+          const deploymentResponse = await fetch('config/deployment.json');
           if (deploymentResponse.ok) {
             const deployment = await deploymentResponse.json();
-            console.log("Deployment configuration loaded");
-            
+            console.log('Deployment configuration loaded');
+
             // Create blockchainConfig from deployment.json
             blockchainConfig = {
               networks: {
                 bonsoleil: {
-                  name: "Bon-Soleil Testnet",
-                  rpcUrl: "https://dev2.bon-soleil.com/rpc",
+                  name: 'Bon-Soleil Testnet',
+                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
                   contracts: {
                     metadataBank: {
                       address: deployment.contracts.MetadataBank,
                       abi: [
-                        "function getMetadataCount() view returns (uint256)",
-                        "function getMetadata(uint256 index) view returns (string)",
-                        "function composer() view returns (address)",
-                        "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+                        'function getMetadataCount() view returns (uint256)',
+                        'function getMetadata(uint256 index) view returns (string)',
+                        'function composer() view returns (address)',
+                        'function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)',
+                        'function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)',
                       ],
                     },
-                    legendaryBank: {
+                    LegendaryBank: {
                       address: deployment.contracts.LegendaryBank,
                     },
                   },
                 },
               },
-              defaultNetwork: "bonsoleil",
+              defaultNetwork: 'bonsoleil',
             };
             return true;
           }
         } catch (error) {
-          console.log("Failed to load deployment.json, trying blockchain.json");
+          console.error('Failed to load deployment.json:', error);
+          throw new Error('Failed to load deployment.json. Contract addresses are required.');
         }
 
-        // Fallback to loading blockchain.json
-        try {
-          const response = await fetch("config/blockchain.json");
-          if (response.ok) {
-            blockchainConfig = await response.json();
-            console.log("Blockchain configuration loaded from JSON");
-            return true;
-          }
-        } catch (error) {
-          console.log("Failed to load blockchain config, using defaults");
-        }
-
-        // Final fallback configuration
-        blockchainConfig = {
-          networks: {
-            bonsoleil: {
-              name: "Bon-Soleil Testnet",
-              rpcUrl: "https://dev2.bon-soleil.com/rpc",
-              contracts: {
-                metadataBank: {
-                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
-                  abi: [
-                    "function getMetadataCount() view returns (uint256)",
-                    "function getMetadata(uint256 index) view returns (string)",
-                    "function composer() view returns (address)",
-                    "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-                    "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
-                  ],
-                },
-              },
-            },
-          },
-          defaultNetwork: "bonsoleil",
-        };
-        return true;
+        // deployment.jsonが読み込めない場合はエラー
+        throw new Error('deployment.json not found');
       }
 
       // Initialize blockchain connection
       async function initBlockchain() {
         try {
-          if (typeof ethers === "undefined") {
-            alert(
-              "ethers.js library not loaded. Please check your internet connection."
-            );
+          if (typeof ethers === 'undefined') {
+            alert('ethers.js library not loaded. Please check your internet connection.');
             return false;
           }
 
           // Load configuration first
           await loadBlockchainConfig();
 
-          const network =
-            blockchainConfig.networks[blockchainConfig.defaultNetwork];
+          const network = blockchainConfig.networks[blockchainConfig.defaultNetwork];
           if (!network) {
-            console.error("Network configuration not found");
+            console.error('Network configuration not found');
             return false;
           }
 
-          provider = new ethers.JsonRpcProvider(network.rpcUrl);
+          provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
           await provider.getNetwork();
 
           const metadataBankConfig = network.contracts.metadataBank;
-          console.log("Using MetadataBank configuration:", metadataBankConfig);
+          console.log('Using MetadataBank configuration:', metadataBankConfig);
 
           // 明示的にアドレスを確認
           const contractAddress = metadataBankConfig.address;
-          console.log(
-            `Creating contract instance with address: ${contractAddress}`
-          );
+          console.log(`Creating contract instance with address: ${contractAddress}`);
 
-          metadataBank = new ethers.Contract(
-            contractAddress,
-            metadataBankConfig.abi,
-            provider
-          );
+          metadataBank = new ethers.Contract(contractAddress, metadataBankConfig.abi, provider);
 
-          console.log(
-            `Connected to ${network.name || "Network"} at ${network.rpcUrl}`
-          );
+          console.log(`Connected to ${network.name || 'Network'} at ${network.rpcUrl}`);
           console.log(`MetadataBank address: ${contractAddress}`);
 
           // Initialize LegendaryBank contract
           let legendaryBankAddress = null;
 
           // Try centralized config first
-          if (typeof CONTRACTS_CONFIG !== "undefined") {
-            legendaryBankAddress = CONTRACTS_CONFIG.getContract(
-              "legendaryBank",
-              21201
-            );
+          if (typeof CONTRACTS_CONFIG !== 'undefined') {
+            legendaryBankAddress = CONTRACTS_CONFIG.getContract(21201, 'LegendaryBank');
           }
 
           // Fallback to blockchain config
-          if (
-            !legendaryBankAddress &&
-            network.contracts &&
-            network.contracts.legendaryBank
-          ) {
-            legendaryBankAddress =
-              network.contracts.legendaryBank.address ||
-              network.contracts.legendaryBank;
+          if (!legendaryBankAddress && network.contracts && network.contracts.LegendaryBank) {
+            legendaryBankAddress = network.contracts.LegendaryBank.address || network.contracts.LegendaryBank;
           }
 
           // No fallback - must be configured in deployment.json or blockchain.json
           if (!legendaryBankAddress) {
-            console.error("LegendaryBank address not found in configuration");
+            console.error('LegendaryBank address not found in configuration');
           }
 
           if (legendaryBankAddress) {
             legendaryBankContract = new ethers.Contract(
               legendaryBankAddress,
               [
-                "function getLegendaryCount() view returns (uint256)",
-                "function legendaryIds(uint256 index) view returns (uint256)",
-                "function getLegendaryTitle(uint256 tokenId) view returns (string)",
+                'function getLegendaryCount() view returns (uint256)',
+                'function legendaryIds(uint256 index) view returns (uint256)',
+                'function getLegendaryTitle(uint256 tokenId) view returns (string)',
               ],
               provider
             );
-            console.log(
-              "LegendaryBank contract initialized:",
-              legendaryBankAddress
-            );
+            console.log('LegendaryBank contract initialized:', legendaryBankAddress);
           }
 
           // Test connection - but don't fail if getMetadataCount doesn't work
           try {
             const count = await metadataBank.getMetadataCount();
-            console.log("MetadataBank total metadata:", count.toString());
+            console.log('MetadataBank total metadata:', count.toString());
           } catch (error) {
-            console.log(
-              "getMetadataCount not available, but contract may still work"
-            );
+            console.log('getMetadataCount not available, but contract may still work');
           }
 
           return true;
         } catch (error) {
-          console.error("Failed to connect to blockchain:", error);
+          console.error('Failed to connect to blockchain:', error);
           return false;
         }
       }
@@ -351,55 +259,42 @@
           let metadataUri = await metadataBank.getMetadata(index);
 
           // Check if the result is an address (proxy pattern)
-          if (metadataUri.startsWith("0x") && metadataUri.length === 42) {
-            console.log(
-              "MetadataBank returned an address, likely a proxy pattern:",
-              metadataUri
-            );
+          if (metadataUri.startsWith('0x') && metadataUri.length === 42) {
+            console.log('MetadataBank returned an address, likely a proxy pattern:', metadataUri);
             // Try using the returned address as a new metadata bank
             const proxyMetadataBank = new ethers.Contract(
               metadataUri,
-              blockchainConfig.networks[
-                blockchainConfig.defaultNetwork
-              ].contracts.metadataBank.abi,
+              blockchainConfig.networks[blockchainConfig.defaultNetwork].contracts.metadataBank.abi,
               provider
             );
 
             try {
               metadataUri = await proxyMetadataBank.getMetadata(index);
             } catch (proxyError) {
-              console.error(
-                "Failed to get metadata from proxy contract:",
-                proxyError
-              );
+              console.error('Failed to get metadata from proxy contract:', proxyError);
               throw proxyError;
             }
           }
 
           // Decode the metadata
-          if (metadataUri.startsWith("data:application/json;base64,")) {
-            const base64Json = metadataUri.replace(
-              "data:application/json;base64,",
-              ""
-            );
+          if (metadataUri.startsWith('data:application/json;base64,')) {
+            const base64Json = metadataUri.replace('data:application/json;base64,', '');
             const jsonString = atob(base64Json);
             const metadata = JSON.parse(jsonString);
 
-            console.log("Fetched metadata from blockchain:", metadata);
+            console.log('Fetched metadata from blockchain:', metadata);
             return metadata;
-          } else if (metadataUri.startsWith("{")) {
+          } else if (metadataUri.startsWith('{')) {
             // Plain JSON string
             const metadata = JSON.parse(metadataUri);
-            console.log("Fetched metadata from blockchain:", metadata);
+            console.log('Fetched metadata from blockchain:', metadata);
             return metadata;
           }
 
-          throw new Error(
-            "Invalid metadata format: " + metadataUri.substring(0, 50)
-          );
+          throw new Error('Invalid metadata format: ' + metadataUri.substring(0, 50));
         } catch (error) {
-          console.error("Error fetching from blockchain:", error);
-          alert("Error loading NFT data from blockchain. Please try again.");
+          console.error('Error fetching from blockchain:', error);
+          alert('Error loading NFT data from blockchain. Please try again.');
           throw error;
         }
       }
@@ -409,9 +304,7 @@
         const id = Math.floor(Math.random() * 10000) + 1;
 
         if (!metadataBank) {
-          alert(
-            "Blockchain connection not available. Please refresh the page."
-          );
+          alert('Blockchain connection not available. Please refresh the page.');
           return;
         }
 
@@ -420,30 +313,28 @@
           currentMetadata = [metadata];
           displayMetadata(currentMetadata);
         } catch (error) {
-          console.error("Failed to generate NFT:", error);
+          console.error('Failed to generate NFT:', error);
         }
       }
 
       // Generate specific legendary ID
       async function generateSpecificId(id) {
-        document.getElementById("idInput").value = id;
+        document.getElementById('idInput').value = id;
         await generateById();
       }
 
       // Generate NFT by specific ID
       async function generateById() {
-        const idInput = document.getElementById("idInput");
+        const idInput = document.getElementById('idInput');
         const id = parseInt(idInput.value);
 
         if (!id || id < 1 || id > 10000) {
-          alert("Please enter a valid ID between 1 and 10000");
+          alert('Please enter a valid ID between 1 and 10000');
           return;
         }
 
         if (!metadataBank) {
-          alert(
-            "Blockchain connection not available. Please refresh the page."
-          );
+          alert('Blockchain connection not available. Please refresh the page.');
           return;
         }
 
@@ -452,13 +343,13 @@
           currentMetadata = [metadata];
           displayMetadata(currentMetadata);
         } catch (error) {
-          console.error("Failed to generate NFT:", error);
+          console.error('Failed to generate NFT:', error);
         }
       }
 
       // Navigate to next ID
       async function generateNext() {
-        const idInput = document.getElementById("idInput");
+        const idInput = document.getElementById('idInput');
         const currentId = parseInt(idInput.value) || 0;
         let nextId = currentId + 1;
         if (nextId > 10000) nextId = 1;
@@ -469,7 +360,7 @@
 
       // Navigate to previous ID
       async function generatePrev() {
-        const idInput = document.getElementById("idInput");
+        const idInput = document.getElementById('idInput');
         const currentId = parseInt(idInput.value) || 1;
         let prevId = currentId - 1;
         if (prevId < 1) prevId = 10000;
@@ -484,55 +375,49 @@
           .writeText(text)
           .then(() => {
             const originalText = button.textContent;
-            button.textContent = "Copied!";
+            button.textContent = 'Copied!';
             setTimeout(() => {
               button.textContent = originalText;
             }, 2000);
           })
           .catch((err) => {
-            console.error("Failed to copy:", err);
+            console.error('Failed to copy:', err);
           });
       }
 
       // HTML escape helper
       function escapeHtml(unsafe) {
         return unsafe
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
       }
 
       // Display metadata
       function displayMetadata(metadataArray) {
-        const display = document.getElementById("metadataDisplay");
-        display.innerHTML = "";
-        display.className = "metadata-display show";
+        const display = document.getElementById('metadataDisplay');
+        display.innerHTML = '';
+        display.className = 'metadata-display show';
 
         // Since we only display one metadata at a time, use the first one
         const metadata = metadataArray[0];
         if (!metadata) return;
 
         // Check for special attributes
-        const isSpecial = metadata.attributes.find(
-          (a) => a.trait_type === "Special"
-        );
-        const isLegendary = metadata.attributes.find(
-          (a) => a.trait_type === "Legendary"
-        );
-        const rarity =
-          metadata.attributes.find((a) => a.trait_type === "Rarity")?.value ||
-          "Common";
+        const isSpecial = metadata.attributes.find((a) => a.trait_type === 'Special');
+        const isLegendary = metadata.attributes.find((a) => a.trait_type === 'Legendary');
+        const rarity = metadata.attributes.find((a) => a.trait_type === 'Rarity')?.value || 'Common';
 
         // Add rarity class
-        if (rarity === "Legendary") display.classList.add("rarity-legendary");
-        else if (rarity === "Epic") display.classList.add("rarity-epic");
-        else if (rarity === "Rare") display.classList.add("rarity-rare");
+        if (rarity === 'Legendary') display.classList.add('rarity-legendary');
+        else if (rarity === 'Epic') display.classList.add('rarity-epic');
+        else if (rarity === 'Rare') display.classList.add('rarity-rare');
 
         // Extract ID from name
         const idMatch = metadata.name.match(/#(\d+)$/);
-        const nftId = idMatch ? idMatch[1] : "1";
+        const nftId = idMatch ? idMatch[1] : '1';
         const metadataUrl = `${window.location.origin}${window.location.pathname}api.php?id=${nftId}`;
 
         // Build attributes HTML
@@ -545,103 +430,96 @@
                 </div>
             `
           )
-          .join("");
+          .join('');
 
         // Format JSON
         const jsonString = JSON.stringify(metadata, null, 2);
 
         // Build badges
-        let badgesHtml = "";
+        let badgesHtml = '';
         if (isLegendary) {
-          badgesHtml +=
-            '<span class="special-badge legendary-badge">⚡ LEGENDARY ID</span>';
+          badgesHtml += '<span class="special-badge legendary-badge">⚡ LEGENDARY ID</span>';
         }
         if (isSpecial) {
           badgesHtml += '<span class="special-badge">✨ SPECIAL COMBO</span>';
         }
 
         // Build HTML using DOM methods for safety
-        display.innerHTML = ""; // Clear existing content
+        display.innerHTML = ''; // Clear existing content
 
         // Create image container
-        const imgContainer = document.createElement("div");
-        imgContainer.className = "metadata-image-container";
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'metadata-image-container';
 
         // Decode SVG if it's base64 encoded
-        if (
-          metadata.image &&
-          metadata.image.startsWith("data:image/svg+xml;base64,")
-        ) {
+        if (metadata.image && metadata.image.startsWith('data:image/svg+xml;base64,')) {
           try {
-            const base64Svg = metadata.image.replace(
-              "data:image/svg+xml;base64,",
-              ""
-            );
+            const base64Svg = metadata.image.replace('data:image/svg+xml;base64,', '');
             const svg = atob(base64Svg);
             imgContainer.innerHTML = svg;
             // Apply class to the SVG element
-            const svgElement = imgContainer.querySelector("svg");
+            const svgElement = imgContainer.querySelector('svg');
             if (svgElement) {
-              svgElement.classList.add("metadata-image");
+              svgElement.classList.add('metadata-image');
             }
           } catch (e) {
-            console.error("Failed to decode SVG:", e);
+            console.error('Failed to decode SVG:', e);
             // Fallback to img tag
-            const img = document.createElement("img");
+            const img = document.createElement('img');
             img.src = metadata.image;
             img.alt = metadata.name;
-            img.className = "metadata-image";
+            img.className = 'metadata-image';
             imgContainer.appendChild(img);
           }
         } else {
           // For non-base64 images, use img tag
-          const img = document.createElement("img");
+          const img = document.createElement('img');
           img.src = metadata.image;
           img.alt = metadata.name;
-          img.className = "metadata-image";
+          img.className = 'metadata-image';
           imgContainer.appendChild(img);
         }
 
         display.appendChild(imgContainer);
 
         // Create header div
-        const headerDiv = document.createElement("div");
-        headerDiv.className = "metadata-header";
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'metadata-header';
         headerDiv.innerHTML = badgesHtml;
         display.appendChild(headerDiv);
 
         // Create name div
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "metadata-name";
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'metadata-name';
         nameDiv.textContent = metadata.name;
         display.appendChild(nameDiv);
 
         // Create description div
-        const descDiv = document.createElement("div");
-        descDiv.className = "metadata-description";
+        const descDiv = document.createElement('div');
+        descDiv.className = 'metadata-description';
         descDiv.textContent = `"${metadata.description}"`;
         display.appendChild(descDiv);
 
         // Create attributes div
-        const attrsDiv = document.createElement("div");
-        attrsDiv.className = "attributes";
+        const attrsDiv = document.createElement('div');
+        attrsDiv.className = 'attributes';
         attrsDiv.innerHTML = attributesHtml;
         display.appendChild(attrsDiv);
 
         // Create JSON container
-        const jsonContainer = document.createElement("div");
-        jsonContainer.className = "json-container";
+        const jsonContainer = document.createElement('div');
+        jsonContainer.className = 'json-container';
         jsonContainer.innerHTML = `
             <div class="json-toggle" onclick="toggleJson(this)">
                 <span class="toggle-icon">▶</span> View JSON
                 <div>
                     <button class="copy-json-button" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-json'), this)" data-json='${jsonString.replace(
                       /'/g,
-                      "&#39;"
+                      '&#39;'
                     )}'>Copy</button>
                     <button class="copy-json-button" onclick="event.stopPropagation(); downloadSingle(JSON.parse(this.getAttribute('data-metadata')))" data-metadata='${JSON.stringify(
                       metadata
-                    ).replace(/'/g, "&#39;")}'>Download</button>
+                    ).replace(/'/g, '&#39;')}'>Download</button>
                 </div>
             </div>
             <div class="json-display" style="display: none;">
@@ -654,60 +532,58 @@
       // Toggle JSON display
       function toggleJson(element) {
         const container = element.parentElement;
-        const jsonDisplay = container.querySelector(".json-display");
+        const jsonDisplay = container.querySelector('.json-display');
 
-        element.classList.toggle("open");
+        element.classList.toggle('open');
 
-        if (jsonDisplay.style.display === "none") {
-          jsonDisplay.style.display = "block";
-          element.querySelector(".toggle-icon").textContent = "▼";
+        if (jsonDisplay.style.display === 'none') {
+          jsonDisplay.style.display = 'block';
+          element.querySelector('.toggle-icon').textContent = '▼';
         } else {
-          jsonDisplay.style.display = "none";
-          element.querySelector(".toggle-icon").textContent = "▶";
+          jsonDisplay.style.display = 'none';
+          element.querySelector('.toggle-icon').textContent = '▶';
         }
       }
 
       // Download single metadata
       function downloadSingle(metadata) {
         const idMatch = metadata.name.match(/#(\d+)$/);
-        const id = idMatch ? idMatch[1] : "1";
+        const id = idMatch ? idMatch[1] : '1';
         const filename = `essay_${id}.json`;
 
         const dataStr = JSON.stringify(metadata, null, 2);
-        const dataUri =
-          "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-        const linkElement = document.createElement("a");
-        linkElement.setAttribute("href", dataUri);
-        linkElement.setAttribute("download", filename);
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', filename);
         linkElement.click();
       }
 
       // Download all metadata as JSON
       function downloadAll() {
         if (currentMetadata.length === 0) {
-          alert("Please generate some metadata first!");
+          alert('Please generate some metadata first!');
           return;
         }
 
         // Extract ID from the first metadata item's name
         const idMatch = currentMetadata[0].name.match(/#(\d+)$/);
-        const id = idMatch ? idMatch[1] : "1";
+        const id = idMatch ? idMatch[1] : '1';
 
         const dataStr = JSON.stringify(currentMetadata, null, 2);
-        const dataUri =
-          "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
         const exportFileDefaultName = `PixelMonsters-Story#${id}.json`;
 
-        const linkElement = document.createElement("a");
-        linkElement.setAttribute("href", dataUri);
-        linkElement.setAttribute("download", exportFileDefaultName);
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
       }
 
       // Load legendary IDs from blockchain
       async function loadLegendaryIds() {
-        const legendaryIdsList = document.getElementById("legendaryIdsList");
+        const legendaryIdsList = document.getElementById('legendaryIdsList');
 
         if (!legendaryBankContract) {
           legendaryIdsList.innerHTML =
@@ -719,24 +595,24 @@
           const count = await legendaryBankContract.getLegendaryCount();
           console.log(`Total legendary tokens: ${count.toString()}`);
 
-          let buttonsHtml = "";
+          let buttonsHtml = '';
           for (let i = 0; i < count; i++) {
             const tokenId = await legendaryBankContract.legendaryIds(i);
-            let title = "";
+            let title = '';
 
             try {
               title = await legendaryBankContract.getLegendaryTitle(tokenId);
             } catch (error) {
               // Fallback titles if contract doesn't return one
               const fallbackTitles = {
-                666: "The Beast",
-                1337: "The Chosen",
-                9999: "Final Guardian",
-                404: "Lost Soul",
+                666: 'The Beast',
+                1337: 'The Chosen',
+                9999: 'Final Guardian',
+                404: 'Lost Soul',
                 7777: "Fortune's Avatar",
-                13: "The Cursed",
-                1000: "The Millennial",
-                42: "The Answer",
+                13: 'The Cursed',
+                1000: 'The Millennial',
+                42: 'The Answer',
               };
               title = fallbackTitles[Number(tokenId)] || `ID ${tokenId}`;
             }
@@ -747,22 +623,21 @@
           }
 
           legendaryIdsList.innerHTML =
-            buttonsHtml ||
-            '<p style="text-align: center; color: #666;">No legendary IDs found</p>';
+            buttonsHtml || '<p style="text-align: center; color: #666;">No legendary IDs found</p>';
         } catch (error) {
-          console.error("Failed to load legendary IDs:", error);
+          console.error('Failed to load legendary IDs:', error);
           legendaryIdsList.innerHTML =
             '<p style="text-align: center; color: #ff6b6b;">Failed to load legendary IDs</p>';
         }
       }
 
       // Handle URL parameters on load
-      window.addEventListener("DOMContentLoaded", async () => {
+      window.addEventListener('DOMContentLoaded', async () => {
         // Initialize blockchain connection
         const connected = await initBlockchain();
 
         if (!connected) {
-          document.getElementById("metadataDisplay").innerHTML =
+          document.getElementById('metadataDisplay').innerHTML =
             '<div style="text-align: center; padding: 40px; color: #ff6b6b;">Failed to connect to blockchain. Please refresh the page.</div>';
           return;
         }
@@ -771,12 +646,12 @@
         await loadLegendaryIds();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const idFromUrl = urlParams.get("id");
+        const idFromUrl = urlParams.get('id');
 
         if (idFromUrl) {
           const id = parseInt(idFromUrl);
           if (id >= 1 && id <= 10000) {
-            document.getElementById("idInput").value = id;
+            document.getElementById('idInput').value = id;
             await generateById();
           } else {
             await generateSingle();

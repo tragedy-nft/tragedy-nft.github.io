@@ -1,0 +1,20 @@
+{
+  "name": "myth-of-tragedy-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Myth of Tragedy NFT project",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "serve": "python3 -m http.server 8000",
+    "check": "npm run lint && npm run format:check"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  },
+  "author": "",
+  "license": "MIT"
+}

@@ -8,8 +8,9 @@ A dark fantasy NFT collection frontend showcasing 10,000 algorithmically generat
 ## 🎭 Collection Overview
 
 Each NFT represents a unique combination of four cursed elements:
+
 - **Species**: The protagonist of the tragedy (10 types)
-- **Equipment**: Their tool of fate (10 types)  
+- **Equipment**: Their tool of fate (10 types)
 - **Realm**: The stage where tragedy unfolds (10 types)
 - **Curse**: The force that drives the narrative (10 types)
 
@@ -22,6 +23,7 @@ Each NFT represents a unique combination of four cursed elements:
 This frontend is a **vanilla JavaScript application** designed for maximum compatibility and minimal dependencies:
 
 ### Core Technologies
+
 - **HTML5** - Semantic structure
 - **CSS3** - Custom styling with dark fantasy theme
 - **Vanilla JavaScript** - No frameworks, pure web standards
@@ -29,6 +31,7 @@ This frontend is a **vanilla JavaScript application** designed for maximum compa
 - **SVG** - Scalable vector graphics for all assets
 
 ### Key Features
+
 - 📱 **Mobile-responsive design** with PWA capabilities
 - 🎨 **Real-time NFT generation** and preview
 - 🔗 **Web3 wallet integration** (MetaMask, WalletConnect)
@@ -45,52 +48,69 @@ frontend/
 ├── story.html             # Project lore and background
 ├── essays.html            # Collection essays page
 ├── manifest.html          # Project manifesto
+├── campaign.html          # SBT campaign page
+├── cache-test.html        # RPC cache testing interface
+├── viewer/
+│   └── index.html        # NFT viewer application
 ├── css/
-│   └── styles.css         # Main stylesheet
+│   └── styles.css        # Main stylesheet
 ├── js/
-│   ├── web3-integration.js    # Blockchain connectivity
-│   ├── monster-generator-browser.js  # NFT generation logic
-│   ├── name-generator.js      # Dynamic name generation
-│   ├── pricing-strategy.js    # Pricing calculations
-│   ├── synergies.js          # Synergy system logic
-│   ├── translations.js       # Multi-language support
-│   ├── mobile-wallet.js      # Mobile wallet integration
-│   └── generate.js           # Generation page logic
+│   ├── config/
+│   │   └── contracts.js  # Centralized contract configuration
+│   ├── wallet/
+│   │   └── manager.js    # Unified wallet management
+│   ├── contracts/
+│   │   ├── manager.js    # Contract management system
+│   │   ├── web3-integration.js  # Web3 integration layer
+│   │   └── cache.js      # RPC cache implementation
+│   ├── ui/
+│   │   ├── components.js # Reusable UI components
+│   │   ├── translations.js     # Multi-language support
+│   │   └── campaign-translations.js  # Campaign translations
+│   └── utils/
+│       └── format.js     # Formatting utilities
 ├── assets/
-│   ├── monsters/         # 11 monster SVG files
-│   ├── items/            # 12 equipment SVG files
-│   ├── bg/               # 10 background/realm SVGs
-│   ├── effect/           # 12 curse effect SVGs
-│   ├── coming-soon/      # Landing page graphics
+│   ├── monsters/         # 10 monster SVG files
 │   └── config/           # Configuration templates
 ├── config/
-│   └── blockchain.json   # Network and contract config
+│   ├── blockchain.json   # Network configuration
+│   ├── deployment.json   # Contract deployment addresses
+│   ├── setting.json      # Application settings
+│   └── campaign.json     # Campaign configuration
+├── abi/                  # Contract ABI files
 └── docs/
     ├── effect_ideas.md   # Visual effects documentation
-    └── MANIFEST.md       # Project philosophical manifesto
+    ├── MANIFEST.md       # Project philosophical manifesto
+    ├── TECHNICAL_STANDARDS.md  # Technical documentation
+    └── RPC_CACHE_PROPOSAL.md   # RPC caching strategy
 ```
 
 ## 🎨 Visual Elements
 
 ### Monster Species (10 types)
+
 - Werewolf, Goblin, Frankenstein, Demon, Dragon
 - Zombie, Vampire, Mummy, Succubus, Skeleton
 
-### Equipment Items (10 types)  
+### Equipment Items (10 types)
+
 - Crown, Sword, Shield, Poison, Torch
 - Wine, Scythe, Magic Wand, Arm, Head
 
 ### Realms/Backgrounds (10 types)
+
 - Bloodmoon, Abyss, Decay, Corruption, Venom
 - Void, Inferno, Frost, Ragnarok, Shadow
 
 ### Curse Effects (10 types)
+
 - Seizure, Mind Blast, Confusion, Meteor, Bats
 - Poisoning, Lightning, Blizzard, Burning, Brain Wash
 
 ## ⚡ Getting Started
 
 ### Prerequisites
+
 - Modern web browser with ES6+ support
 - Web3 wallet (MetaMask recommended)
 - Local web server for development (optional)
@@ -98,19 +118,21 @@ frontend/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd frontend
    ```
 
 2. **Serve the files** (for development)
+
    ```bash
    # Using Python 3
    python -m http.server 8000
-   
+
    # Using Node.js
    npx serve .
-   
+
    # Or simply open index.html in your browser
    ```
 
@@ -121,8 +143,9 @@ frontend/
 ### Deployment
 
 This is a static site that can be deployed to:
+
 - **GitHub Pages**
-- **Netlify** 
+- **Netlify**
 - **Vercel**
 - **IPFS** (for decentralized hosting)
 - Any static file hosting service
@@ -132,38 +155,46 @@ No build process required - just upload the files!
 ## 🎮 User Features
 
 ### NFT Generation & Preview
+
 - Real-time NFT generation based on token ID
 - Interactive preview with visual effects
 - Dynamic name generation with rarity indicators
 - Synergy system highlighting special combinations
 
 ### Wallet Integration
+
 - Connect with MetaMask, WalletConnect, and mobile wallets
 - Transaction management for minting
 - Balance and ownership tracking
 
 ### Rarity System
+
 - **Common** (40%) → **Legendary** (5%)
 - **Special Combos**: Enhanced rarity for specific combinations
 - **Legendary IDs**: 30 special token IDs with unique stories
 - **Synergy Bonuses**: Multi-element combinations
 
 ### Special Features
+
 - **Legendary Token Stories**: Unique narratives for special IDs
-- **Dynamic Pricing**: Smart contract-based pricing strategy  
+- **Dynamic Pricing**: Smart contract-based pricing strategy
 - **Multi-language Support**: English/Japanese translations
 - **Mobile Optimization**: Responsive design for all devices
 
 ## 🧙‍♂️ Synergy System
 
 ### Dual Synergies (Implemented)
+
 Perfect combinations between Species + Equipment:
+
 - **Vampire + Wine** = "Blood Sommelier" (Legendary)
 - **Skeleton + Scythe** = "Death's Herald" (Legendary)
 - **Dragon + Crown** = "The Fallen Monarch" (Legendary)
 
 ### Legendary Token IDs (30 special IDs)
+
 Special stories and automatic Legendary rarity:
+
 - **#1**: "The Genesis" - The first existence
 - **#666**: "The Beast Awakened" - The prophesied destroyer
 - **#1337**: "The Chosen One" - Elite among the damned
@@ -172,21 +203,44 @@ Special stories and automatic Legendary rarity:
 ## 🛠️ Development
 
 ### Code Style
+
 - Vanilla JavaScript (ES6+)
 - Semantic HTML5
 - CSS3 with custom properties
 - SVG for all graphics
+- ESLint for code quality
+- Prettier for code formatting
 
-### Key Functions
-- `generateMonster(tokenId)` - Core generation logic
-- `calculateRarity()` - Rarity determination
-- `connectWallet()` - Web3 integration
-- `renderEffects()` - Visual effects rendering
+### Key Components
+
+- `WalletManager` - Unified wallet connection handling
+- `ContractManager` - Centralized contract management
+- `RPCCache` - Efficient blockchain data caching
+- UI Components - Reusable UI elements (modals, alerts, etc.)
 
 ### Configuration
+
 - `config/blockchain.json` - Network settings
-- `assets/config/attributes.json` - NFT attributes
-- `js/translations.js` - Language definitions
+- `config/deployment.json` - Contract addresses
+- `config/setting.json` - Application settings
+- `js/config/contracts.js` - Contract configuration
+- `package.json` - Development dependencies
+
+### Development Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Run linter
+npm run lint
+
+# Format code
+npm run format
+
+# Start local server
+npm run serve
+```
 
 ## 🎭 Philosophy
 
@@ -196,4 +250,4 @@ This frontend serves as a gateway to that darkness - a carefully crafted interfa
 
 ---
 
-*"In the realm of cursed nightmares, every number tells a story, every combination births a tragedy, and every collector becomes a curator of digital darkness."*
+_"In the realm of cursed nightmares, every number tells a story, every combination births a tragedy, and every collector becomes a curator of digital darkness."_

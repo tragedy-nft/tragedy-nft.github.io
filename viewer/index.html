@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Tragedy NFT: The Mythical Cursed-Nightmare</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="../js/config/contracts.js"></script>
+    <script src="../js/utils/format.js"></script>
+    <script src="../js/wallet/manager.js"></script>
+    <script src="../js/contracts/manager.js"></script>
     <style>
       * {
         margin: 0;
@@ -12,8 +16,7 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background: #0a0a0a;
         color: #ffffff;
         line-height: 1.6;
@@ -596,36 +599,19 @@
     <div id="floating-preview" class="floating-preview">
       <div class="floating-preview-header">
         <span class="floating-preview-title">NFT Preview</span>
-        <button class="floating-preview-close" onclick="closeFloatingPreview()">
-          ✕
-        </button>
+        <button class="floating-preview-close" onclick="closeFloatingPreview()">✕</button>
       </div>
       <div class="floating-preview-content" id="floating-preview-svg">
         <p style="color: #666">No preview available</p>
       </div>
       <div class="floating-preview-info" id="floating-preview-info">
         <p><strong>Name:</strong> <span id="floating-preview-name">-</span></p>
-        <p>
-          <strong>Token ID:</strong> <span id="floating-preview-id">-</span>
-        </p>
+        <p><strong>Token ID:</strong> <span id="floating-preview-id">-</span></p>
         <div id="floating-preview-description" style="display: none">
           <p><strong>Description:</strong></p>
-          <p
-            id="floating-preview-desc-text"
-            style="
-              font-size: 12px;
-              line-height: 1.4;
-              color: #ccc;
-              margin: 5px 0;
-            "
-          >
-            -
-          </p>
+          <p id="floating-preview-desc-text" style="font-size: 12px; line-height: 1.4; color: #ccc; margin: 5px 0">-</p>
         </div>
-        <div
-          id="floating-preview-attributes"
-          style="display: none; margin-top: 10px"
-        >
+        <div id="floating-preview-attributes" style="display: none; margin-top: 10px">
           <p><strong>Attributes:</strong></p>
           <div id="floating-preview-attrs" style="font-size: 12px"></div>
         </div>
@@ -640,19 +626,11 @@
 
       <div class="tab-container">
         <div class="tabs">
-          <button class="tab active" onclick="switchTab('viewer')">
-            ️ NFT Viewer
-          </button>
+          <button class="tab active" onclick="switchTab('viewer')">️ NFT Viewer</button>
           <button class="tab" onclick="switchTab('minting')">Minting</button>
-          <button class="tab" onclick="switchTab('metadata')">
-            Metadata Explorer
-          </button>
-          <button class="tab" onclick="switchTab('composer')">
-            Composer Explorer
-          </button>
-          <button class="tab" onclick="switchTab('materials')">
-            Material Explorer
-          </button>
+          <button class="tab" onclick="switchTab('metadata')">Metadata Explorer</button>
+          <button class="tab" onclick="switchTab('composer')">Composer Explorer</button>
+          <button class="tab" onclick="switchTab('materials')">Material Explorer</button>
           <button class="tab" onclick="switchTab('admin')">Admin</button>
         </div>
       </div>
@@ -672,23 +650,12 @@
         <div class="viewer-controls">
           <h3 style="color: #ff6b6b; margin-bottom: 20px">🔍 View NFTs</h3>
           <div>
-            <input
-              type="text"
-              id="wallet-address"
-              placeholder="Enter wallet address (0x...)"
-              style="width: 400px"
-            />
+            <input type="text" id="wallet-address" placeholder="Enter wallet address (0x...)" style="width: 400px" />
             <button onclick="loadWalletNFTs()">View Wallet</button>
             <button onclick="loadAllNFTs()">View All</button>
           </div>
           <div style="margin-top: 15px">
-            <input
-              type="number"
-              id="token-id"
-              placeholder="Token ID"
-              min="1"
-              style="width: 150px"
-            />
+            <input type="number" id="token-id" placeholder="Token ID" min="1" style="width: 150px" />
             <button onclick="loadSingleNFT()">View NFT</button>
           </div>
         </div>
@@ -704,19 +671,18 @@
       <div id="minting-section" class="content-section">
         <div class="wallet-connect" id="wallet-section-minting">
           <h3>Connect Wallet to Mint NFTs</h3>
-          <button class="connect-button" onclick="connectWallet()">
-            🦊 Connect MetaMask
-          </button>
-          <p id="wallet-status-minting" style="margin-top: 10px; color: #888">
-            Not connected
-          </p>
+          <button class="connect-button" onclick="connectWallet()">🦊 Connect MetaMask</button>
+          <p id="wallet-status-minting" style="margin-top: 10px; color: #888">Not connected</p>
         </div>
 
         <div id="minting-controls" style="display: none">
           <div class="admin-section">
             <h3>🎨 Mint Your NFT</h3>
-            <div class="deployment-info" style="margin-bottom: 20px;">
-              <p>BankedNFT Contract: <span id="minting-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span></p>
+            <div class="deployment-info" style="margin-bottom: 20px">
+              <p>
+                BankedNFT Contract:
+                <span id="minting-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span>
+              </p>
             </div>
 
             <div class="info-panel">
@@ -767,18 +733,14 @@
 
             <div class="function-group">
               <h4>Regular Mint</h4>
-              <p style="color: #888; margin-bottom: 10px">
-                Mint a transferable NFT with random metadata from the bank
-              </p>
+              <p style="color: #888; margin-bottom: 10px">Mint a transferable NFT with random metadata from the bank</p>
               <button onclick="mintNFT()">Mint NFT</button>
               <div id="mint-result" class="tx-result"></div>
             </div>
 
             <div class="function-group">
               <h4>Soul-Bound Mint</h4>
-              <p style="color: #888; margin-bottom: 10px">
-                Mint a non-transferable NFT bound to your address
-              </p>
+              <p style="color: #888; margin-bottom: 10px">Mint a non-transferable NFT bound to your address</p>
               <button onclick="mintSoulBoundNFT()">Mint Soul-Bound NFT</button>
               <div id="soulbound-result" class="tx-result"></div>
             </div>
@@ -790,9 +752,7 @@
       <div id="metadata-section" class="content-section">
         <div class="deployment-info">
           <h3>📊 MetadataBank Information</h3>
-          <p id="metadata-bank-address">
-            MetadataBank: <span>Not loaded</span>
-          </p>
+          <p id="metadata-bank-address">MetadataBank: <span>Not loaded</span></p>
           <p id="metadata-count">Total Metadata Entries: <span>-</span></p>
           <p id="metadata-composer">Composer Address: <span>-</span></p>
         </div>
@@ -804,13 +764,7 @@
             <h4>Get Metadata by Index</h4>
             <div class="input-group">
               <label>Index (0-9999):</label>
-              <input
-                type="number"
-                id="metadata-index"
-                min="0"
-                max="9999"
-                value="0"
-              />
+              <input type="number" id="metadata-index" min="0" max="9999" value="0" />
             </div>
             <button onclick="getMetadataByIndex()">Get Metadata</button>
             <div id="metadata-result" class="tx-result"></div>
@@ -828,9 +782,7 @@
 
           <div class="function-group">
             <h4>Random Metadata</h4>
-            <p style="color: #888; margin-bottom: 10px">
-              Get a random metadata entry from the bank
-            </p>
+            <p style="color: #888; margin-bottom: 10px">Get a random metadata entry from the bank</p>
             <button onclick="getRandomMetadata()">Get Random Metadata</button>
           </div>
         </div>
@@ -838,11 +790,7 @@
         <div id="metadata-display" style="display: none">
           <div class="info-panel">
             <h3>Metadata Details</h3>
-            <div
-              class="code-display"
-              id="raw-metadata"
-              style="display: block; max-height: 200px"
-            ></div>
+            <div class="code-display" id="raw-metadata" style="display: block; max-height: 200px"></div>
           </div>
 
           <div class="info-panel">
@@ -971,9 +919,7 @@
               <option value="11">11 - Matrix</option>
             </select>
           </div>
-          <button class="btn-action" onclick="testComposer()">
-            Compose SVG
-          </button>
+          <button class="btn-action" onclick="testComposer()">Compose SVG</button>
         </div>
         <div id="composer-result">
           <button
@@ -996,30 +942,25 @@
       <div id="admin-section" class="content-section">
         <div class="wallet-connect" id="wallet-section-admin">
           <h3>Connect Wallet for Admin Functions</h3>
-          <button class="connect-button" onclick="connectWallet()">
-            🦊 Connect MetaMask
-          </button>
-          <p id="wallet-status-admin" style="margin-top: 10px; color: #888">
-            Not connected
-          </p>
+          <button class="connect-button" onclick="connectWallet()">🦊 Connect MetaMask</button>
+          <p id="wallet-status-admin" style="margin-top: 10px; color: #888">Not connected</p>
         </div>
 
         <div id="admin-controls" style="display: none">
           <div class="admin-section">
             <h3>👤 Owner Functions</h3>
-            <div class="deployment-info" style="margin-bottom: 20px;">
-              <p>BankedNFT Contract: <span id="admin-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span></p>
+            <div class="deployment-info" style="margin-bottom: 20px">
+              <p>
+                BankedNFT Contract:
+                <span id="admin-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span>
+              </p>
             </div>
 
             <div class="function-group">
               <h4>Update Configuration</h4>
               <div class="input-group">
                 <label>Collection Name:</label>
-                <input
-                  type="text"
-                  id="config-name"
-                  placeholder="Tragedy Myth Banked"
-                />
+                <input type="text" id="config-name" placeholder="Tragedy Myth Banked" />
               </div>
               <div class="input-group">
                 <label>Collection Symbol:</label>
@@ -1027,23 +968,11 @@
               </div>
               <div class="input-group">
                 <label>Mint Fee (ETH):</label>
-                <input
-                  type="number"
-                  id="config-fee"
-                  step="0.001"
-                  min="0"
-                  placeholder="0.01"
-                />
+                <input type="number" id="config-fee" step="0.001" min="0" placeholder="0.01" />
               </div>
               <div class="input-group">
                 <label>Royalty Rate (%):</label>
-                <input
-                  type="number"
-                  id="config-royalty"
-                  min="0"
-                  max="100"
-                  placeholder="5"
-                />
+                <input type="number" id="config-royalty" min="0" max="100" placeholder="5" />
               </div>
               <button onclick="updateConfig()">Update Configuration</button>
               <div id="config-result" class="tx-result"></div>
@@ -1053,11 +982,7 @@
               <h4>Set MetadataBank</h4>
               <p style="color: #888; font-size: 12px; margin-bottom: 10px">
                 Current:
-                <span
-                  id="current-metadata-bank"
-                  style="color: #4caf50; font-family: monospace"
-                  >Loading...</span
-                >
+                <span id="current-metadata-bank" style="color: #4caf50; font-family: monospace">Loading...</span>
               </p>
               <div class="input-group">
                 <label>Bank Address:</label>
@@ -1092,15 +1017,7 @@
             <div class="function-group">
               <h4>Read Contract States</h4>
               <button onclick="refreshContractInfo()">Refresh Info</button>
-              <div
-                id="contract-info"
-                style="
-                  margin-top: 15px;
-                  font-family: monospace;
-                  font-size: 12px;
-                  color: #aaa;
-                "
-              >
+              <div id="contract-info" style="margin-top: 15px; font-family: monospace; font-size: 12px; color: #aaa">
                 Click refresh to load contract information...
               </div>
             </div>
@@ -1115,7 +1032,7 @@
 
     <script>
       // Configuration
-      const RPC_URL = "https://dev2.bon-soleil.com/rpc";
+      const RPC_URL = 'https://dev2.bon-soleil.com/rpc';
 
       // Contract addresses will be loaded from deployment.json
       let DEPLOYMENT = null;
@@ -1134,106 +1051,79 @@
       // Load deployment data
       async function loadDeployment() {
         try {
-          console.log("Loading deployment.json...");
-          const response = await fetch("../config/deployment.json");
-          console.log("Response status:", response.status);
+          console.log('Loading deployment.json...');
+          const response = await fetch('../config/deployment.json');
+          console.log('Response status:', response.status);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const text = await response.text();
-          console.log("Response text:", text);
+          console.log('Response text:', text);
           DEPLOYMENT = JSON.parse(text);
           BANKED_NFT_ADDRESS = DEPLOYMENT.contracts.BankedNFT;
           METADATA_BANK_ADDRESS = DEPLOYMENT.contracts.MetadataBank;
           COMPOSER_ADDRESS = DEPLOYMENT.contracts.TragedyComposer;
-          console.log("Loaded deployment:", DEPLOYMENT);
-          console.log("Metadata address:", METADATA_BANK_ADDRESS);
+          console.log('Loaded deployment:', DEPLOYMENT);
+          console.log('Metadata address:', METADATA_BANK_ADDRESS);
 
           // Update Material Explorer contract info
-          updateContractDisplay(
-            "material-monster-bank",
-            DEPLOYMENT.contracts.MonsterBank
-          );
-          updateContractDisplay(
-            "material-item-bank",
-            DEPLOYMENT.contracts.ItemBank
-          );
-          updateContractDisplay(
-            "material-background-bank",
-            DEPLOYMENT.contracts.BackgroundBank
-          );
-          updateContractDisplay(
-            "material-effect-bank",
-            DEPLOYMENT.contracts.EffectBank
-          );
+          updateContractDisplay('material-monster-bank', DEPLOYMENT.contracts.MonsterBank);
+          updateContractDisplay('material-item-bank', DEPLOYMENT.contracts.ItemBank);
+          updateContractDisplay('material-background-bank', DEPLOYMENT.contracts.BackgroundBank);
+          updateContractDisplay('material-effect-bank', DEPLOYMENT.contracts.EffectBank);
 
           // Update Composer Explorer contract info
-          updateContractDisplay(
-            "composer-address-info",
-            DEPLOYMENT.contracts.TragedyComposer
-          );
-          updateContractDisplay(
-            "composer-monster-bank",
-            DEPLOYMENT.contracts.MonsterBank
-          );
-          updateContractDisplay(
-            "composer-item-bank",
-            DEPLOYMENT.contracts.ItemBank
-          );
-          updateContractDisplay(
-            "composer-background-bank",
-            DEPLOYMENT.contracts.BackgroundBank
-          );
-          updateContractDisplay(
-            "composer-effect-bank",
-            DEPLOYMENT.contracts.EffectBank
-          );
+          updateContractDisplay('composer-address-info', DEPLOYMENT.contracts.TragedyComposer);
+          updateContractDisplay('composer-monster-bank', DEPLOYMENT.contracts.MonsterBank);
+          updateContractDisplay('composer-item-bank', DEPLOYMENT.contracts.ItemBank);
+          updateContractDisplay('composer-background-bank', DEPLOYMENT.contracts.BackgroundBank);
+          updateContractDisplay('composer-effect-bank', DEPLOYMENT.contracts.EffectBank);
         } catch (error) {
-          console.error("Failed to load deployment.json:", error);
-          throw new Error("Failed to load deployment configuration");
+          console.error('Failed to load deployment.json:', error);
+          throw new Error('Failed to load deployment configuration');
         }
       }
 
       // ABIs
-      const BANKED_NFT_ABI = [
+      let BANKED_NFT_ABI = [
         // View functions
-        "function name() view returns (string)",
-        "function symbol() view returns (string)",
-        "function owner() view returns (address)",
-        "function maxSupply() view returns (uint256)",
-        "function mintFee() view returns (uint256)",
-        "function royaltyRate() view returns (uint256)",
-        "function totalSupply() view returns (uint256)",
-        "function metadataBank() view returns (address)",
-        "function tokenURI(uint256 tokenId) view returns (string)",
-        "function remainingSupply() view returns (uint256)",
-        "function canMint() view returns (bool)",
-        "function isSoulBound(uint256 tokenId) view returns (bool)",
-        "function balanceOf(address owner) view returns (uint256)",
-        "function ownerOf(uint256 tokenId) view returns (address)",
-        "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+        'function name() view returns (string)',
+        'function symbol() view returns (string)',
+        'function owner() view returns (address)',
+        'function maxSupply() view returns (uint256)',
+        'function mintFee() view returns (uint256)',
+        'function royaltyRate() view returns (uint256)',
+        'function totalSupply() view returns (uint256)',
+        'function metadataBank() view returns (address)',
+        'function tokenURI(uint256 tokenId) view returns (string)',
+        'function remainingSupply() view returns (uint256)',
+        'function canMint() view returns (bool)',
+        'function isSoulBound(uint256 tokenId) view returns (bool)',
+        'function balanceOf(address owner) view returns (uint256)',
+        'function ownerOf(uint256 tokenId) view returns (address)',
+        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
 
         // Write functions
-        "function mint() payable returns (uint256)",
-        "function mintSoulBound() payable returns (uint256)",
-        "function airdrop(address to) returns (uint256)",
-        "function burn(uint256 tokenId)",
-        "function config(string memory newName, string memory newSymbol, uint256 newMintFee, uint256 newRoyaltyRate)",
-        "function setMetadataBank(address bankAddress)",
-        "function withdraw()",
+        'function mint() payable returns (uint256)',
+        'function mintSoulBound() payable returns (uint256)',
+        'function airdrop(address to) returns (uint256)',
+        'function burn(uint256 tokenId)',
+        'function config(string memory newName, string memory newSymbol, uint256 newMintFee, uint256 newRoyaltyRate)',
+        'function setMetadataBank(address bankAddress)',
+        'function withdraw()',
 
         // Events
-        "event NFTMinted(address indexed to, uint256 indexed tokenId, address indexed minter, string metadataURI)",
-        "event NFTBurned(uint256 indexed tokenId)",
-        "event ConfigUpdated(string name, string symbol, uint256 mintFee, uint256 royaltyRate)",
+        'event NFTMinted(address indexed to, uint256 indexed tokenId, address indexed minter, string metadataURI)',
+        'event NFTBurned(uint256 indexed tokenId)',
+        'event ConfigUpdated(string name, string symbol, uint256 mintFee, uint256 royaltyRate)',
       ];
 
       const METADATA_BANK_ABI = [
-        "function getMetadataCount() view returns (uint256)",
-        "function getMetadata(uint256 index) view returns (string)",
-        "function composer() view returns (address)",
-        "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
-        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+        'function getMetadataCount() view returns (uint256)',
+        'function getMetadata(uint256 index) view returns (string)',
+        'function composer() view returns (address)',
+        'function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)',
+        'function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)',
       ];
 
       let provider;
@@ -1244,108 +1134,171 @@
       let currentAccount;
       let materialsLoaded = false;
 
+      // Load ABI from external file
+      async function loadABI() {
+        try {
+          const response = await fetch('/abi/BankedNFT.abi.json');
+          if (response.ok) {
+            BANKED_NFT_ABI = await response.json();
+            console.log(
+              'Loaded BankedNFT ABI from file, functions:',
+              BANKED_NFT_ABI.filter((item) => item.type === 'function').map((f) => f.name)
+            );
+            return true;
+          }
+        } catch (error) {
+          console.error('Failed to load ABI file:', error);
+        }
+        // If loading fails, the hardcoded ABI will be used
+        console.log('Using hardcoded ABI');
+        return false;
+      }
+      let walletManager;
+      let contractManager;
+
       async function init() {
         try {
-          console.log("Initializing BankedNFT viewer...");
-          console.log("ethers loaded:", typeof ethers !== "undefined");
-          if (typeof ethers === "undefined") {
-            throw new Error(
-              "ethers.js library not loaded. Please check your internet connection."
-            );
+          // Load ABI first
+          await loadABI();
+          console.log('Initializing BankedNFT viewer...');
+          console.log('ethers loaded:', typeof ethers !== 'undefined');
+          if (typeof ethers === 'undefined') {
+            throw new Error('ethers.js library not loaded. Please check your internet connection.');
           }
 
           // Load deployment configuration first
           await loadDeployment();
           if (!DEPLOYMENT) {
-            throw new Error("Failed to load deployment configuration");
+            throw new Error('Failed to load deployment configuration');
           }
-          console.log("Deployment loaded:", DEPLOYMENT);
-          console.log("Contract addresses from deployment:", {
+          console.log('Deployment loaded:', DEPLOYMENT);
+          console.log('Contract addresses from deployment:', {
             BankedNFT: BANKED_NFT_ADDRESS,
             MetadataBank: METADATA_BANK_ADDRESS,
-            TragedyComposer: COMPOSER_ADDRESS
+            TragedyComposer: COMPOSER_ADDRESS,
           });
-          console.log("RPC URL:", RPC_URL);
-          showStatus("Initializing...", "info", "viewer");
+          console.log('RPC URL:', RPC_URL);
+          showStatus('Initializing...', 'info', 'viewer');
 
           // Connect to network
-          console.log("Connecting to network...");
+          console.log('Connecting to network...');
           try {
             provider = new ethers.providers.JsonRpcProvider(RPC_URL);
             await provider.ready;
-            console.log("Connected to network successfully");
+            console.log('Connected to network successfully');
 
             // Update network status immediately
-            document.getElementById(
-              "network"
-            ).innerHTML = `Network: <span style="color: #4caf50">Bon-Soleil Testnet</span>`;
+            document.getElementById('network').innerHTML =
+              `Network: <span style="color: #4caf50">Bon-Soleil Testnet</span>`;
+
+            // Initialize ContractManager
+            contractManager = new ContractManager();
+            await contractManager.initialize(provider);
+            console.log('ContractManager initialized');
           } catch (networkError) {
-            console.error("Network connection error:", networkError);
-            document.getElementById(
-              "network"
-            ).innerHTML = `Network: <span style="color: #ff6b6b">Connection Failed</span>`;
+            console.error('Network connection error:', networkError);
+            document.getElementById('network').innerHTML =
+              `Network: <span style="color: #ff6b6b">Connection Failed</span>`;
             throw networkError;
           }
 
-          // Initialize contracts
-          console.log("Initializing BankedNFT contract with address:", BANKED_NFT_ADDRESS);
-          if (!BANKED_NFT_ADDRESS || BANKED_NFT_ADDRESS === "undefined") {
-            throw new Error("BankedNFT address is not set properly");
+          // Get contracts from ContractManager (but we'll override if ABI was loaded)
+          const cmBankedNft = contractManager.getContract('bankedNFT');
+          const cmMetadataBank = contractManager.getContract('metadataBank');
+
+          console.log('BANKED_NFT_ABI length:', BANKED_NFT_ABI.length);
+          console.log('BANKED_NFT_ABI[0]:', BANKED_NFT_ABI[0]);
+
+          // If we loaded the ABI file, create new contract instances
+          if (BANKED_NFT_ABI.length > 30) {
+            // Check if we have the full ABI
+            console.log('Using loaded ABI for BankedNFT');
+            bankedNft = null; // Clear to force recreation
+            metadataBank = cmMetadataBank; // Keep MetadataBank from ContractManager
+          } else {
+            console.log('Using ContractManager contracts');
+            // Use ContractManager contracts
+            bankedNft = cmBankedNft;
+            metadataBank = cmMetadataBank;
           }
-          
-          // Check if address is valid
-          if (!ethers.utils.isAddress(BANKED_NFT_ADDRESS)) {
-            throw new Error(`Invalid BankedNFT address: ${BANKED_NFT_ADDRESS}`);
+
+          if (!bankedNft) {
+            // Fall back to manual initialization if ContractManager doesn't have it
+            console.log('Initializing BankedNFT contract manually with address:', BANKED_NFT_ADDRESS);
+            if (!BANKED_NFT_ADDRESS || BANKED_NFT_ADDRESS === 'undefined') {
+              throw new Error('BankedNFT address is not set properly');
+            }
+
+            // Check if address is valid
+            if (!ethers.utils.isAddress(BANKED_NFT_ADDRESS)) {
+              throw new Error(`Invalid BankedNFT address: ${BANKED_NFT_ADDRESS}`);
+            }
+
+            console.log('Creating BankedNFT contract with:');
+            console.log('- Address:', BANKED_NFT_ADDRESS);
+            console.log('- ABI type:', Array.isArray(BANKED_NFT_ABI) ? 'array' : typeof BANKED_NFT_ABI);
+            console.log('- ABI length:', BANKED_NFT_ABI.length);
+            console.log('- First ABI item:', BANKED_NFT_ABI[0]);
+            console.log(
+              '- remainingSupply in ABI:',
+              BANKED_NFT_ABI.find(
+                (item) =>
+                  (typeof item === 'string' && item.includes('remainingSupply')) ||
+                  (typeof item === 'object' && item.name === 'remainingSupply')
+              )
+            );
+
+            bankedNft = new ethers.Contract(BANKED_NFT_ADDRESS, BANKED_NFT_ABI, provider);
+
+            console.log('Contract created. Methods:', Object.keys(bankedNft.functions || {}));
+
+            // Verify contract exists by checking code
+            const code = await provider.getCode(BANKED_NFT_ADDRESS);
+            console.log('Contract code length:', code.length);
+            if (code === '0x') {
+              throw new Error(`No contract found at address ${BANKED_NFT_ADDRESS}`);
+            }
+          } else {
+            BANKED_NFT_ADDRESS = contractManager.getContractAddress('bankedNFT');
+            console.log('Using BankedNFT from ContractManager:', BANKED_NFT_ADDRESS);
           }
-          
-          bankedNft = new ethers.Contract(
-            BANKED_NFT_ADDRESS,
-            BANKED_NFT_ABI,
-            provider
-          );
-          
-          // Verify contract exists by checking code
-          const code = await provider.getCode(BANKED_NFT_ADDRESS);
-          console.log("Contract code length:", code.length);
-          if (code === "0x") {
-            throw new Error(`No contract found at address ${BANKED_NFT_ADDRESS}`);
-          }
-          
-          document.getElementById(
-            "nft-address"
-          ).innerHTML = `BankedNFT Contract: <span style="color: #4caf50; font-family: monospace">${BANKED_NFT_ADDRESS}</span>`;
-          
+
+          document.getElementById('nft-address').innerHTML =
+            `BankedNFT Contract: <span style="color: #4caf50; font-family: monospace">${BANKED_NFT_ADDRESS}</span>`;
+
           // Also update Minting and Admin tab addresses
-          document.getElementById("minting-contract-address").textContent = BANKED_NFT_ADDRESS;
-          document.getElementById("admin-contract-address").textContent = BANKED_NFT_ADDRESS;
+          document.getElementById('minting-contract-address').textContent = BANKED_NFT_ADDRESS;
+          document.getElementById('admin-contract-address').textContent = BANKED_NFT_ADDRESS;
 
-          // Get current MetadataBank from BankedNFT
-          try {
-            METADATA_BANK_ADDRESS = await bankedNft.metadataBank();
-            console.log(
-              "Current MetadataBank from contract:",
-              METADATA_BANK_ADDRESS
-            );
-            document.getElementById(
-              "metadata-address"
-            ).innerHTML = `MetadataBank: <span style="color: #4caf50; font-family: monospace">${METADATA_BANK_ADDRESS}</span>`;
+          // Get current MetadataBank from BankedNFT if not already loaded
+          if (!metadataBank) {
+            try {
+              METADATA_BANK_ADDRESS = await bankedNft.metadataBank();
+              console.log('Current MetadataBank from contract:', METADATA_BANK_ADDRESS);
+              document.getElementById('metadata-address').innerHTML =
+                `MetadataBank: <span style="color: #4caf50; font-family: monospace">${METADATA_BANK_ADDRESS}</span>`;
 
-            metadataBank = new ethers.Contract(
-              METADATA_BANK_ADDRESS,
-              METADATA_BANK_ABI,
-              provider
-            );
-            const metadataCount = await metadataBank.getMetadataCount();
-            console.log(
-              "MetadataBank has",
-              metadataCount.toString(),
-              "metadata entries"
-            );
-          } catch (error) {
-            console.error("Error getting MetadataBank:", error);
-            document.getElementById(
-              "metadata-address"
-            ).innerHTML = `MetadataBank: <span style="color: #ff6b6b">Error loading</span>`;
+              metadataBank = new ethers.Contract(METADATA_BANK_ADDRESS, METADATA_BANK_ABI, provider);
+            } catch (error) {
+              console.error('Error getting MetadataBank:', error);
+              document.getElementById('metadata-address').innerHTML =
+                `MetadataBank: <span style="color: #ff6b6b">Error loading</span>`;
+            }
+          } else {
+            METADATA_BANK_ADDRESS = contractManager.getContractAddress('metadataBank');
+            console.log('Using MetadataBank from ContractManager:', METADATA_BANK_ADDRESS);
+            document.getElementById('metadata-address').innerHTML =
+              `MetadataBank: <span style="color: #4caf50; font-family: monospace">${METADATA_BANK_ADDRESS}</span>`;
+          }
+
+          // Test MetadataBank
+          if (metadataBank) {
+            try {
+              const metadataCount = await metadataBank.getMetadataCount();
+              console.log('MetadataBank has', metadataCount.toString(), 'metadata entries');
+            } catch (error) {
+              console.error('Error testing MetadataBank:', error);
+            }
           }
 
           // Initialize final metadata bank for explorer (use current MetadataBank)
@@ -1356,9 +1309,9 @@
             finalMetadataBank = metadataBank;
             try {
               finalCount = await finalMetadataBank.getMetadataCount();
-              console.log("Metadata count:", finalCount.toString());
+              console.log('Metadata count:', finalCount.toString());
             } catch (e) {
-              console.error("Error getting metadata count:", e);
+              console.error('Error getting metadata count:', e);
             }
 
             // Use tragedyComposer from deployment
@@ -1366,22 +1319,19 @@
           }
 
           // Update Metadata Explorer tab info if elements exist
-          const metadataBankElement = document.getElementById(
-            "metadata-bank-address"
-          );
+          const metadataBankElement = document.getElementById('metadata-bank-address');
           if (metadataBankElement) {
             metadataBankElement.innerHTML = `MetadataBank: <span style="color: #4caf50; font-family: monospace">${
-              METADATA_BANK_ADDRESS || "Not set"
+              METADATA_BANK_ADDRESS || 'Not set'
             }</span>`;
           }
 
-          const metadataCountElement =
-            document.getElementById("metadata-count");
+          const metadataCountElement = document.getElementById('metadata-count');
           if (metadataCountElement && METADATA_BANK_ADDRESS && finalCount > 0) {
             metadataCountElement.innerHTML = `Total Metadata Entries: <span style="color: #4caf50">${finalCount}</span>`;
           }
 
-          const composerElement = document.getElementById("metadata-composer");
+          const composerElement = document.getElementById('metadata-composer');
           if (composerElement && COMPOSER_ADDRESS) {
             composerElement.innerHTML = `Composer Address: <span style="color: #4caf50; font-family: monospace">${COMPOSER_ADDRESS}</span>`;
           }
@@ -1390,41 +1340,32 @@
           try {
             await loadContractInfo();
           } catch (error) {
-            console.error("Error loading contract info:", error);
+            console.error('Error loading contract info:', error);
             // Continue with initialization even if contract info fails
           }
 
-          showStatus("Connected successfully!", "success", "viewer");
+          showStatus('Connected successfully!', 'success', 'viewer');
         } catch (error) {
-          console.error("Initialization error:", error);
-          showStatus("Failed to connect: " + error.message, "error", "viewer");
+          console.error('Initialization error:', error);
+          showStatus('Failed to connect: ' + error.message, 'error', 'viewer');
 
           // Show error state in Contract Information
-          document.getElementById(
-            "network"
-          ).innerHTML = `Network: <span style="color: #ff6b6b">Connection Error</span>`;
-          document.getElementById(
-            "nft-address"
-          ).innerHTML = `BankedNFT Contract: <span style="color: #4caf50; font-family: monospace">${
-            BANKED_NFT_ADDRESS || "Not set"
-          }</span>`;
-          document.getElementById(
-            "metadata-address"
-          ).innerHTML = `MetadataBank: <span style="color: #ff6b6b">Not loaded</span>`;
-          document.getElementById(
-            "total-supply"
-          ).innerHTML = `Total Minted: <span style="color: #ff6b6b">-</span>`;
-          document.getElementById(
-            "max-supply"
-          ).innerHTML = `Max Supply: <span style="color: #ff6b6b">-</span>`;
-          document.getElementById(
-            "remaining-supply"
-          ).innerHTML = `Remaining: <span style="color: #ff6b6b">-</span>`;
+          document.getElementById('network').innerHTML =
+            `Network: <span style="color: #ff6b6b">Connection Error</span>`;
+          document.getElementById('nft-address').innerHTML =
+            `BankedNFT Contract: <span style="color: #4caf50; font-family: monospace">${
+              BANKED_NFT_ADDRESS || 'Not set'
+            }</span>`;
+          document.getElementById('metadata-address').innerHTML =
+            `MetadataBank: <span style="color: #ff6b6b">Not loaded</span>`;
+          document.getElementById('total-supply').innerHTML = `Total Minted: <span style="color: #ff6b6b">-</span>`;
+          document.getElementById('max-supply').innerHTML = `Max Supply: <span style="color: #ff6b6b">-</span>`;
+          document.getElementById('remaining-supply').innerHTML = `Remaining: <span style="color: #ff6b6b">-</span>`;
         }
       }
 
       function showDeploymentInstructions() {
-        const container = document.getElementById("nft-container");
+        const container = document.getElementById('nft-container');
         container.innerHTML = `
                 <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 30px; margin: 20px 0;">
                     <h3 style="color: #ff6b6b; margin-bottom: 20px;">🚀 Tragedy NFT System Ready</h3>
@@ -1438,103 +1379,146 @@
 
       async function loadContractInfo() {
         try {
+          // Ensure we have the correct contract with loaded ABI
+          if (BANKED_NFT_ABI.length > 30 && typeof bankedNft.remainingSupply !== 'function') {
+            console.log('Recreating BankedNFT contract with loaded ABI in loadContractInfo');
+            bankedNft = new ethers.Contract(BANKED_NFT_ADDRESS, BANKED_NFT_ABI, provider);
+          }
           // Try to load each value individually to handle partial failures
-          let totalMinted = "-";
-          let maxSupply = "-";
-          let remaining = "-";
+          let totalMinted = '-';
+          let maxSupply = '-';
+          let remaining = '-';
 
           try {
             totalMinted = await bankedNft.totalSupply();
-            document.getElementById(
-              "total-supply"
-            ).innerHTML = `Total Minted: <span style="color: #4caf50">${totalMinted}</span>`;
+            document.getElementById('total-supply').innerHTML =
+              `Total Minted: <span style="color: #4caf50">${totalMinted}</span>`;
           } catch (e) {
-            console.error("Error loading totalMinted:", e);
+            console.error('Error loading totalMinted:', e);
           }
 
           try {
             maxSupply = await bankedNft.maxSupply();
-            document.getElementById(
-              "max-supply"
-            ).innerHTML = `Max Supply: <span style="color: #4caf50">${maxSupply}</span>`;
+            document.getElementById('max-supply').innerHTML =
+              `Max Supply: <span style="color: #4caf50">${maxSupply}</span>`;
           } catch (e) {
-            console.error("Error loading maxSupply:", e);
+            console.error('Error loading maxSupply:', e);
           }
 
           try {
-            remaining = await bankedNft.remainingSupply();
-            document.getElementById(
-              "remaining-supply"
-            ).innerHTML = `Remaining: <span style="color: #4caf50">${remaining}</span>`;
+            console.log('Calling remainingSupply on contract:', bankedNft.address);
+            console.log('Provider:', provider);
+            console.log('Contract object:', bankedNft);
+            console.log('Has remainingSupply method:', typeof bankedNft.remainingSupply === 'function');
+            console.log(
+              'All contract methods:',
+              Object.getOwnPropertyNames(Object.getPrototypeOf(bankedNft)).filter(
+                (name) => typeof bankedNft[name] === 'function'
+              )
+            );
+
+            // Try direct call
+            const remainingBN = await bankedNft.remainingSupply();
+            remaining = remainingBN.toString();
+
+            document.getElementById('remaining-supply').innerHTML =
+              `Remaining: <span style="color: #4caf50">${remaining}</span>`;
+            console.log('remainingSupply call successful:', remaining);
           } catch (e) {
-            console.error("Error loading remainingSupply:", e);
+            console.error('Error loading remainingSupply:', e);
+            console.error('Error type:', e.code, 'Message:', e.message);
+
+            // Fallback: Calculate remaining from maxSupply - totalMinted
+            try {
+              if (maxSupply !== undefined && totalMinted !== undefined) {
+                remaining = maxSupply - totalMinted;
+                document.getElementById('remaining-supply').innerHTML =
+                  `Remaining: <span style="color: #4caf50">${remaining}</span> (calculated)`;
+                console.log('Calculated remaining from maxSupply - totalMinted:', remaining);
+              } else {
+                // Try to fetch maxSupply and totalSupply for calculation
+                const [max, total] = await Promise.all([
+                  bankedNft.maxSupply().catch(() => null),
+                  bankedNft.totalSupply().catch(() => null),
+                ]);
+
+                if (max && total) {
+                  remaining = max.sub(total).toString();
+                  document.getElementById('remaining-supply').innerHTML =
+                    `Remaining: <span style="color: #4caf50">${remaining}</span> (calculated)`;
+                  console.log('Calculated remaining from maxSupply - totalSupply:', remaining);
+                } else {
+                  document.getElementById('remaining-supply').innerHTML =
+                    `Remaining: <span style="color: #999">N/A</span>`;
+                }
+              }
+            } catch (fallbackErr) {
+              console.error('Fallback calculation failed:', fallbackErr);
+              document.getElementById('remaining-supply').innerHTML =
+                `Remaining: <span style="color: #999">Error</span>`;
+            }
           }
 
           // Try to load other info
           try {
-            const [name, symbol, owner, mintFee, royaltyRate] =
-              await Promise.all([
-                bankedNft.name(),
-                bankedNft.symbol(),
-                bankedNft.owner(),
-                bankedNft.mintFee(),
-                bankedNft.royaltyRate(),
-              ]);
+            const [name, symbol, owner, mintFee] = await Promise.all([
+              bankedNft.name(),
+              bankedNft.symbol(),
+              bankedNft.owner(),
+              bankedNft.mintFee(),
+            ]);
 
             console.log(`Loaded ${name} (${symbol}) - Owner: ${owner}`);
             console.log(`Mint fee: ${ethers.utils.formatEther(mintFee)} ETH`);
-            console.log(`Royalty rate: ${royaltyRate.toNumber() / 100}%`);
+
+            // Try to get royalty rate separately
+            try {
+              const royaltyRate = await bankedNft.royaltyRate();
+              console.log(`Royalty rate: ${royaltyRate.toNumber() / 100}%`);
+            } catch (e) {
+              console.log('royaltyRate method not available');
+            }
           } catch (e) {
-            console.error("Error loading additional contract info:", e);
+            console.error('Error loading additional contract info:', e);
           }
         } catch (error) {
-          console.error("Error in loadContractInfo:", error);
+          console.error('Error in loadContractInfo:', error);
           // Show error state in UI
-          document.getElementById(
-            "total-supply"
-          ).innerHTML = `Total Minted: <span style="color: #ff6b6b">Error</span>`;
-          document.getElementById(
-            "max-supply"
-          ).innerHTML = `Max Supply: <span style="color: #ff6b6b">Error</span>`;
-          document.getElementById(
-            "remaining-supply"
-          ).innerHTML = `Remaining: <span style="color: #ff6b6b">Error</span>`;
+          document.getElementById('total-supply').innerHTML = `Total Minted: <span style="color: #ff6b6b">Error</span>`;
+          document.getElementById('max-supply').innerHTML = `Max Supply: <span style="color: #ff6b6b">Error</span>`;
+          document.getElementById('remaining-supply').innerHTML =
+            `Remaining: <span style="color: #ff6b6b">Error</span>`;
         }
       }
 
-      function showStatus(message, type, section = "viewer") {
-        const statusId =
-          section === "viewer" ? "status-viewer" : "status-" + section;
+      function showStatus(message, type, section = 'viewer') {
+        const statusId = section === 'viewer' ? 'status-viewer' : 'status-' + section;
         let status = document.getElementById(statusId);
         if (!status) {
-          status = document.getElementById("status-viewer");
+          status = document.getElementById('status-viewer');
         }
 
         status.textContent = message;
-        status.className = "status " + type;
+        status.className = 'status ' + type;
 
-        if (type === "success") {
+        if (type === 'success') {
           setTimeout(() => {
-            status.style.display = "none";
+            status.style.display = 'none';
           }, 5000);
         }
       }
 
       function switchTab(tab) {
         // Update tab buttons
-        document
-          .querySelectorAll(".tab")
-          .forEach((t) => t.classList.remove("active"));
-        event.target.classList.add("active");
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        event.target.classList.add('active');
 
         // Update content sections
-        document
-          .querySelectorAll(".content-section")
-          .forEach((s) => s.classList.remove("active"));
-        document.getElementById(tab + "-section").classList.add("active");
+        document.querySelectorAll('.content-section').forEach((s) => s.classList.remove('active'));
+        document.getElementById(tab + '-section').classList.add('active');
 
         // Load content for specific tabs
-        if (tab === "materials" && !materialsLoaded) {
+        if (tab === 'materials' && !materialsLoaded) {
           loadMaterials();
           materialsLoaded = true;
         }
@@ -1542,99 +1526,111 @@
 
       async function connectWallet() {
         try {
-          if (!window.ethereum) {
-            alert("Please install MetaMask!");
+          if (!walletManager) {
+            // Initialize WalletManager if not already done
+            walletManager = new WalletManager({
+              defaultNetwork: 'bonsoleil',
+              networks: {
+                bonsoleil: {
+                  name: 'Bon-Soleil Testnet',
+                  chainId: 21201,
+                  rpcUrl: RPC_URL,
+                },
+              },
+              onAccountChanged: async (account) => {
+                currentAccount = account;
+                if (account) {
+                  // Update contract manager with new signer
+                  signer = walletManager.getSigner();
+                  contractManager.updateSigner(signer);
+
+                  // Update display
+                  document.getElementById('wallet-status-minting').innerHTML = `Connected: ${formatAddress(account)}`;
+                  document.getElementById('wallet-status-admin').innerHTML = `Connected: ${formatAddress(account)}`;
+
+                  await loadMintingInfo();
+                }
+              },
+              onNetworkChanged: async (chainId) => {
+                if (chainId !== 21201) {
+                  showStatus('Please switch to Bon-Soleil Testnet', 'error');
+                }
+              },
+            });
+          }
+
+          // Connect wallet
+          const account = await walletManager.connect();
+          if (!account) {
             return;
           }
 
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          const web3Provider = new ethers.providers.Web3Provider(
-            window.ethereum
-          );
-          
-          // Check network
-          const network = await web3Provider.getNetwork();
-          console.log("Connected to network:", network);
-          console.log("Expected chain ID: 21201");
-          
-          if (network.chainId !== 21201) {
-            alert(`Wrong network! Please switch to Bon-Soleil Testnet (Chain ID: 21201). Current chain ID: ${network.chainId}`);
-            return;
-          }
-          
-          signer = web3Provider.getSigner();
-          currentAccount = await signer.getAddress();
+          currentAccount = account;
+          signer = walletManager.getSigner();
 
-          // Check if addresses are loaded
-          if (!BANKED_NFT_ADDRESS) {
-            console.error("BANKED_NFT_ADDRESS is not set");
-            alert("Contract addresses not loaded. Please refresh the page.");
-            return;
-          }
-          
-          console.log("Updating contracts with signer, address:", BANKED_NFT_ADDRESS);
-          
-          // Update contracts with signer
-          bankedNft = new ethers.Contract(
-            BANKED_NFT_ADDRESS,
-            BANKED_NFT_ABI,
-            signer
-          );
-          
-          // Verify contract is accessible
-          try {
-            const testName = await bankedNft.name();
-            console.log("Contract name verified:", testName);
-          } catch (testError) {
-            console.error("Failed to access contract:", testError);
-            console.error("Contract address:", BANKED_NFT_ADDRESS);
-            console.error("Signer address:", currentAccount);
-          }
-          
-          if (METADATA_BANK_ADDRESS) {
-            metadataBank = new ethers.Contract(
-              METADATA_BANK_ADDRESS,
-              METADATA_BANK_ABI,
-              signer
+          // Update ContractManager with signer
+          contractManager.updateSigner(signer);
+
+          // Get updated contracts with signer
+          bankedNft = contractManager.getContract('bankedNFT');
+          metadataBank = contractManager.getContract('metadataBank');
+
+          // If contracts not in manager, create them with signer
+          if (!bankedNft && BANKED_NFT_ADDRESS) {
+            console.log('Creating BankedNFT contract with signer:');
+            console.log('- Address:', BANKED_NFT_ADDRESS);
+            console.log('- ABI type:', Array.isArray(BANKED_NFT_ABI) ? 'array' : typeof BANKED_NFT_ABI);
+            console.log(
+              '- ABI has remainingSupply:',
+              BANKED_NFT_ABI.some(
+                (item) =>
+                  (typeof item === 'string' && item.includes('remainingSupply')) ||
+                  (typeof item === 'object' && item.name === 'remainingSupply')
+              )
+            );
+
+            bankedNft = new ethers.Contract(BANKED_NFT_ADDRESS, BANKED_NFT_ABI, signer);
+
+            console.log(
+              'Contract with signer created. Has remainingSupply method:',
+              typeof bankedNft.remainingSupply === 'function'
             );
           }
 
+          if (!metadataBank && METADATA_BANK_ADDRESS) {
+            metadataBank = new ethers.Contract(METADATA_BANK_ADDRESS, METADATA_BANK_ABI, signer);
+          }
+
           // Update all wallet status displays
-          document.getElementById(
-            "wallet-status-minting"
-          ).innerHTML = `Connected: ${currentAccount.slice(
-            0,
-            6
-          )}...${currentAccount.slice(-4)}`;
-          document.getElementById(
-            "wallet-status-admin"
-          ).innerHTML = `Connected: ${currentAccount.slice(
-            0,
-            6
-          )}...${currentAccount.slice(-4)}`;
+          document.getElementById('wallet-status-minting').innerHTML = `Connected: ${formatAddress(currentAccount)}`;
+          document.getElementById('wallet-status-admin').innerHTML = `Connected: ${formatAddress(currentAccount)}`;
 
           // Hide connect buttons and show controls
-          document.getElementById("wallet-section-minting").style.display =
-            "none";
-          document.getElementById("wallet-section-admin").style.display =
-            "none";
-          document.getElementById("minting-controls").style.display = "block";
-          document.getElementById("admin-controls").style.display = "block";
+          document.getElementById('wallet-section-minting').style.display = 'none';
+          document.getElementById('wallet-section-admin').style.display = 'none';
+          document.getElementById('minting-controls').style.display = 'block';
+          document.getElementById('admin-controls').style.display = 'block';
 
           // Load minting info
           await loadMintingInfo();
         } catch (error) {
-          console.error("Wallet connection error:", error);
-          alert("Failed to connect wallet: " + error.message);
+          console.error('Wallet connection error:', error);
+          alert('Failed to connect wallet: ' + error.message);
         }
       }
 
       async function loadMintingInfo() {
         try {
           if (!bankedNft) {
-            console.error("BankedNFT contract not initialized");
-            document.getElementById("collection-name").textContent = "Error: Contract not initialized";
+            console.error('BankedNFT contract not initialized');
+            document.getElementById('collection-name').textContent = 'Error: Contract not initialized';
             return;
+          }
+
+          // Ensure we have the correct contract with loaded ABI
+          if (BANKED_NFT_ABI.length > 30 && typeof bankedNft.remainingSupply !== 'function') {
+            console.log('Recreating BankedNFT contract with loaded ABI in loadMintingInfo');
+            bankedNft = new ethers.Contract(BANKED_NFT_ADDRESS, BANKED_NFT_ABI, signer || provider);
           }
 
           // Get all contract information
@@ -1643,7 +1639,7 @@
             symbol,
             totalSupply,
             maxSupply,
-            remainingSupply,
+            remainingSupplyResult,
             mintFee,
             canMint,
             royaltyRate,
@@ -1654,7 +1650,18 @@
             bankedNft.symbol(),
             bankedNft.totalSupply(),
             bankedNft.maxSupply(),
-            bankedNft.remainingSupply(),
+            bankedNft.remainingSupply().catch(async (err) => {
+              console.error('remainingSupply method failed, using fallback:', err);
+              // Fallback: calculate from maxSupply - totalSupply
+              try {
+                const max = await bankedNft.maxSupply();
+                const total = await bankedNft.totalSupply();
+                return max.sub(total);
+              } catch (fallbackErr) {
+                console.error('Fallback calculation also failed:', fallbackErr);
+                return ethers.BigNumber.from(0);
+              }
+            }),
             bankedNft.mintFee(),
             bankedNft.canMint(),
             bankedNft.royaltyRate(),
@@ -1662,67 +1669,58 @@
             bankedNft.metadataBank(),
           ]);
 
+          // Ensure remainingSupply is a valid value
+          const remainingSupply = remainingSupplyResult || ethers.BigNumber.from(0);
+
           // Get user balance
           const balance = await provider.getBalance(currentAccount);
 
           // Update all display elements
-          document.getElementById("collection-name").textContent = name;
-          document.getElementById("collection-symbol").textContent = symbol;
-          document.getElementById("mint-total-supply").textContent =
-            totalSupply.toString();
-          document.getElementById("mint-max-supply").textContent =
-            maxSupply.toString();
-          document.getElementById("mint-remaining").textContent =
-            remainingSupply.toString();
-          document.getElementById("mint-fee").textContent =
-            ethers.utils.formatEther(mintFee) + " ETH";
-          document.getElementById("user-balance").textContent =
-            ethers.utils.formatEther(balance) + " ETH";
-          document.getElementById("can-mint").textContent = canMint
-            ? "Yes ✅"
-            : "No ❌";
-          document.getElementById("royalty-rate").textContent =
-            royaltyRate.toNumber() / 100 + "%";
-          document.getElementById("contract-owner").textContent =
-            owner.slice(0, 6) + "..." + owner.slice(-4);
+          document.getElementById('collection-name').textContent = name;
+          document.getElementById('collection-symbol').textContent = symbol;
+          document.getElementById('mint-total-supply').textContent = totalSupply.toString();
+          document.getElementById('mint-max-supply').textContent = maxSupply.toString();
+          document.getElementById('mint-remaining').textContent =
+            remainingSupply.toString() + (remainingSupplyResult ? '' : ' (calculated)');
+          document.getElementById('mint-fee').textContent = ethers.utils.formatEther(mintFee) + ' ETH';
+          document.getElementById('user-balance').textContent = ethers.utils.formatEther(balance) + ' ETH';
+          document.getElementById('can-mint').textContent = canMint ? 'Yes ✅' : 'No ❌';
+          document.getElementById('royalty-rate').textContent = royaltyRate.toNumber() / 100 + '%';
+          document.getElementById('contract-owner').textContent = formatAddress(owner);
 
           // Update contract balance for admin
           const contractBalance = await provider.getBalance(BANKED_NFT_ADDRESS);
-          document.getElementById("contract-balance").textContent =
-            ethers.utils.formatEther(contractBalance) + " ETH";
+          document.getElementById('contract-balance').textContent = ethers.utils.formatEther(contractBalance) + ' ETH';
 
           // Update current MetadataBank display
-          const currentMetadataBankElement = document.getElementById(
-            "current-metadata-bank"
-          );
+          const currentMetadataBankElement = document.getElementById('current-metadata-bank');
           if (currentMetadataBankElement) {
             currentMetadataBankElement.textContent = metadataBank;
           }
 
           // Update contract address display
-          document.getElementById("minting-contract-address").textContent = BANKED_NFT_ADDRESS;
-          document.getElementById("admin-contract-address").textContent = BANKED_NFT_ADDRESS;
+          document.getElementById('minting-contract-address').textContent = BANKED_NFT_ADDRESS;
+          document.getElementById('admin-contract-address').textContent = BANKED_NFT_ADDRESS;
         } catch (error) {
-          console.error("Error loading minting info:", error);
+          console.error('Error loading minting info:', error);
         }
       }
 
       async function loadWalletNFTs() {
-        const address = document.getElementById("wallet-address").value.trim();
+        const address = document.getElementById('wallet-address').value.trim();
         if (!address || !ethers.utils.isAddress(address)) {
-          showStatus("Please enter a valid wallet address", "error");
+          showStatus('Please enter a valid wallet address', 'error');
           return;
         }
 
-        showStatus("Loading wallet NFTs...", "info");
-        const container = document.getElementById("nft-container");
+        showStatus('Loading wallet NFTs...', 'info');
+        const container = document.getElementById('nft-container');
         container.innerHTML = '<div class="loading-message">Loading...</div>';
 
         try {
           const balance = await bankedNft.balanceOf(address);
           if (balance.eq(0)) {
-            container.innerHTML =
-              '<div class="loading-message">No NFTs found in this wallet</div>';
+            container.innerHTML = '<div class="loading-message">No NFTs found in this wallet</div>';
             return;
           }
 
@@ -1733,26 +1731,24 @@
           }
 
           await displayNFTs(nfts);
-          showStatus(`Found ${nfts.length} NFTs`, "success");
+          showStatus(`Found ${nfts.length} NFTs`, 'success');
         } catch (error) {
-          console.error("Error loading wallet NFTs:", error);
-          showStatus("Error loading NFTs: " + error.message, "error");
-          container.innerHTML =
-            '<div class="loading-message">Error loading NFTs</div>';
+          console.error('Error loading wallet NFTs:', error);
+          showStatus('Error loading NFTs: ' + error.message, 'error');
+          container.innerHTML = '<div class="loading-message">Error loading NFTs</div>';
         }
       }
 
       async function loadAllNFTs() {
-        showStatus("Loading all NFTs...", "info");
-        const container = document.getElementById("nft-container");
+        showStatus('Loading all NFTs...', 'info');
+        const container = document.getElementById('nft-container');
         container.innerHTML = '<div class="loading-message">Loading...</div>';
 
         try {
           const totalSupply = await bankedNft.totalSupply();
 
           if (totalSupply.eq(0)) {
-            container.innerHTML =
-              '<div class="loading-message">No NFTs minted yet</div>';
+            container.innerHTML = '<div class="loading-message">No NFTs minted yet</div>';
             return;
           }
 
@@ -1763,72 +1759,66 @@
           }
 
           await displayNFTs(nfts);
-          showStatus(
-            `Showing ${nfts.length} of ${totalSupply} NFTs`,
-            "success"
-          );
+          showStatus(`Showing ${nfts.length} of ${totalSupply} NFTs`, 'success');
         } catch (error) {
-          console.error("Error loading all NFTs:", error);
-          showStatus("Error loading NFTs: " + error.message, "error");
+          console.error('Error loading all NFTs:', error);
+          showStatus('Error loading NFTs: ' + error.message, 'error');
         }
       }
 
       async function loadSingleNFT() {
-        const tokenId = document.getElementById("token-id").value;
+        const tokenId = document.getElementById('token-id').value;
         if (!tokenId || tokenId < 1) {
-          showStatus("Please enter a valid token ID", "error");
+          showStatus('Please enter a valid token ID', 'error');
           return;
         }
 
-        showStatus(`Loading NFT #${tokenId}...`, "info");
+        showStatus(`Loading NFT #${tokenId}...`, 'info');
 
         try {
           await displayNFTs([ethers.BigNumber.from(tokenId)]);
-          showStatus(`Loaded NFT #${tokenId}`, "success");
+          showStatus(`Loaded NFT #${tokenId}`, 'success');
         } catch (error) {
-          console.error("Error loading NFT:", error);
-          showStatus("Error: NFT not found or not minted yet", "error");
+          console.error('Error loading NFT:', error);
+          showStatus('Error: NFT not found or not minted yet', 'error');
         }
       }
 
       async function displayNFTs(tokenIds) {
-        const container = document.getElementById("nft-container");
-        container.innerHTML = "";
+        const container = document.getElementById('nft-container');
+        container.innerHTML = '';
 
-        const grid = document.createElement("div");
-        grid.className = "nft-grid";
+        const grid = document.createElement('div');
+        grid.className = 'nft-grid';
 
         for (const tokenId of tokenIds) {
           try {
             // Get token URI
             const tokenURI = await bankedNft.tokenURI(tokenId);
 
-            // Get owner and soul-bound status
-            const [owner, isSoulBound] = await Promise.all([
-              bankedNft.ownerOf(tokenId),
-              bankedNft.isSoulBound(tokenId),
-            ]);
+            // Get owner
+            const owner = await bankedNft.ownerOf(tokenId);
+
+            // Try to get soul-bound status (may not exist in all contracts)
+            let isSoulBound = false;
+            try {
+              isSoulBound = await bankedNft.isSoulBound(tokenId);
+            } catch (e) {
+              // Contract doesn't have isSoulBound method, assume false
+              console.log('isSoulBound method not available');
+            }
 
             // Parse metadata
             let metadata;
-            let svg = "";
+            let svg = '';
 
-            if (tokenURI.startsWith("data:application/json;base64,")) {
-              const base64Json = tokenURI.replace(
-                "data:application/json;base64,",
-                ""
-              );
+            if (tokenURI.startsWith('data:application/json;base64,')) {
+              const base64Json = tokenURI.replace('data:application/json;base64,', '');
               const jsonString = atob(base64Json);
               metadata = JSON.parse(jsonString);
 
-              if (
-                metadata.image &&
-                metadata.image.startsWith("data:image/svg+xml;base64,")
-              ) {
-                const base64Svg = metadata.image.replace(
-                  "data:image/svg+xml;base64,",
-                  ""
-                );
+              if (metadata.image && metadata.image.startsWith('data:image/svg+xml;base64,')) {
+                const base64Svg = metadata.image.replace('data:image/svg+xml;base64,', '');
                 svg = atob(base64Svg);
               }
             } else {
@@ -1841,33 +1831,30 @@
             }
 
             // Create card
-            const card = document.createElement("div");
-            card.className = "nft-card";
+            const card = document.createElement('div');
+            card.className = 'nft-card';
 
             const soulBoundBadge = isSoulBound
               ? '<span style="background: #ff6b6b; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 10px;">SOUL-BOUND</span>'
-              : "";
+              : '';
 
             // Store SVG data in a data attribute to avoid escaping issues
-            card.setAttribute("data-svg", svg || "");
-            card.setAttribute("data-name", metadata.name || "");
-            card.setAttribute("data-tokenid", tokenId || "");
+            card.setAttribute('data-svg', svg || '');
+            card.setAttribute('data-name', metadata.name || '');
+            card.setAttribute('data-tokenid', tokenId || '');
 
             card.innerHTML = `
                         <div class="nft-image">
-                            ${
-                              svg ||
-                              '<div style="color: #666;">No image available</div>'
-                            }
+                            ${svg || '<div style="color: #666;">No image available</div>'}
                         </div>
                         <div class="nft-details">
                             <h4>${metadata.name}${soulBoundBadge}</h4>
                             <p style="color: #888; font-size: 12px; margin-bottom: 10px;">
-                                Owner: ${owner.slice(0, 6)}...${owner.slice(-4)}
+                                Owner: ${formatAddress(owner)}
                                 <button class="preview-toggle" onclick="showPreviewFromCard(this.closest('.nft-card'))">Preview</button>
                             </p>
                             <p style="color: #aaa; font-size: 13px; margin-bottom: 10px;">
-                                ${metadata.description || "No description"}
+                                ${metadata.description || 'No description'}
                             </p>
                             ${
                               metadata.attributes.length > 0
@@ -1882,10 +1869,10 @@
                                         </span>
                                     `
                                       )
-                                      .join("")}
+                                      .join('')}
                                 </div>
                             `
-                                : ""
+                                : ''
                             }
                         </div>
                     `;
@@ -1901,97 +1888,95 @@
 
       // Metadata Explorer Functions
       async function getMetadataByIndex() {
-        const index = document.getElementById("metadata-index").value;
-        const resultDiv = document.getElementById("metadata-result");
+        const index = document.getElementById('metadata-index').value;
+        const resultDiv = document.getElementById('metadata-result');
 
         try {
-          resultDiv.textContent = "Loading...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Loading...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const metadata = await finalMetadataBank.getMetadata(index);
 
           resultDiv.textContent = `Loaded metadata for index ${index}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           displayMetadata(metadata);
         } catch (error) {
-          console.error("Error loading metadata:", error);
+          console.error('Error loading metadata:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function decodeTokenId() {
-        const tokenId = document.getElementById("decode-token-id").value;
-        const resultDiv = document.getElementById("decode-result");
+        const tokenId = document.getElementById('decode-token-id').value;
+        const resultDiv = document.getElementById('decode-result');
 
         try {
-          resultDiv.textContent = "Decoding...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Decoding...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const params = await finalMetadataBank.decodeTokenId(tokenId);
 
           const species = [
-            "Werewolf",
-            "Goblin",
-            "Frankenstein",
-            "Demon",
-            "Dragon",
-            "Zombie",
-            "Vampire",
-            "Mummy",
-            "Succubus",
-            "Skeleton",
+            'Werewolf',
+            'Goblin',
+            'Frankenstein',
+            'Demon',
+            'Dragon',
+            'Zombie',
+            'Vampire',
+            'Mummy',
+            'Succubus',
+            'Skeleton',
           ];
           const backgrounds = [
-            "Bloodmoon",
-            "Abyss",
-            "Decay",
-            "Corruption",
-            "Venom",
-            "Void",
-            "Inferno",
-            "Frost",
-            "Ragnarok",
-            "Shadow",
+            'Bloodmoon',
+            'Abyss',
+            'Decay',
+            'Corruption',
+            'Venom',
+            'Void',
+            'Inferno',
+            'Frost',
+            'Ragnarok',
+            'Shadow',
           ];
           const items = [
-            "Crown",
-            "Sword",
-            "Shield",
-            "Poison",
-            "Torch",
-            "Wine",
-            "Scythe",
-            "Staff",
-            "Shoulder",
-            "Amulet",
+            'Crown',
+            'Sword',
+            'Shield',
+            'Poison',
+            'Torch',
+            'Wine',
+            'Scythe',
+            'Staff',
+            'Shoulder',
+            'Amulet',
           ];
           const effects = [
-            "Seizure",
-            "Mindblast",
-            "Confusion",
-            "Meteor",
-            "Bats",
-            "Poisoning",
-            "Lightning",
-            "Blizzard",
-            "Burning",
-            "Brainwash",
+            'Seizure',
+            'Mindblast',
+            'Confusion',
+            'Meteor',
+            'Bats',
+            'Poisoning',
+            'Lightning',
+            'Blizzard',
+            'Burning',
+            'Brainwash',
           ];
 
           resultDiv.innerHTML = `
                     Token ID ${tokenId} decodes to:<br>
                     Species: ${species[params.species]} (${params.species})<br>
-                    Background: ${backgrounds[params.background]} (${
-            params.background
-          })<br>
+                    Background: ${backgrounds[params.background]} (${params.background})<br>
                     Item: ${items[params.item]} (${params.item})<br>
                     Effect: ${effects[params.effect]} (${params.effect})
                 `;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Get and display the metadata for these parameters
           const metadata = await finalMetadataBank.generateMetadata(
@@ -2003,42 +1988,37 @@
           );
           displayMetadata(metadata);
         } catch (error) {
-          console.error("Error decoding token:", error);
+          console.error('Error decoding token:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function getRandomMetadata() {
         const randomIndex = Math.floor(Math.random() * 10000);
-        document.getElementById("metadata-index").value = randomIndex;
+        document.getElementById('metadata-index').value = randomIndex;
         await getMetadataByIndex();
       }
 
       function displayMetadata(metadataUri) {
-        const displayDiv = document.getElementById("metadata-display");
-        displayDiv.style.display = "block";
+        const displayDiv = document.getElementById('metadata-display');
+        displayDiv.style.display = 'block';
 
         // Display raw metadata
-        document.getElementById("raw-metadata").textContent = metadataUri;
+        document.getElementById('raw-metadata').textContent = metadataUri;
 
         // Decode and display
-        if (metadataUri.startsWith("data:application/json;base64,")) {
+        if (metadataUri.startsWith('data:application/json;base64,')) {
           try {
-            const base64Json = metadataUri.replace(
-              "data:application/json;base64,",
-              ""
-            );
+            const base64Json = metadataUri.replace('data:application/json;base64,', '');
             const jsonString = atob(base64Json);
             const metadata = JSON.parse(jsonString);
 
-            document.getElementById("metadata-name").textContent =
-              metadata.name || "Unknown";
-            document.getElementById("metadata-description").textContent =
-              metadata.description || "No description";
+            document.getElementById('metadata-name').textContent = metadata.name || 'Unknown';
+            document.getElementById('metadata-description').textContent = metadata.description || 'No description';
 
             // Display attributes
-            const attrDiv = document.getElementById("metadata-attributes");
+            const attrDiv = document.getElementById('metadata-attributes');
             attrDiv.innerHTML = metadata.attributes
               .map(
                 (attr) => `
@@ -2048,127 +2028,115 @@
                         </span>
                     `
               )
-              .join("");
+              .join('');
 
             // Display SVG
-            if (
-              metadata.image &&
-              metadata.image.startsWith("data:image/svg+xml;base64,")
-            ) {
-              const base64Svg = metadata.image.replace(
-                "data:image/svg+xml;base64,",
-                ""
-              );
+            if (metadata.image && metadata.image.startsWith('data:image/svg+xml;base64,')) {
+              const base64Svg = metadata.image.replace('data:image/svg+xml;base64,', '');
               const svg = atob(base64Svg);
-              document.getElementById("metadata-svg-container").innerHTML = svg;
+              document.getElementById('metadata-svg-container').innerHTML = svg;
 
               // Show floating preview with full metadata
-              showFloatingPreview(
-                svg,
-                metadata.name,
-                "Metadata Preview",
-                metadata
-              );
+              showFloatingPreview(svg, metadata.name, 'Metadata Preview', metadata);
             }
           } catch (error) {
-            console.error("Error parsing metadata:", error);
-            document.getElementById("metadata-name").textContent =
-              "Error parsing metadata";
+            console.error('Error parsing metadata:', error);
+            document.getElementById('metadata-name').textContent = 'Error parsing metadata';
           }
         }
       }
 
       // Minting functions
       async function mintNFT() {
-        const resultDiv = document.getElementById("mint-result");
+        const resultDiv = document.getElementById('mint-result');
 
         try {
-          resultDiv.textContent = "Preparing transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Preparing transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const mintFee = await bankedNft.mintFee();
 
-          resultDiv.textContent = "Sending transaction...";
+          resultDiv.textContent = 'Sending transaction...';
           const tx = await bankedNft.mint({ value: mintFee });
           resultDiv.textContent = `Transaction sent: ${tx.hash}`;
 
           const receipt = await tx.wait();
 
           // Find the minted token ID from events
-          let tokenId = "Unknown";
+          let tokenId = 'Unknown';
           if (receipt.events) {
-            const event = receipt.events.find((e) => e.event === "NFTMinted");
+            const event = receipt.events.find((e) => e.event === 'NFTMinted');
             if (event && event.args && event.args.tokenId) {
               tokenId = event.args.tokenId.toString();
             }
           }
 
           resultDiv.textContent = `Success! Minted NFT #${tokenId} - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh info
           await loadContractInfo();
           await loadMintingInfo();
         } catch (error) {
-          console.error("Mint error:", error);
+          console.error('Mint error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function mintSoulBoundNFT() {
-        const resultDiv = document.getElementById("soulbound-result");
+        const resultDiv = document.getElementById('soulbound-result');
 
         try {
-          resultDiv.textContent = "Preparing transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Preparing transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const mintFee = await bankedNft.mintFee();
 
-          resultDiv.textContent = "Sending transaction...";
+          resultDiv.textContent = 'Sending transaction...';
           const tx = await bankedNft.mintSoulBound({ value: mintFee });
           resultDiv.textContent = `Transaction sent: ${tx.hash}`;
 
           const receipt = await tx.wait();
 
           // Find the minted token ID from events
-          let tokenId = "Unknown";
+          let tokenId = 'Unknown';
           if (receipt.events) {
-            const event = receipt.events.find((e) => e.event === "NFTMinted");
+            const event = receipt.events.find((e) => e.event === 'NFTMinted');
             if (event && event.args && event.args.tokenId) {
               tokenId = event.args.tokenId.toString();
             }
           }
 
           resultDiv.textContent = `Success! Minted Soul-Bound NFT #${tokenId} - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh info
           await loadContractInfo();
           await loadMintingInfo();
         } catch (error) {
-          console.error("Mint error:", error);
+          console.error('Mint error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       // Admin functions
       async function updateConfig() {
-        const name = document.getElementById("config-name").value;
-        const symbol = document.getElementById("config-symbol").value;
-        const fee = document.getElementById("config-fee").value;
-        const royalty = document.getElementById("config-royalty").value;
-        const resultDiv = document.getElementById("config-result");
+        const name = document.getElementById('config-name').value;
+        const symbol = document.getElementById('config-symbol').value;
+        const fee = document.getElementById('config-fee').value;
+        const royalty = document.getElementById('config-royalty').value;
+        const resultDiv = document.getElementById('config-result');
 
         try {
-          resultDiv.textContent = "Sending transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Sending transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
-          const mintFee = ethers.utils.parseEther(fee || "0");
+          const mintFee = ethers.utils.parseEther(fee || '0');
           const royaltyRate = Math.floor((royalty || 0) * 100); // Convert percentage to basis points
 
           const tx = await bankedNft.config(name, symbol, mintFee, royaltyRate);
@@ -2176,64 +2144,64 @@
 
           await tx.wait();
           resultDiv.textContent = `Success! Configuration updated - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh info
           await loadContractInfo();
         } catch (error) {
-          console.error("Config error:", error);
+          console.error('Config error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function setMetadataBank() {
-        const address = document.getElementById("bank-address").value.trim();
-        const resultDiv = document.getElementById("bank-result");
+        const address = document.getElementById('bank-address').value.trim();
+        const resultDiv = document.getElementById('bank-result');
 
         if (!ethers.utils.isAddress(address)) {
-          resultDiv.textContent = "Invalid address";
-          resultDiv.className = "tx-result error";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Invalid address';
+          resultDiv.className = 'tx-result error';
+          resultDiv.style.display = 'block';
           return;
         }
 
         try {
-          resultDiv.textContent = "Sending transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Sending transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const tx = await bankedNft.setMetadataBank(address);
           resultDiv.textContent = `Transaction sent: ${tx.hash}`;
 
           await tx.wait();
           resultDiv.textContent = `Success! MetadataBank updated - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh info
           await loadContractInfo();
         } catch (error) {
-          console.error("SetBank error:", error);
+          console.error('SetBank error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function airdropNFT() {
-        const address = document.getElementById("airdrop-address").value.trim();
-        const resultDiv = document.getElementById("airdrop-result");
+        const address = document.getElementById('airdrop-address').value.trim();
+        const resultDiv = document.getElementById('airdrop-result');
 
         if (!ethers.utils.isAddress(address)) {
-          resultDiv.textContent = "Invalid address";
-          resultDiv.className = "tx-result error";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Invalid address';
+          resultDiv.className = 'tx-result error';
+          resultDiv.style.display = 'block';
           return;
         }
 
         try {
-          resultDiv.textContent = "Sending transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Sending transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const tx = await bankedNft.airdrop(address);
           resultDiv.textContent = `Transaction sent: ${tx.hash}`;
@@ -2241,9 +2209,9 @@
           const receipt = await tx.wait();
 
           // Find the minted token ID from events
-          let tokenId = "Unknown";
+          let tokenId = 'Unknown';
           if (receipt.events) {
-            const event = receipt.events.find((e) => e.event === "NFTMinted");
+            const event = receipt.events.find((e) => e.event === 'NFTMinted');
             if (event && event.args && event.args.tokenId) {
               tokenId = event.args.tokenId.toString();
             }
@@ -2253,73 +2221,65 @@
             0,
             6
           )}...${address.slice(-4)} - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh info
           await loadContractInfo();
         } catch (error) {
-          console.error("Airdrop error:", error);
+          console.error('Airdrop error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function withdrawFunds() {
-        const resultDiv = document.getElementById("withdraw-result");
+        const resultDiv = document.getElementById('withdraw-result');
 
         try {
-          resultDiv.textContent = "Sending transaction...";
-          resultDiv.className = "tx-result";
-          resultDiv.style.display = "block";
+          resultDiv.textContent = 'Sending transaction...';
+          resultDiv.className = 'tx-result';
+          resultDiv.style.display = 'block';
 
           const tx = await bankedNft.withdraw();
           resultDiv.textContent = `Transaction sent: ${tx.hash}`;
 
           await tx.wait();
           resultDiv.textContent = `Success! Funds withdrawn - TX: ${tx.hash}`;
-          resultDiv.className = "tx-result success";
+          resultDiv.className = 'tx-result success';
 
           // Refresh balance
           await loadMintingInfo();
         } catch (error) {
-          console.error("Withdraw error:", error);
+          console.error('Withdraw error:', error);
           resultDiv.textContent = `Error: ${error.reason || error.message}`;
-          resultDiv.className = "tx-result error";
+          resultDiv.className = 'tx-result error';
         }
       }
 
       async function refreshContractInfo() {
-        const infoDiv = document.getElementById("contract-info");
+        const infoDiv = document.getElementById('contract-info');
 
         try {
           if (!bankedNft) {
-            infoDiv.innerHTML = '<span style="color: #ff6b6b">Error: Contract not initialized. Please refresh the page.</span>';
+            infoDiv.innerHTML =
+              '<span style="color: #ff6b6b">Error: Contract not initialized. Please refresh the page.</span>';
             return;
           }
 
-          infoDiv.innerHTML = "Loading...";
+          infoDiv.innerHTML = 'Loading...';
 
-          const [
-            name,
-            symbol,
-            owner,
-            maxSupply,
-            mintFee,
-            royaltyRate,
-            totalMinted,
-            metadataBankAddr,
-            canMint,
-          ] = await Promise.all([
-            bankedNft.name(),
-            bankedNft.symbol(),
-            bankedNft.owner(),
-            bankedNft.maxSupply(),
-            bankedNft.mintFee(),
-            bankedNft.royaltyRate(),
-            bankedNft.totalSupply(),
-            bankedNft.metadataBank(),
-            bankedNft.canMint(),
-          ]);
+          const [name, symbol, owner, maxSupply, mintFee, royaltyRate, totalMinted, metadataBankAddr, canMint] =
+            await Promise.all([
+              bankedNft.name(),
+              bankedNft.symbol(),
+              bankedNft.owner(),
+              bankedNft.maxSupply(),
+              bankedNft.mintFee(),
+              bankedNft.royaltyRate(),
+              bankedNft.totalSupply(),
+              bankedNft.metadataBank(),
+              bankedNft.canMint(),
+            ]);
 
           const contractBalance = await provider.getBalance(BANKED_NFT_ADDRESS);
           const metadataCount =
@@ -2336,26 +2296,24 @@
                     <strong>Supply Info:</strong><br>
                     Total Minted: ${totalMinted}<br>
                     Max Supply: ${maxSupply}<br>
-                    Can Mint: ${canMint ? "Yes ✅" : "No ❌"}<br>
+                    Can Mint: ${canMint ? 'Yes ✅' : 'No ❌'}<br>
                     <br>
                     <strong>Configuration:</strong><br>
                     Mint Fee: ${ethers.utils.formatEther(mintFee)} ETH<br>
                     Royalty Rate: ${royaltyRate.toNumber() / 100}%<br>
                     <br>
                     <strong>Contract State:</strong><br>
-                    Contract Balance: ${ethers.utils.formatEther(
-                      contractBalance
-                    )} ETH<br>
+                    Contract Balance: ${ethers.utils.formatEther(contractBalance)} ETH<br>
                     MetadataBank: ${metadataBankAddr}<br>
                     Metadata Count: ${metadataCount}<br>
                     <br>
                     <strong>Contract Addresses:</strong><br>
                     BankedNFT: ${BANKED_NFT_ADDRESS}<br>
-                    MetadataBank: ${METADATA_BANK_ADDRESS || "Not set"}<br>
+                    MetadataBank: ${METADATA_BANK_ADDRESS || 'Not set'}<br>
                     Final MetadataBank: ${FINAL_METADATA_BANK_ADDRESS}
                 `;
         } catch (error) {
-          console.error("Info refresh error:", error);
+          console.error('Info refresh error:', error);
           infoDiv.innerHTML = `Error loading info: ${error.message}`;
         }
       }
@@ -2365,209 +2323,183 @@
 
       function showFloatingPreview(svg, name, tokenId, metadata) {
         currentPreviewData = { svg, name, tokenId, metadata };
-        const preview = document.getElementById("floating-preview");
-        const svgContainer = document.getElementById("floating-preview-svg");
-        const nameSpan = document.getElementById("floating-preview-name");
-        const idSpan = document.getElementById("floating-preview-id");
+        const preview = document.getElementById('floating-preview');
+        const svgContainer = document.getElementById('floating-preview-svg');
+        const nameSpan = document.getElementById('floating-preview-name');
+        const idSpan = document.getElementById('floating-preview-id');
 
         if (svg) {
           // Parse the SVG and update its size attributes for larger display
           const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svg, "image/svg+xml");
-          const svgElement = svgDoc.querySelector("svg");
+          const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
+          const svgElement = svgDoc.querySelector('svg');
 
           if (svgElement) {
             // Set larger display size while maintaining aspect ratio
-            svgElement.setAttribute("width", "450");
-            svgElement.setAttribute("height", "450");
-            svgContainer.innerHTML = new XMLSerializer().serializeToString(
-              svgElement
-            );
+            svgElement.setAttribute('width', '450');
+            svgElement.setAttribute('height', '450');
+            svgContainer.innerHTML = new XMLSerializer().serializeToString(svgElement);
           } else {
             svgContainer.innerHTML = svg;
           }
         } else {
-          svgContainer.innerHTML =
-            '<p style="color: #666;">No preview available</p>';
+          svgContainer.innerHTML = '<p style="color: #666;">No preview available</p>';
         }
 
-        nameSpan.textContent = name || "Unknown";
-        idSpan.textContent = tokenId || "-";
+        nameSpan.textContent = name || 'Unknown';
+        idSpan.textContent = tokenId || '-';
 
         // Show description and attributes if metadata is provided
-        const descDiv = document.getElementById("floating-preview-description");
-        const attrsDiv = document.getElementById("floating-preview-attributes");
+        const descDiv = document.getElementById('floating-preview-description');
+        const attrsDiv = document.getElementById('floating-preview-attributes');
 
         if (metadata) {
           // Show description
           if (metadata.description) {
-            document.getElementById("floating-preview-desc-text").textContent =
-              metadata.description;
-            descDiv.style.display = "block";
+            document.getElementById('floating-preview-desc-text').textContent = metadata.description;
+            descDiv.style.display = 'block';
           } else {
-            descDiv.style.display = "none";
+            descDiv.style.display = 'none';
           }
 
           // Show attributes
           if (metadata.attributes && metadata.attributes.length > 0) {
-            document.getElementById("floating-preview-attrs").innerHTML =
-              metadata.attributes
-                .map(
-                  (attr) => `
+            document.getElementById('floating-preview-attrs').innerHTML = metadata.attributes
+              .map(
+                (attr) => `
                         <div style="margin: 2px 0;">
                             <span style="color: #888;">${attr.trait_type}:</span>
                             <span style="color: #4caf50;">${attr.value}</span>
                         </div>
                     `
-                )
-                .join("");
-            attrsDiv.style.display = "block";
+              )
+              .join('');
+            attrsDiv.style.display = 'block';
           } else {
-            attrsDiv.style.display = "none";
+            attrsDiv.style.display = 'none';
           }
         } else {
-          descDiv.style.display = "none";
-          attrsDiv.style.display = "none";
+          descDiv.style.display = 'none';
+          attrsDiv.style.display = 'none';
         }
 
-        preview.classList.add("active");
+        preview.classList.add('active');
       }
 
       function closeFloatingPreview() {
-        const preview = document.getElementById("floating-preview");
-        preview.classList.remove("active");
+        const preview = document.getElementById('floating-preview');
+        preview.classList.remove('active');
       }
 
       function toggleFloatingPreview() {
-        const preview = document.getElementById("floating-preview");
-        if (preview.classList.contains("active")) {
+        const preview = document.getElementById('floating-preview');
+        if (preview.classList.contains('active')) {
           closeFloatingPreview();
         } else if (currentPreviewData) {
-          showFloatingPreview(
-            currentPreviewData.svg,
-            currentPreviewData.name,
-            currentPreviewData.tokenId
-          );
+          showFloatingPreview(currentPreviewData.svg, currentPreviewData.name, currentPreviewData.tokenId);
         }
       }
 
       function showPreviewFromCard(card) {
-        const svg = card.getAttribute("data-svg");
-        const name = card.getAttribute("data-name");
-        const tokenId = card.getAttribute("data-tokenid");
+        const svg = card.getAttribute('data-svg');
+        const name = card.getAttribute('data-name');
+        const tokenId = card.getAttribute('data-tokenid');
         showFloatingPreview(svg, name, tokenId);
       }
 
       // Material Explorer Functions
       async function loadMaterials() {
-        const container = document.getElementById("materials-container");
-        const status = document.getElementById("materials-status");
+        const container = document.getElementById('materials-container');
+        const status = document.getElementById('materials-status');
 
         try {
-          status.innerHTML =
-            '<span class="loading">Loading materials...</span>';
-          container.innerHTML = "";
+          status.innerHTML = '<span class="loading">Loading materials...</span>';
+          container.innerHTML = '';
 
           // Material Banks from deployment
           if (!DEPLOYMENT) {
-            status.innerHTML =
-              '<span class="error">Deployment not loaded</span>';
+            status.innerHTML = '<span class="error">Deployment not loaded</span>';
             return;
           }
 
           const BANKS = {
             monster: {
               main: DEPLOYMENT.contracts.MonsterBank,
-              type: "svg",
+              type: 'svg',
             },
             item: {
               main: DEPLOYMENT.contracts.ItemBank,
-              type: "svg",
+              type: 'svg',
             },
             background: {
               main: DEPLOYMENT.contracts.BackgroundBank,
-              type: "url",
+              type: 'url',
             },
             effect: {
               main: DEPLOYMENT.contracts.EffectBank,
-              type: "url",
+              type: 'url',
             },
           };
 
           // Test each bank
           await testMaterialBank(
-            "Monsters (SVG stored on-chain)",
+            'Monsters (SVG stored on-chain)',
             BANKS.monster.main,
-            "svg",
-            "getMonsterSVG",
-            "getMonsterName",
+            'svg',
+            'getMonsterSVG',
+            'getMonsterName',
             10,
             container
           );
           await testMaterialBank(
-            "Items (SVG stored on-chain)",
+            'Items (SVG stored on-chain)',
             BANKS.item.main,
-            "svg",
-            "getItemSVG",
-            "getItemName",
+            'svg',
+            'getItemSVG',
+            'getItemName',
             12,
             container
           );
           await testMaterialBank(
-            "Backgrounds (URL stored, expecting Arweave)",
+            'Backgrounds (URL stored, expecting Arweave)',
             BANKS.background.main,
-            "url",
-            "getBackgroundUrl",
-            "getBackgroundName",
+            'url',
+            'getBackgroundUrl',
+            'getBackgroundName',
             10,
             container
           );
           await testMaterialBank(
-            "Effects (URL stored, expecting Arweave)",
+            'Effects (URL stored, expecting Arweave)',
             BANKS.effect.main,
-            "url",
-            "getEffectUrl",
-            "getEffectName",
+            'url',
+            'getEffectUrl',
+            'getEffectName',
             12,
             container
           );
 
-          status.innerHTML =
-            '<span style="color: #4caf50;">Material status check complete</span>';
+          status.innerHTML = '<span style="color: #4caf50;">Material status check complete</span>';
         } catch (error) {
-          status.innerHTML =
-            '<span style="color: #ff6b6b;">Error loading materials: ' +
-            error.message +
-            "</span>";
+          status.innerHTML = '<span style="color: #ff6b6b;">Error loading materials: ' + error.message + '</span>';
         }
       }
 
-      async function testMaterialBank(
-        title,
-        address,
-        dataType,
-        dataMethod,
-        nameMethod,
-        count,
-        container
-      ) {
-        const section = document.createElement("div");
-        section.className = "admin-section";
+      async function testMaterialBank(title, address, dataType, dataMethod, nameMethod, count, container) {
+        const section = document.createElement('div');
+        section.className = 'admin-section';
         section.innerHTML = `<h3>${title}</h3><div class="info-text" style="margin-bottom: 10px;">Contract: ${address}</div><div class="material-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>`;
 
-        const grid = section.querySelector(".material-grid");
+        const grid = section.querySelector('.material-grid');
 
         // Create contract with appropriate methods
         const abi = [`function ${nameMethod}(uint8 id) view returns (string)`];
 
-        if (dataType === "svg") {
+        if (dataType === 'svg') {
           abi.push(`function ${dataMethod}(uint8 id) view returns (string)`);
           // Also check if getBackgroundSVG/getEffectSVG exists
-          if (
-            dataMethod === "getBackgroundUrl" ||
-            dataMethod === "getEffectUrl"
-          ) {
-            const svgMethod = dataMethod.replace("Url", "SVG");
+          if (dataMethod === 'getBackgroundUrl' || dataMethod === 'getEffectUrl') {
+            const svgMethod = dataMethod.replace('Url', 'SVG');
             abi.push(`function ${svgMethod}(uint8 id) view returns (string)`);
           }
         } else {
@@ -2577,20 +2509,16 @@
         const contract = new ethers.Contract(address, abi, provider);
 
         for (let i = 0; i < count; i++) {
-          const item = document.createElement("div");
-          item.style.cssText =
-            "background: #2a2a2a; padding: 10px; border-radius: 5px; text-align: center;";
+          const item = document.createElement('div');
+          item.style.cssText = 'background: #2a2a2a; padding: 10px; border-radius: 5px; text-align: center;';
 
           try {
             const name = await contract[nameMethod](i);
 
-            if (dataType === "svg") {
+            if (dataType === 'svg') {
               const svg = await contract[dataMethod](i);
               // Force SVG to be 96x96px
-              const svgFixed = svg.replace(
-                /<svg/,
-                '<svg width="96px" height="96px"'
-              );
+              const svgFixed = svg.replace(/<svg/, '<svg width="96px" height="96px"');
               item.innerHTML = `
                             <div style="background: #555555; padding: 5px; border-radius: 5px; margin-bottom: 5px; min-height: 48px; display: flex; align-items: center; justify-content: center;">${svgFixed}</div>
                             <div style="font-size: 12px; font-weight: bold;">${name}</div>
@@ -2601,7 +2529,7 @@
               // It's a URL type, try to get URL
               let hasUrl = false;
               let hasSvg = false;
-              let url = "";
+              let url = '';
 
               try {
                 url = await contract[dataMethod](i);
@@ -2611,15 +2539,12 @@
               }
 
               // Check if SVG method exists
-              const svgMethod = dataMethod.replace("Url", "SVG");
+              const svgMethod = dataMethod.replace('Url', 'SVG');
               try {
                 const svg = await contract[svgMethod](i);
                 hasSvg = true;
                 // Force SVG to be 96x96px
-                const svgFixed = svg.replace(
-                  /<svg/,
-                  '<svg width="96px" height="96px"'
-                );
+                const svgFixed = svg.replace(/<svg/, '<svg width="96px" height="96px"');
                 item.innerHTML = `
                                 <div style="background: white; padding: 5px; border-radius: 5px; margin-bottom: 5px; min-height: 48px; display: flex; align-items: center; justify-content: center;">${svgFixed}</div>
                                 <div style="font-size: 12px; font-weight: bold;">${name}</div>
@@ -2635,34 +2560,31 @@
 
                   try {
                     // Check if it's a data URL
-                    if (url.startsWith("data:")) {
-                      const [header, data] = url.split(",");
-                      if (header.includes("image/svg+xml")) {
+                    if (url.startsWith('data:')) {
+                      const [header, data] = url.split(',');
+                      if (header.includes('image/svg+xml')) {
                         // It's an SVG data URL
-                        if (header.includes("base64")) {
+                        if (header.includes('base64')) {
                           svgContent = atob(data);
                         } else {
                           svgContent = decodeURIComponent(data);
                         }
                         isValidSvg = true;
                       }
-                    } else if (url.startsWith("http")) {
+                    } else if (url.startsWith('http')) {
                       // For HTTP URLs, we can't fetch directly from browser due to CORS
                       // But we can check if it looks like an SVG URL
-                      if (url.includes(".svg") || url.includes("image/svg")) {
+                      if (url.includes('.svg') || url.includes('image/svg')) {
                         isValidSvg = true;
                       }
                     }
                   } catch (e) {
-                    console.error("Error checking URL content:", e);
+                    console.error('Error checking URL content:', e);
                   }
 
                   if (isValidSvg && svgContent) {
                     // Force SVG to be 96x96px
-                    const svgFixed = svgContent.replace(
-                      /<svg/,
-                      '<svg width="96px" height="96px"'
-                    );
+                    const svgFixed = svgContent.replace(/<svg/, '<svg width="96px" height="96px"');
                     item.innerHTML = `
                                         <div style="background: white; padding: 5px; border-radius: 5px; margin-bottom: 5px; min-height: 48px; display: flex; align-items: center; justify-content: center;">${svgFixed}</div>
                                         <div style="font-size: 12px; font-weight: bold;">${name}</div>
@@ -2682,26 +2604,22 @@
                                         ${
                                           isValidSvg
                                             ? '<div style="font-size: 9px; color: #999;">SVG URL (CORS blocked)</div>'
-                                            : ""
+                                            : ''
                                         }
                                     `;
                   }
                 } else {
-                  throw new Error("No data method found");
+                  throw new Error('No data method found');
                 }
               }
             }
 
             grid.appendChild(item);
           } catch (error) {
-            item.style.cssText =
-              "background: #330000; padding: 10px; border-radius: 5px; text-align: center;";
+            item.style.cssText = 'background: #330000; padding: 10px; border-radius: 5px; text-align: center;';
             item.innerHTML = `
                         <div style="color: #ff6b6b; font-size: 12px;">Error ID: ${i}</div>
-                        <div style="font-size: 10px; color: #ff9999;">${error.message.substring(
-                          0,
-                          50
-                        )}</div>
+                        <div style="font-size: 10px; color: #ff9999;">${error.message.substring(0, 50)}</div>
                     `;
             grid.appendChild(item);
           }
@@ -2712,13 +2630,13 @@
 
       // Composer Explorer Functions
       async function testComposer() {
-        const species = document.getElementById("composer-species").value;
-        const background = document.getElementById("composer-background").value;
-        const item = document.getElementById("composer-item").value;
-        const effect = document.getElementById("composer-effect").value;
+        const species = document.getElementById('composer-species').value;
+        const background = document.getElementById('composer-background').value;
+        const item = document.getElementById('composer-item').value;
+        const effect = document.getElementById('composer-effect').value;
 
-        const resultDiv = document.getElementById("composer-result");
-        resultDiv.style.display = "block";
+        const resultDiv = document.getElementById('composer-result');
+        resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
           <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
           <div class="status">Composing...</div>`;
@@ -2733,23 +2651,14 @@
           }
           const composerAddress = DEPLOYMENT.contracts.TragedyComposer;
           const composerAbi = [
-            "function composeSVG(uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+            'function composeSVG(uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)',
           ];
-          const composer = new ethers.Contract(
-            composerAddress,
-            composerAbi,
-            provider
-          );
+          const composer = new ethers.Contract(composerAddress, composerAbi, provider);
 
-          const svg = await composer.composeSVG(
-            species,
-            background,
-            item,
-            effect
-          );
+          const svg = await composer.composeSVG(species, background, item, effect);
 
           // Make sure the result div is visible
-          resultDiv.style.display = "block";
+          resultDiv.style.display = 'block';
 
           resultDiv.innerHTML = `
                     <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
@@ -2764,7 +2673,7 @@
                     </div>
                 `;
         } catch (error) {
-          resultDiv.style.display = "block";
+          resultDiv.style.display = 'block';
           resultDiv.innerHTML = `
             <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
             <div class="error-message">Error: ${error.message}</div>`;
@@ -2772,27 +2681,20 @@
       }
 
       // Initialize on load
-      window.addEventListener("load", () => {
+      window.addEventListener('load', () => {
         // Wait a bit for ethers to fully load
         setTimeout(() => {
-          if (typeof ethers !== "undefined") {
+          if (typeof ethers !== 'undefined') {
             init();
           } else {
-            console.error("ethers.js failed to load");
-            document.getElementById(
-              "network"
-            ).innerHTML = `Network: <span style="color: #ff6b6b">Library Load Error</span>`;
-            document.getElementById(
-              "nft-address"
-            ).innerHTML = `BankedNFT Contract: <span style="color: #ff6b6b">Cannot Initialize</span>`;
-            document.getElementById(
-              "metadata-address"
-            ).innerHTML = `MetadataBank: <span style="color: #ff6b6b">Cannot Initialize</span>`;
-            showStatus(
-              "Failed to load ethers.js library. Check internet connection.",
-              "error",
-              "viewer"
-            );
+            console.error('ethers.js failed to load');
+            document.getElementById('network').innerHTML =
+              `Network: <span style="color: #ff6b6b">Library Load Error</span>`;
+            document.getElementById('nft-address').innerHTML =
+              `BankedNFT Contract: <span style="color: #ff6b6b">Cannot Initialize</span>`;
+            document.getElementById('metadata-address').innerHTML =
+              `MetadataBank: <span style="color: #ff6b6b">Cannot Initialize</span>`;
+            showStatus('Failed to load ethers.js library. Check internet connection.', 'error', 'viewer');
           }
         }, 100);
       });

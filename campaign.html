@@ -1,11 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Free SBT Campaign - The Mythical Cursed-Nightmare</title>
 
     <!-- Favicon -->
@@ -18,10 +15,7 @@
     <!-- PWA対応 -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#6B46C1" />
@@ -33,12 +27,7 @@
     <link rel="stylesheet" href="css/styles.css" />
     <style>
       .campaign-banner {
-        background: linear-gradient(
-          135deg,
-          #ff6b6b 0%,
-          #9333ea 50%,
-          #4ecdc4 100%
-        );
+        background: linear-gradient(135deg, #ff6b6b 0%, #9333ea 50%, #4ecdc4 100%);
         padding: 3px;
         border-radius: 20px;
         margin: 30px 0;
@@ -112,17 +101,13 @@
       }
 
       .mint-section::before {
-        content: "";
+        content: '';
         position: absolute;
         top: -50%;
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(
-          circle,
-          rgba(147, 51, 234, 0.2) 0%,
-          transparent 70%
-        );
+        background: radial-gradient(circle, rgba(147, 51, 234, 0.2) 0%, transparent 70%);
         animation: rotate 10s linear infinite;
       }
 
@@ -251,8 +236,10 @@
         display: flex;
         justify-content: center;
         gap: 10px;
-        margin: 20px 0;
+        margin: 20px auto;
         flex-wrap: wrap;
+        width: 100%;
+        text-align: center;
       }
 
       .lang-tab {
@@ -352,11 +339,7 @@
       }
 
       #mobileBanner {
-        background: linear-gradient(
-          135deg,
-          rgba(155, 77, 255, 0.1),
-          rgba(255, 77, 77, 0.1)
-        );
+        background: linear-gradient(135deg, rgba(155, 77, 255, 0.1), rgba(255, 77, 77, 0.1));
         border: 2px solid #9b4dff;
         border-radius: 15px;
         padding: 20px;
@@ -458,42 +441,24 @@
   <body>
     <div class="container">
       <div class="button-group">
-        <button onclick="window.location.href='index.html'">
-          ← Back to Home
-        </button>
+        <button onclick="window.location.href='index.html'">← Back to Home</button>
         <button onclick="window.location.href='story.html'">Chronicles</button>
-        <button onclick="window.location.href='manifest.html'">
-          Manifesto
-        </button>
+        <button onclick="window.location.href='manifest.html'">Manifesto</button>
       </div>
 
       <div class="language-tabs">
-        <div class="lang-tab active" onclick="switchLanguage('en')">
-          <span class="lang-flag">🇺🇸</span> English
-        </div>
-        <div class="lang-tab" onclick="switchLanguage('ja')">
-          <span class="lang-flag">🇯🇵</span> 日本語
-        </div>
-        <div class="lang-tab" onclick="switchLanguage('zh')">
-          <span class="lang-flag">🇨🇳</span> 中文
-        </div>
-        <div class="lang-tab" onclick="switchLanguage('ko')">
-          <span class="lang-flag">🇰🇷</span> 한국어
-        </div>
-        <div class="lang-tab" onclick="switchLanguage('es')">
-          <span class="lang-flag">🇪🇸</span> Español
-        </div>
-        <div class="lang-tab" onclick="switchLanguage('fr')">
-          <span class="lang-flag">🇫🇷</span> Français
-        </div>
+        <div class="lang-tab active" onclick="switchLanguage('en')"><span class="lang-flag">🇺🇸</span> English</div>
+        <div class="lang-tab" onclick="switchLanguage('ja')"><span class="lang-flag">🇯🇵</span> 日本語</div>
+        <div class="lang-tab" onclick="switchLanguage('zh')"><span class="lang-flag">🇨🇳</span> 中文</div>
+        <div class="lang-tab" onclick="switchLanguage('ko')"><span class="lang-flag">🇰🇷</span> 한국어</div>
+        <div class="lang-tab" onclick="switchLanguage('es')"><span class="lang-flag">🇪🇸</span> Español</div>
+        <div class="lang-tab" onclick="switchLanguage('fr')"><span class="lang-flag">🇫🇷</span> Français</div>
       </div>
 
       <div class="campaign-banner">
         <div class="campaign-content">
           <h1 class="campaign-title" id="campaign-title">Free SBT Campaign</h1>
-          <p class="campaign-subtitle" id="campaign-subtitle">
-            Limited Time Offer - Gas Fees Only!
-          </p>
+          <p class="campaign-subtitle" id="campaign-subtitle">Limited Time Offer - Gas Fees Only!</p>
           <div class="countdown" id="countdown">Campaign Active Now!</div>
 
           <p class="campaign-description" id="campaign-description">
@@ -530,29 +495,19 @@
           <div class="features-grid">
             <div class="feature-card">
               <h3 class="feature-title" id="feature-0-title">期間限定</h3>
-              <p class="feature-description" id="feature-0-desc">
-                この時期にしか手に入らない特別なNFT
-              </p>
+              <p class="feature-description" id="feature-0-desc">この時期にしか手に入らない特別なNFT</p>
             </div>
             <div class="feature-card">
               <h3 class="feature-title" id="feature-1-title">Free Mint</h3>
-              <p class="feature-description" id="feature-1-desc">
-                No minting fees - pay only gas
-              </p>
+              <p class="feature-description" id="feature-1-desc">No minting fees - pay only gas</p>
             </div>
             <div class="feature-card">
               <h3 class="feature-title" id="feature-2-title">Soulbound</h3>
-              <p class="feature-description" id="feature-2-desc">
-                Non-transferable, forever yours
-              </p>
+              <p class="feature-description" id="feature-2-desc">Non-transferable, forever yours</p>
             </div>
             <div class="feature-card">
-              <h3 class="feature-title" id="feature-3-title">
-                Polygon Network
-              </h3>
-              <p class="feature-description" id="feature-3-desc">
-                Low gas fees on Polygon
-              </p>
+              <h3 class="feature-title" id="feature-3-title">Polygon Network</h3>
+              <p class="feature-description" id="feature-3-desc">Low gas fees on Polygon</p>
             </div>
           </div>
 
@@ -560,25 +515,14 @@
           <div id="mobileInstructionsContainer"></div>
 
           <div class="mint-section" id="mintSection">
-            <h2 id="mint-title" style="color: #e9d5ff; margin-bottom: 20px">
-              Mint Your Free SBT
-            </h2>
-            <p
-              id="mint-instruction"
-              style="color: #9ca3af; margin-bottom: 30px"
-            >
+            <h2 id="mint-title" style="color: #e9d5ff; margin-bottom: 20px">Mint Your Free SBT</h2>
+            <p id="mint-instruction" style="color: #9ca3af; margin-bottom: 30px">
               Connect your wallet and click the button below to mint
             </p>
 
-            <button class="mint-button" id="mintButton" onclick="mintSBT()">
-              MINT NOW
-            </button>
+            <button class="mint-button" id="mintButton" onclick="mintSBT()">MINT NOW</button>
 
-            <div class="wallet-info" id="walletInfo">
-              Not connected to wallet
-            </div>
-
-            <div id="alertMessage"></div>
+            <div class="wallet-info" id="walletInfo">Not connected to wallet</div>
           </div>
 
           <div class="contract-info">
@@ -610,129 +554,137 @@
             </div>
             <div class="contract-detail">
               <span class="contract-label" id="price-label">Price:</span>
-              <span class="contract-value" id="price-value"
-                >FREE (Gas only)</span
-              >
+              <span class="contract-value" id="price-value">FREE (Gas only)</span>
             </div>
           </div>
         </div>
       </div>
 
-      <footer
-        style="
-          text-align: center;
-          margin-top: 40px;
-          padding-top: 20px;
-          color: #c084fc;
-          font-size: 14px;
-        "
-      >
+      <footer style="text-align: center; margin-top: 40px; padding-top: 20px; color: #c084fc; font-size: 14px">
         © 2025 The Mythical Cursed-Nightmare
       </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="js/campaign-translations.js"></script>
+    <script src="js/utils/format.js"></script>
+    <script src="js/wallet/manager.js"></script>
+    <script src="js/contracts/manager.js"></script>
+    <script src="js/ui/campaign-translations.js"></script>
+    <script src="js/ui/metamask-modal-translations.js"></script>
+    <script src="js/ui/metamask-modal.js"></script>
+    <script src="js/ui/components.js"></script>
     <script>
       let provider;
       let signer;
       let userAccount;
-      let currentLang = localStorage.getItem("selectedLanguage") || "en";
+      let currentLang = localStorage.getItem('selectedLanguage') || 'en';
+      let walletManager = null;
+      let contractManager = null;
 
-      // SBT Contract configuration - will be loaded from setting.json
-      let contractAddress = "0x0000000000000000000000000000000000000000";
-      const contractABI = ["function mint() public"];
-      
-      // Load settings configuration
-      async function loadSettings() {
-        try {
-          const response = await fetch('config/setting.json');
-          if (response.ok) {
-            const settings = await response.json();
-            contractAddress = settings.contracts.Campaign || contractAddress;
-            console.log('Campaign contract loaded:', contractAddress);
-            
-            // Update the display
-            const addressElement = document.getElementById('contractAddressLink');
-            if (addressElement) {
-              addressElement.textContent = contractAddress;
+      // SBT Contract will be managed by ContractManager
+      let campaignContract = null;
+
+      // Initialize WalletManager
+      async function initializeWalletManager() {
+        walletManager = new WalletManager({
+          defaultNetwork: 'polygon',
+          onConnect: async (account, chainId) => {
+            userAccount = account;
+            provider = walletManager.getProvider();
+            signer = walletManager.getSigner();
+            updateWalletInfo();
+            console.log('Wallet connected:', account, 'Chain:', chainId);
+
+            // Initialize ContractManager with signer
+            await initializeContractManager();
+          },
+          onDisconnect: () => {
+            userAccount = null;
+            provider = null;
+            signer = null;
+            updateWalletInfo();
+            console.log('Wallet disconnected');
+          },
+          onAccountChange: async (account) => {
+            userAccount = account;
+            signer = walletManager.getSigner();
+            updateWalletInfo();
+            console.log('Account changed:', account);
+
+            // Update ContractManager signer
+            if (contractManager) {
+              contractManager.updateSigner(signer);
             }
+          },
+          onNetworkChange: (chainId) => {
+            console.log('Network changed:', chainId);
+            window.location.reload();
+          },
+          onError: (error, message) => {
+            showAlert(message, 'error');
+          },
+        });
+
+        return await walletManager.init();
+      }
+
+      // Initialize ContractManager
+      async function initializeContractManager() {
+        contractManager = new ContractManager();
+        await contractManager.initialize(provider, signer);
+
+        // Get campaign contract
+        campaignContract = contractManager.getContract('campaign');
+
+        // Update contract address display
+        const contractAddress = contractManager.getContractAddress('campaign');
+        if (contractAddress) {
+          const addressElement = document.getElementById('contractAddressLink');
+          if (addressElement) {
+            addressElement.textContent = contractAddress;
           }
-        } catch (error) {
-          console.error('Failed to load setting.json:', error);
+          updateContractAddressDisplay();
         }
       }
 
-      const polygonChainId = "0x89"; // 137 in hex
+      // Load settings configuration (kept for backward compatibility)
+      async function loadSettings() {
+        // Settings are now loaded by ContractManager
+        console.log('Settings loading handled by ContractManager');
+      }
 
-      // Initialize ethers and check wallet connection
+      const polygonChainId = '0x89'; // 137 in hex
+
+      // Initialize Web3 (now just a wrapper for wallet manager)
       async function initWeb3() {
-        if (typeof window.ethereum !== "undefined") {
-          provider = new ethers.providers.Web3Provider(window.ethereum);
-
-          // Check if already connected
-          const accounts = await provider.listAccounts();
-          if (accounts.length > 0) {
-            userAccount = accounts[0];
-            signer = provider.getSigner();
-            updateWalletInfo();
-          }
-
-          // Listen for account changes
-          window.ethereum.on("accountsChanged", (accounts) => {
-            if (accounts.length > 0) {
-              userAccount = accounts[0];
-              signer = provider.getSigner();
-              updateWalletInfo();
-            } else {
-              userAccount = null;
-              signer = null;
-              updateWalletInfo();
-            }
-          });
-
-          // Listen for chain changes
-          window.ethereum.on("chainChanged", () => {
-            window.location.reload();
-          });
+        // Initialization is handled by WalletManager
+        if (walletManager && walletManager.isWalletConnected()) {
+          updateWalletInfo();
         }
       }
 
       // Update wallet info display
       function updateWalletInfo() {
-        const walletInfo = document.getElementById("walletInfo");
+        const walletInfo = document.getElementById('walletInfo');
         const t = campaignTranslations[currentLang];
 
         if (userAccount) {
-          walletInfo.textContent =
-            t.wallet.connected +
-            ": " +
-            userAccount.substring(0, 6) +
-            "..." +
-            userAccount.substring(38);
-          walletInfo.style.color = "#86EFAC";
+          walletInfo.textContent = t.wallet.connected + ': ' + formatAddress(userAccount);
+          walletInfo.style.color = '#86EFAC';
         } else {
           walletInfo.textContent = t.wallet.notConnected;
-          walletInfo.style.color = "#9CA3AF";
+          walletInfo.style.color = '#9CA3AF';
         }
       }
 
       // Connect wallet
       async function connectWallet() {
         try {
-          const accounts = await window.ethereum.request({
-            method: "eth_requestAccounts",
-          });
-          userAccount = accounts[0];
-          signer = provider.getSigner();
-          updateWalletInfo();
-          return true;
+          const account = await walletManager.connect('polygon');
+          return account !== null;
         } catch (error) {
-          console.error("Error connecting wallet:", error);
-          showAlert(
-            campaignTranslations[currentLang].alerts.walletConnectionFailed,
-            "error"
-          );
+          console.error('Error connecting wallet:', error);
+          showAlert(campaignTranslations[currentLang].alerts.walletConnectionFailed, 'error');
           return false;
         }
       }
@@ -740,46 +692,10 @@
       // Switch to Polygon network
       async function switchToPolygon() {
         try {
-          await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: polygonChainId }],
-          });
-          return true;
-        } catch (switchError) {
-          // This error code indicates that the chain has not been added to MetaMask
-          if (switchError.code === 4902) {
-            try {
-              await window.ethereum.request({
-                method: "wallet_addEthereumChain",
-                params: [
-                  {
-                    chainId: polygonChainId,
-                    chainName: "Polygon",
-                    nativeCurrency: {
-                      name: "POL",
-                      symbol: "POL",
-                      decimals: 18,
-                    },
-                    rpcUrls: ["https://polygon-rpc.com/"],
-                    blockExplorerUrls: ["https://polygonscan.com/"],
-                  },
-                ],
-              });
-              return true;
-            } catch (addError) {
-              console.error("Error adding Polygon network:", addError);
-              showAlert(
-                campaignTranslations[currentLang].alerts.networkAddFailed,
-                "error"
-              );
-              return false;
-            }
-          }
-          console.error("Error switching to Polygon:", switchError);
-          showAlert(
-            campaignTranslations[currentLang].alerts.networkSwitchFailed,
-            "error"
-          );
+          return await walletManager.switchNetwork('polygon');
+        } catch (error) {
+          console.error('Error switching to Polygon:', error);
+          showAlert(campaignTranslations[currentLang].alerts.networkSwitchFailed, 'error');
           return false;
         }
       }
@@ -787,11 +703,11 @@
       // Mint SBT function - Simplified version
       async function mintSBT() {
         const t = campaignTranslations[currentLang];
-        const mintButton = document.getElementById("mintButton");
+        const mintButton = document.getElementById('mintButton');
 
         // Check if Web3 is available
-        if (typeof window.ethereum === "undefined") {
-          showAlert(t.alerts.noWallet, "error");
+        if (typeof window.ethereum === 'undefined') {
+          showAlert(t.alerts.noWallet, 'error');
           return;
         }
 
@@ -802,9 +718,8 @@
         }
 
         // Check if on Polygon network
-        const network = await provider.getNetwork();
-        if (network.chainId !== 137) {
-          showAlert(t.alerts.switchingNetwork, "info");
+        if (!walletManager.isCorrectNetwork('polygon')) {
+          showAlert(t.alerts.switchingNetwork, 'info');
           const switched = await switchToPolygon();
           if (!switched) return;
         }
@@ -814,35 +729,33 @@
         mintButton.textContent = t.alerts.minting;
 
         try {
-          // Create contract instance
-          const contract = new ethers.Contract(
-            contractAddress,
-            contractABI,
-            signer
-          );
+          // Use campaign contract from ContractManager
+          if (!campaignContract) {
+            throw new Error('Campaign contract not initialized');
+          }
 
           // Debug info
-          console.log("=== Mint Debug Info ===");
-          console.log("Contract Address:", contractAddress);
-          console.log("User Account:", userAccount);
-          console.log("Network:", await provider.getNetwork());
+          console.log('=== Mint Debug Info ===');
+          console.log('Contract Address:', contractManager.getContractAddress('campaign'));
+          console.log('User Account:', userAccount);
+          console.log('Network:', await provider.getNetwork());
 
           // Call mint function
-          const tx = await contract.mint();
-          console.log("Transaction sent:", tx.hash);
+          const tx = await campaignContract.mint();
+          console.log('Transaction sent:', tx.hash);
 
           // Wait for transaction confirmation
           const receipt = await tx.wait();
 
-          console.log("Transaction receipt:", receipt);
-          showAlert(t.alerts.mintSuccess, "success");
+          console.log('Transaction receipt:', receipt);
+          showAlert(t.alerts.mintSuccess, 'success');
           mintButton.textContent = t.alerts.minted;
         } catch (error) {
-          console.error("=== Minting Error Details ===");
-          console.error("Full error object:", error);
-          console.error("Error message:", error.message);
-          console.error("Error code:", error.code);
-          console.error("Error data:", error.data);
+          console.error('=== Minting Error Details ===');
+          console.error('Full error object:', error);
+          console.error('Error message:', error.message);
+          console.error('Error code:', error.code);
+          console.error('Error data:', error.data);
 
           // Handle different error types
           let errorMessage = t.alerts.mintFailed;
@@ -851,57 +764,41 @@
             errorMessage = t.alerts.transactionRejected;
           } else if (error.message) {
             // Parse error message for common issues
-            if (error.message.includes("Already minted")) {
-              errorMessage = "You have already minted this SBT.";
-            } else if (error.message.includes("Contracts cannot mint")) {
-              errorMessage =
-                "Contract addresses cannot mint. Please use a regular wallet.";
-            } else if (error.message.includes("insufficient funds")) {
-              errorMessage = "Insufficient POL balance for gas fees.";
-            } else if (error.message.includes("execution reverted")) {
+            if (error.message.includes('Already minted')) {
+              errorMessage = 'You have already minted this SBT.';
+            } else if (error.message.includes('Contracts cannot mint')) {
+              errorMessage = 'Contract addresses cannot mint. Please use a regular wallet.';
+            } else if (error.message.includes('insufficient funds')) {
+              errorMessage = 'Insufficient POL balance for gas fees.';
+            } else if (error.message.includes('execution reverted')) {
               // Try to extract revert reason
-              const revertMatch = error.message.match(
-                /execution reverted: (.+?)(?:\s|$)/
-              );
+              const revertMatch = error.message.match(/execution reverted: (.+?)(?:\s|$)/);
               if (revertMatch) {
                 errorMessage = `Transaction failed: ${revertMatch[1]}`;
               } else {
-                errorMessage = "Transaction failed. Please try again.";
+                errorMessage = 'Transaction failed. Please try again.';
               }
             } else {
               errorMessage = `${t.alerts.mintFailed}: ${error.message}`;
             }
           }
 
-          showAlert(errorMessage, "error");
+          showAlert(errorMessage, 'error');
           mintButton.disabled = false;
           mintButton.textContent = t.mint.button;
         }
       }
 
-      // Show alert message
-      function showAlert(message, type) {
-        const alertDiv = document.getElementById("alertMessage");
-        alertDiv.textContent = message;
-        alertDiv.className = type === "success" ? "alert success" : "alert";
-
-        // Auto hide after 5 seconds
-        setTimeout(() => {
-          alertDiv.textContent = "";
-          alertDiv.className = "";
-        }, 5000);
-      }
-
       // Switch language function
       function switchLanguage(lang) {
         currentLang = lang;
-        localStorage.setItem("selectedLanguage", lang);
+        localStorage.setItem('selectedLanguage', lang);
 
         // Update active tab
-        document.querySelectorAll(".lang-tab").forEach((tab) => {
-          tab.classList.remove("active");
+        document.querySelectorAll('.lang-tab').forEach((tab) => {
+          tab.classList.remove('active');
         });
-        event.target.closest(".lang-tab").classList.add("active");
+        event.target.closest('.lang-tab').classList.add('active');
 
         // Update content
         updateContent();
@@ -913,55 +810,40 @@
         const t = campaignTranslations[currentLang];
 
         // Update titles and descriptions
-        document.getElementById("campaign-title").textContent = t.title;
-        document.getElementById("campaign-subtitle").textContent = t.subtitle;
-        document.getElementById("campaign-description").innerHTML =
-          t.description;
-        document.getElementById("countdown").textContent = t.countdown;
+        document.getElementById('campaign-title').textContent = t.title;
+        document.getElementById('campaign-subtitle').textContent = t.subtitle;
+        document.getElementById('campaign-description').innerHTML = t.description;
+        document.getElementById('countdown').textContent = t.countdown;
 
         // Update features
         // Update feature-0 if it exists in translations
         if (t.features.limited) {
-          document.getElementById("feature-0-title").textContent =
-            t.features.limited.title;
-          document.getElementById("feature-0-desc").textContent =
-            t.features.limited.desc;
+          document.getElementById('feature-0-title').textContent = t.features.limited.title;
+          document.getElementById('feature-0-desc').textContent = t.features.limited.desc;
         }
 
-        document.getElementById("feature-1-title").textContent =
-          t.features.free.title;
-        document.getElementById("feature-1-desc").textContent =
-          t.features.free.desc;
-        document.getElementById("feature-2-title").textContent =
-          t.features.soulbound.title;
-        document.getElementById("feature-2-desc").textContent =
-          t.features.soulbound.desc;
-        document.getElementById("feature-3-title").textContent =
-          t.features.polygon.title;
-        document.getElementById("feature-3-desc").textContent =
-          t.features.polygon.desc;
+        document.getElementById('feature-1-title').textContent = t.features.free.title;
+        document.getElementById('feature-1-desc').textContent = t.features.free.desc;
+        document.getElementById('feature-2-title').textContent = t.features.soulbound.title;
+        document.getElementById('feature-2-desc').textContent = t.features.soulbound.desc;
+        document.getElementById('feature-3-title').textContent = t.features.polygon.title;
+        document.getElementById('feature-3-desc').textContent = t.features.polygon.desc;
 
         // Update mint section
-        document.getElementById("mint-title").textContent = t.mint.title;
-        document.getElementById("mint-instruction").textContent =
-          t.mint.instruction;
-        document.getElementById("mintButton").textContent = t.mint.button;
+        document.getElementById('mint-title').textContent = t.mint.title;
+        document.getElementById('mint-instruction').textContent = t.mint.instruction;
+        document.getElementById('mintButton').textContent = t.mint.button;
 
         // Update contract info
-        document.getElementById("contract-title").textContent =
-          t.contract.title;
-        document.getElementById("network-label").textContent =
-          t.contract.network;
-        document.getElementById("contract-label").textContent =
-          t.contract.address;
-        document.getElementById("type-label").textContent = t.contract.type;
-        document.getElementById("price-label").textContent = t.contract.price;
-        document.getElementById("price-value").textContent =
-          t.contract.priceValue;
+        document.getElementById('contract-title').textContent = t.contract.title;
+        document.getElementById('network-label').textContent = t.contract.network;
+        document.getElementById('contract-label').textContent = t.contract.address;
+        document.getElementById('type-label').textContent = t.contract.type;
+        document.getElementById('price-label').textContent = t.contract.price;
+        document.getElementById('price-value').textContent = t.contract.priceValue;
 
         // Update button
-        document.querySelector('button[onclick*="index.html"]').textContent =
-          t.backButton;
+        document.querySelector('button[onclick*="index.html"]').textContent = t.backButton;
       }
 
       // Mobile language for instructions
@@ -970,134 +852,119 @@
       // Multi-language mobile instructions
       const mobileTranslations = {
         en: {
-          title: "📱 Mobile Users",
-          message: "To mint NFTs on mobile, you need to use MetaMask Browser",
-          clipboard:
-            "✅ URL has been copied to clipboard. Please paste it in MetaMask browser.",
+          title: '📱 Mobile Users',
+          message: 'To mint NFTs on mobile, you need to use MetaMask Browser',
+          clipboard: '✅ URL has been copied to clipboard. Please paste it in MetaMask browser.',
           steps: [
             "Tap 'Connect MetaMask' button below",
-            "MetaMask app will open",
-            "Go to Browser tab",
-            "Paste the copied URL and connect",
+            'MetaMask app will open',
+            'Go to Browser tab',
+            'Paste the copied URL and connect',
           ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "Wallet Connected",
-          walletNotConnected: "Wallet Not Connected",
+          connectButton: 'Connect MetaMask',
+          walletConnected: 'Wallet Connected',
+          walletNotConnected: 'Wallet Not Connected',
         },
         ja: {
-          title: "📱 モバイルユーザーの方へ",
-          message: "モバイルでNFTをミントするには、MetaMaskブラウザが必要です",
-          clipboard:
-            "✅ クリップボードにURLがコピーされています。MetaMask上のブラウザにペーストしてください。",
+          title: '📱 モバイルユーザーの方へ',
+          message: 'モバイルでNFTをミントするには、MetaMaskブラウザが必要です',
+          clipboard: '✅ クリップボードにURLがコピーされています。MetaMask上のブラウザにペーストしてください。',
           steps: [
-            "下の「Connect MetaMask」ボタンをタップ",
-            "MetaMaskアプリが開きます",
-            "ブラウザタブに移動",
-            "コピーされたURLを貼り付けて接続",
+            '下の「Connect MetaMask」ボタンをタップ',
+            'MetaMaskアプリが開きます',
+            'ブラウザタブに移動',
+            'コピーされたURLを貼り付けて接続',
           ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "ウォレット接続済み",
-          walletNotConnected: "ウォレット未接続",
+          connectButton: 'Connect MetaMask',
+          walletConnected: 'ウォレット接続済み',
+          walletNotConnected: 'ウォレット未接続',
         },
         zh: {
-          title: "📱 移动用户",
-          message: "在移动设备上铸造NFT需要使用MetaMask浏览器",
-          clipboard: "✅ URL已复制到剪贴板。请在MetaMask浏览器中粘贴。",
-          steps: [
-            "点击下方「Connect MetaMask」按钮",
-            "MetaMask应用将打开",
-            "转到浏览器标签",
-            "粘贴复制的URL并连接",
-          ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "钱包已连接",
-          walletNotConnected: "钱包未连接",
+          title: '📱 移动用户',
+          message: '在移动设备上铸造NFT需要使用MetaMask浏览器',
+          clipboard: '✅ URL已复制到剪贴板。请在MetaMask浏览器中粘贴。',
+          steps: ['点击下方「Connect MetaMask」按钮', 'MetaMask应用将打开', '转到浏览器标签', '粘贴复制的URL并连接'],
+          connectButton: 'Connect MetaMask',
+          walletConnected: '钱包已连接',
+          walletNotConnected: '钱包未连接',
         },
         ko: {
-          title: "📱 모바일 사용자",
-          message: "모바일에서 NFT를 민팅하려면 MetaMask 브라우저가 필요합니다",
-          clipboard:
-            "✅ URL이 클립보드에 복사되었습니다. MetaMask 브라우저에 붙여넣기하세요.",
+          title: '📱 모바일 사용자',
+          message: '모바일에서 NFT를 민팅하려면 MetaMask 브라우저가 필요합니다',
+          clipboard: '✅ URL이 클립보드에 복사되었습니다. MetaMask 브라우저에 붙여넣기하세요.',
           steps: [
-            "아래 「Connect MetaMask」버튼 탭",
-            "MetaMask 앱이 열립니다",
-            "브라우저 탭으로 이동",
-            "복사된 URL을 붙여넣고 연결",
+            '아래 「Connect MetaMask」버튼 탭',
+            'MetaMask 앱이 열립니다',
+            '브라우저 탭으로 이동',
+            '복사된 URL을 붙여넣고 연결',
           ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "지갑 연결됨",
-          walletNotConnected: "지갑 연결 안됨",
+          connectButton: 'Connect MetaMask',
+          walletConnected: '지갑 연결됨',
+          walletNotConnected: '지갑 연결 안됨',
         },
         es: {
-          title: "📱 Usuarios Móviles",
-          message:
-            "Para mintear NFTs en móvil, necesitas usar el navegador MetaMask",
-          clipboard:
-            "✅ URL copiada al portapapeles. Por favor, pégala en el navegador MetaMask.",
+          title: '📱 Usuarios Móviles',
+          message: 'Para mintear NFTs en móvil, necesitas usar el navegador MetaMask',
+          clipboard: '✅ URL copiada al portapapeles. Por favor, pégala en el navegador MetaMask.',
           steps: [
             "Toca el botón 'Connect MetaMask' abajo",
-            "Se abrirá la app MetaMask",
-            "Ve a la pestaña Navegador",
-            "Pega la URL copiada y conecta",
+            'Se abrirá la app MetaMask',
+            'Ve a la pestaña Navegador',
+            'Pega la URL copiada y conecta',
           ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "Cartera conectada",
-          walletNotConnected: "Cartera no conectada",
+          connectButton: 'Connect MetaMask',
+          walletConnected: 'Cartera conectada',
+          walletNotConnected: 'Cartera no conectada',
         },
         fr: {
-          title: "📱 Utilisateurs mobiles",
-          message:
-            "Pour minter des NFT sur mobile, vous devez utiliser le navigateur MetaMask",
-          clipboard:
-            "✅ L'URL a été copiée dans le presse-papiers. Veuillez la coller dans le navigateur MetaMask.",
+          title: '📱 Utilisateurs mobiles',
+          message: 'Pour minter des NFT sur mobile, vous devez utiliser le navigateur MetaMask',
+          clipboard: "✅ L'URL a été copiée dans le presse-papiers. Veuillez la coller dans le navigateur MetaMask.",
           steps: [
             "Appuyez sur le bouton 'Connect MetaMask' ci-dessous",
             "L'application MetaMask s'ouvrira",
             "Allez dans l'onglet Navigateur",
             "Collez l'URL copiée et connectez-vous",
           ],
-          connectButton: "Connect MetaMask",
-          walletConnected: "Portefeuille connecté",
-          walletNotConnected: "Portefeuille non connecté",
+          connectButton: 'Connect MetaMask',
+          walletConnected: 'Portefeuille connecté',
+          walletNotConnected: 'Portefeuille non connecté',
         },
       };
 
       // Show mobile instructions
       function showMobileInstructions() {
-        const container = document.getElementById(
-          "mobileInstructionsContainer"
-        );
-        const mintSection = document.getElementById("mintSection");
+        const container = document.getElementById('mobileInstructionsContainer');
+        const mintSection = document.getElementById('mintSection');
 
         // Use current language or default to English
-        const t =
-          mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
+        const t = mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
 
         // Create info banner with language selector
-        const banner = document.createElement("div");
-        banner.id = "mobileBanner";
+        const banner = document.createElement('div');
+        banner.id = 'mobileBanner';
 
         // Language tabs HTML
         const langTabs = `
           <div class="mobile-lang-tabs">
             <div style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
               <button onclick="switchMobileLanguage('en')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "en" ? "active" : ""
+                mobileCurrentLanguage === 'en' ? 'active' : ''
               }">🇺🇸 EN</button>
               <button onclick="switchMobileLanguage('ja')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "ja" ? "active" : ""
+                mobileCurrentLanguage === 'ja' ? 'active' : ''
               }">🇯🇵 JP</button>
               <button onclick="switchMobileLanguage('zh')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "zh" ? "active" : ""
+                mobileCurrentLanguage === 'zh' ? 'active' : ''
               }">🇨🇳 CN</button>
               <button onclick="switchMobileLanguage('ko')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "ko" ? "active" : ""
+                mobileCurrentLanguage === 'ko' ? 'active' : ''
               }">🇰🇷 KR</button>
               <button onclick="switchMobileLanguage('es')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "es" ? "active" : ""
+                mobileCurrentLanguage === 'es' ? 'active' : ''
               }">🇪🇸 ES</button>
               <button onclick="switchMobileLanguage('fr')" class="mobile-lang-button ${
-                mobileCurrentLanguage === "fr" ? "active" : ""
+                mobileCurrentLanguage === 'fr' ? 'active' : ''
               }">🇫🇷 FR</button>
             </div>
           </div>
@@ -1108,12 +975,7 @@
           <h3 style="color: #ff4d4d; margin-bottom: 10px;">${t.title}</h3>
           <p style="color: #e9d5ff; margin-bottom: 10px;">${t.message}</p>
           <ol style="text-align: left; color: #b792ff; line-height: 1.8; margin: 0 0 20px 0; padding-left: 20px; padding-right: 10px;">
-            ${t.steps
-              .map(
-                (step) =>
-                  `<li style="margin-bottom: 5px; word-wrap: break-word;">${step}</li>`
-              )
-              .join("")}
+            ${t.steps.map((step) => `<li style="margin-bottom: 5px; word-wrap: break-word;">${step}</li>`).join('')}
           </ol>
           <div class="clipboard-notif" style="color: #4dff4d; font-weight: bold; margin: 0; font-size: 14px;">
             <p style="margin: 0;">${t.clipboard}</p>
@@ -1123,9 +985,7 @@
           <div class="mobile-wallet-section">
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
               <span class="status-dot" id="mobileStatusDot" style="width: 10px; height: 10px; border-radius: 50%; background: #ff4d4d; animation: pulse 2s infinite;"></span>
-              <span id="mobileStatusText" style="color: #e9d5ff;">${
-                t.walletNotConnected
-              }</span>
+              <span id="mobileStatusText" style="color: #e9d5ff;">${t.walletNotConnected}</span>
             </div>
             <div id="mobileWalletAddress" style="color: #b792ff; margin-bottom: 10px;"></div>
             <button onclick="mobileConnectWallet()" class="mobile-connect-button">
@@ -1138,27 +998,27 @@
         container.appendChild(banner);
 
         // Hide the desktop mint section on mobile
-        mintSection.classList.add("desktop-only");
+        mintSection.classList.add('desktop-only');
 
         // Immediately copy URL to clipboard when showing mobile instructions
         const currentUrl = window.location.href;
         navigator.clipboard
           .writeText(currentUrl)
           .then(() => {
-            console.log("URL copied to clipboard automatically");
+            console.log('URL copied to clipboard automatically');
           })
           .catch((err) => {
-            console.error("Failed to copy URL automatically:", err);
+            console.error('Failed to copy URL automatically:', err);
           });
       }
 
       // Switch mobile language function
       window.switchMobileLanguage = function (lang) {
         mobileCurrentLanguage = lang;
-        localStorage.setItem("selectedLanguage", lang);
+        localStorage.setItem('selectedLanguage', lang);
 
         // Remove old banner
-        const oldBanner = document.getElementById("mobileBanner");
+        const oldBanner = document.getElementById('mobileBanner');
         if (oldBanner) {
           oldBanner.remove();
         }
@@ -1175,50 +1035,41 @@
           .writeText(currentUrl)
           .then(() => {
             // Update clipboard notification in the banner
-            const clipboardNotif = document.querySelector(
-              "#mobileBanner .clipboard-notif"
-            );
+            const clipboardNotif = document.querySelector('#mobileBanner .clipboard-notif');
             if (clipboardNotif) {
-              clipboardNotif.style.animation = "pulse 0.5s";
+              clipboardNotif.style.animation = 'pulse 0.5s';
               setTimeout(() => {
-                clipboardNotif.style.animation = "";
+                clipboardNotif.style.animation = '';
               }, 500);
             }
 
             // Open MetaMask app
-            const deepLink =
-              "metamask://dapp/" + currentUrl.replace(/^https?:\/\//, "");
+            const deepLink = 'metamask://dapp/' + currentUrl.replace(/^https?:\/\//, '');
             window.location.href = deepLink;
           })
           .catch((err) => {
-            console.error("Failed to copy URL:", err);
-            alert(
-              "Please copy the URL manually and paste it in MetaMask browser"
-            );
+            console.error('Failed to copy URL:', err);
+            alert('Please copy the URL manually and paste it in MetaMask browser');
           });
       };
 
       // Update mobile wallet UI
       function updateMobileWalletUI(account) {
-        const mobileStatusDot = document.getElementById("mobileStatusDot");
-        const mobileStatusText = document.getElementById("mobileStatusText");
-        const mobileWalletAddress = document.getElementById(
-          "mobileWalletAddress"
-        );
+        const mobileStatusDot = document.getElementById('mobileStatusDot');
+        const mobileStatusText = document.getElementById('mobileStatusText');
+        const mobileWalletAddress = document.getElementById('mobileWalletAddress');
 
         if (mobileStatusDot && mobileStatusText && mobileWalletAddress) {
-          const t =
-            mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
+          const t = mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
 
           if (account) {
-            mobileStatusDot.style.background = "#4dff4d";
+            mobileStatusDot.style.background = '#4dff4d';
             mobileStatusText.textContent = t.walletConnected;
-            mobileWalletAddress.textContent =
-              account.substring(0, 6) + "..." + account.substring(38);
+            mobileWalletAddress.textContent = formatAddress(account);
           } else {
-            mobileStatusDot.style.background = "#ff4d4d";
+            mobileStatusDot.style.background = '#ff4d4d';
             mobileStatusText.textContent = t.walletNotConnected;
-            mobileWalletAddress.textContent = "";
+            mobileWalletAddress.textContent = '';
           }
         }
       }
@@ -1236,62 +1087,71 @@
         navigator.clipboard
           .writeText(address)
           .then(() => {
-            const copyButton = document.querySelector(".copy-button");
-            const copyIcon = document.getElementById("copyIcon");
-            const copyText = document.getElementById("copyText");
+            const copyButton = document.querySelector('.copy-button');
+            const copyIcon = document.getElementById('copyIcon');
+            const copyText = document.getElementById('copyText');
 
             // Add copied class
-            copyButton.classList.add("copied");
-            copyIcon.textContent = "";
-            copyText.textContent = "Copied!";
+            copyButton.classList.add('copied');
+            copyIcon.textContent = '';
+            copyText.textContent = 'Copied!';
 
             // Reset after 2 seconds
             setTimeout(() => {
-              copyButton.classList.remove("copied");
-              copyIcon.textContent = "";
-              copyText.textContent = "Copy";
+              copyButton.classList.remove('copied');
+              copyIcon.textContent = '';
+              copyText.textContent = 'Copy';
             }, 2000);
           })
           .catch((err) => {
-            console.error("Failed to copy:", err);
-            alert("Failed to copy address");
+            console.error('Failed to copy:', err);
+            alert('Failed to copy address');
           });
-      }
-
-      // Format address for display
-      function formatAddress(address) {
-        if (window.innerWidth <= 768) {
-          return address.substring(0, 6) + "..." + address.substring(38);
-        }
-        return address;
       }
 
       // Update contract address display based on screen size
       function updateContractAddressDisplay() {
-        const addressLink = document.getElementById("contractAddressLink");
-        if (addressLink) {
-          addressLink.textContent = formatAddress(contractAddress);
+        const addressLink = document.getElementById('contractAddressLink');
+        if (addressLink && contractManager) {
+          const contractAddress = contractManager.getContractAddress('campaign');
+          if (contractAddress) {
+            // Only format on mobile
+            if (window.innerWidth <= 768) {
+              addressLink.textContent = formatAddress(contractAddress);
+            } else {
+              addressLink.textContent = contractAddress;
+            }
+          }
         }
       }
 
       // Initialize on page load
-      document.addEventListener("DOMContentLoaded", () => {
-        loadSettings();
+      document.addEventListener('DOMContentLoaded', async () => {
+        // Check browser and show MetaMask warning
+        checkBrowserAndShowMetaMaskWarning();
+        // Initialize UI Components
+        initializeUIStyles();
+
+        await initializeWalletManager();
+
+        // Initialize ContractManager without signer if wallet already connected
+        if (walletManager && walletManager.isWalletConnected()) {
+          provider = walletManager.getProvider();
+          signer = walletManager.getSigner();
+          await initializeContractManager();
+        }
+
         initWeb3();
 
         // Check if mobile and not in MetaMask browser
-        const isMobile =
-          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          );
-        const isMetaMaskBrowser =
-          typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMetaMaskBrowser = typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
 
         // Also check for Twitter/X WebView
         const isTwitterWebView =
-          navigator.userAgent.includes("Twitter") ||
-          navigator.userAgent.includes("X/") ||
-          window.location.href.includes("t.co");
+          navigator.userAgent.includes('Twitter') ||
+          navigator.userAgent.includes('X/') ||
+          window.location.href.includes('t.co');
 
         if ((isMobile || isTwitterWebView) && !isMetaMaskBrowser) {
           // Show mobile instructions
@@ -1299,11 +1159,11 @@
         }
 
         // Set active language tab
-        document.querySelectorAll(".lang-tab").forEach((tab) => {
+        document.querySelectorAll('.lang-tab').forEach((tab) => {
           if (tab.onclick.toString().includes(currentLang)) {
-            tab.classList.add("active");
+            tab.classList.add('active');
           } else {
-            tab.classList.remove("active");
+            tab.classList.remove('active');
           }
         });
 
@@ -1314,7 +1174,7 @@
         updateContractAddressDisplay();
 
         // Update on resize
-        window.addEventListener("resize", updateContractAddressDisplay);
+        window.addEventListener('resize', updateContractAddressDisplay);
       });
     </script>
   </body>

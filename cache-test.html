@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -20,6 +20,11 @@
         padding: 15px;
         background: rgba(255, 255, 255, 0.05);
         border-radius: 5px;
+      }
+
+      .test-section h2 {
+        color: #ffffff;
+        margin-top: 0;
       }
 
       .test-button {
@@ -50,12 +55,19 @@
         background: rgba(255, 255, 255, 0.1);
         border-radius: 5px;
         text-align: center;
+        color: #ffffff;
       }
 
       .stat-value {
         font-size: 2em;
         font-weight: bold;
         color: var(--color-primary);
+      }
+
+      .stat-card div:last-child {
+        color: #ccc;
+        font-size: 0.9em;
+        margin-top: 5px;
       }
 
       .log-area {
@@ -81,6 +93,7 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
+        color: #ffffff;
       }
 
       .switch {
@@ -110,7 +123,7 @@
 
       .slider:before {
         position: absolute;
-        content: "";
+        content: '';
         height: 26px;
         width: 26px;
         left: 4px;
@@ -165,38 +178,20 @@
               <span class="slider"></span>
             </label>
           </div>
-          <button class="test-button" onclick="clearCache()">
-            🗑️ Clear Cache
-          </button>
-          <button class="test-button" onclick="clearExpired()">
-            🧹 Clear Expired
-          </button>
-          <button class="test-button" onclick="resetStats()">
-            📊 Reset Stats
-          </button>
+          <button class="test-button" onclick="clearCache()">🗑️ Clear Cache</button>
+          <button class="test-button" onclick="clearExpired()">🧹 Clear Expired</button>
+          <button class="test-button" onclick="resetStats()">📊 Reset Stats</button>
         </div>
       </div>
 
       <div class="test-section">
         <h2>🧪 Test Operations</h2>
-        <button class="test-button" onclick="connectWallet()">
-          🔗 Connect Wallet
-        </button>
-        <button class="test-button" onclick="testImmutableData()">
-          📜 Test Immutable Data
-        </button>
-        <button class="test-button" onclick="testDynamicData()">
-          ⚡ Test Dynamic Data
-        </button>
-        <button class="test-button" onclick="testBatchOperations()">
-          🔄 Test Batch Operations
-        </button>
-        <button class="test-button" onclick="testCacheExpiry()">
-          ⏰ Test Cache Expiry
-        </button>
-        <button class="test-button" onclick="runAllTests()">
-          🚀 Run All Tests
-        </button>
+        <button class="test-button" onclick="connectWallet()">🔗 Connect Wallet</button>
+        <button class="test-button" onclick="testImmutableData()">📜 Test Immutable Data</button>
+        <button class="test-button" onclick="testDynamicData()">⚡ Test Dynamic Data</button>
+        <button class="test-button" onclick="testBatchOperations()">🔄 Test Batch Operations</button>
+        <button class="test-button" onclick="testCacheExpiry()">⏰ Test Cache Expiry</button>
+        <button class="test-button" onclick="runAllTests()">🚀 Run All Tests</button>
       </div>
 
       <div class="test-section">
@@ -206,107 +201,215 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
-    <script src="js/contracts-config.js"></script>
-    <script src="js/rpc-cache.js"></script>
-    <script src="js/web3-integration.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="js/config/contracts.js"></script>
+    <script src="js/contracts/cache.js"></script>
+    <script src="js/wallet/manager.js"></script>
+    <script src="js/contracts/web3-integration.js"></script>
 
     <script>
       let web3;
-      const logArea = document.getElementById("logArea");
+      let walletManager;
+      const logArea = document.getElementById('logArea');
 
       // Initialize on page load
-      window.addEventListener("load", async () => {
+      window.addEventListener('load', async () => {
+        // Initialize web3Integration
         web3 = window.web3Integration;
-        updateStats();
-        log("RPC Cache Test Suite initialized");
+        
+        // Load contract addresses from deployment.json
+        await web3.loadContractAddresses();
+        log('Contract addresses loaded from deployment.json', 'success');
+        
+        // Initialize cache
+        if (web3 && web3.initCache) {
+          await web3.initCache();
+          log('Cache system initialized', 'success');
+        }
+        
+        // Try to initialize contract with default network if addresses are available
+        if (web3 && window.CONTRACTS_CONFIG) {
+          // Find the first available network with a valid contract address
+          const availableChains = [21201, 137]; // Prefer Bon-Soleil for testing
+          for (const chainId of availableChains) {
+            const contractAddress = window.CONTRACTS_CONFIG.getContract(chainId, 'bankedNFT');
+            if (contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000') {
+              log(`Default network selected: Chain ${chainId}`, 'info');
+              break;
+            }
+          }
+        }
+        
+        // Initialize WalletManager
+        walletManager = new WalletManager({
+          onConnect: async (account) => {
+            log(`Wallet connected: ${account}`, 'success');
+            
+            try {
+              // Ensure addresses are loaded
+              await web3.loadContractAddresses();
+              
+              // Initialize contract when wallet connects
+              const chainId = await walletManager.getCurrentChainId();
+              log(`Current network: Chain ${chainId}`);
+              
+              // Check if we have a contract for this chain
+              const contractAddress = window.CONTRACTS_CONFIG?.getContract(chainId, 'bankedNFT');
+              if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+                log(`No contract found for chain ${chainId}. Please switch to Bon-Soleil (21201) in MetaMask.`, 'error');
+                return;
+              }
+              
+              await web3.initContract(chainId);
+              log(`Contract initialized on chain ${chainId}`, 'success');
+            } catch (error) {
+              log(`Failed to initialize contract: ${error.message}`, 'error');
+            }
+            
+            updateStats();
+          },
+          onDisconnect: () => {
+            log('Wallet disconnected', 'info');
+          }
+        });
+        await walletManager.init();
+        
+        // Set wallet manager on web3Integration
+        if (web3 && web3.setWalletManager) {
+          web3.setWalletManager(walletManager);
+        }
+        
+        log('RPC Cache Test Suite initialized');
 
         // Setup cache toggle
-        document
-          .getElementById("cacheToggle")
-          .addEventListener("change", (e) => {
-            web3.setCacheEnabled(e.target.checked);
-            log(`Cache ${e.target.checked ? "enabled" : "disabled"}`);
-          });
+        document.getElementById('cacheToggle').addEventListener('change', (e) => {
+          if (web3 && web3.cache) {
+            web3.cache.enabled = e.target.checked;
+            log(`Cache ${e.target.checked ? 'enabled' : 'disabled'}`);
+          }
+        });
       });
 
       // Logging function
-      function log(message, type = "info") {
+      function log(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
-        const prefix =
-          type === "error" ? "❌" : type === "success" ? "✅" : "ℹ️";
+        const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
         logArea.textContent += `[${timestamp}] ${prefix} ${message}\n`;
         logArea.scrollTop = logArea.scrollHeight;
       }
 
       // Update statistics display
       async function updateStats() {
-        const stats = await web3.getCacheStats();
-        if (stats) {
-          document.getElementById("hits").textContent = stats.hits;
-          document.getElementById("misses").textContent = stats.misses;
-          document.getElementById("hitRate").textContent = stats.hitRate;
+        if (web3 && web3.cache) {
+          const stats = web3.cache.getStats();
+          document.getElementById('hits').textContent = stats.hits;
+          document.getElementById('misses').textContent = stats.misses;
+          const total = stats.hits + stats.misses;
+          const hitRate = total > 0 ? Math.round((stats.hits / total) * 100) : 0;
+          document.getElementById('hitRate').textContent = hitRate + '%';
+          
+          // getCacheSize is async
+          web3.cache.getCacheSize().then(size => {
+            document.getElementById('cacheSize').textContent = size;
+          });
         }
-
-        const size = await web3.getCacheSize();
-        document.getElementById("cacheSize").textContent = size;
       }
 
       // Connect wallet
       async function connectWallet() {
         try {
-          log("Connecting wallet...");
-          const account = await web3.connectWallet();
-          log(`Wallet connected: ${account}`, "success");
-          updateStats();
+          log('Connecting wallet...');
+          await walletManager.connect();
         } catch (error) {
-          log(`Failed to connect wallet: ${error.message}`, "error");
+          log(`Failed to connect wallet: ${error.message}`, 'error');
         }
       }
 
       // Test immutable data caching
       async function testImmutableData() {
-        if (!web3.isConnected()) {
-          log("Please connect wallet first", "error");
+        if (!walletManager.isWalletConnected()) {
+          log('Please connect wallet first', 'error');
           return;
         }
+        
+        // Ensure contract is initialized
+        if (!web3.contract) {
+          log('Contract not initialized. Trying to initialize...', 'info');
+          try {
+            const chainId = await walletManager.getCurrentChainId();
+            await web3.initContract(chainId);
+            log(`Contract initialized on chain ${chainId}`, 'success');
+          } catch (error) {
+            log(`Failed to initialize contract: ${error.message}`, 'error');
+            return;
+          }
+        }
 
-        log("Testing immutable data caching...");
+        log('Testing immutable data caching...');
 
         try {
+          // Clear stats before test
+          if (web3.cache) {
+            web3.cache.resetStats();
+          }
+          
           // First call - should miss cache
+          log('Making first call to getContractName (should miss cache)...');
           const start1 = performance.now();
           const name1 = await web3.getContractName();
           const time1 = performance.now() - start1;
-          log(`First call (cache miss): ${name1} - ${time1.toFixed(2)}ms`);
+          log(`First call result: "${name1}" - ${time1.toFixed(2)}ms`);
 
           // Second call - should hit cache
+          log('Making second call to getContractName (should hit cache)...');
           const start2 = performance.now();
           const name2 = await web3.getContractName();
           const time2 = performance.now() - start2;
-          log(
-            `Second call (cache hit): ${name2} - ${time2.toFixed(2)}ms`,
-            "success"
-          );
+          log(`Second call result: "${name2}" - ${time2.toFixed(2)}ms`, 'success');
+          
+          // Show performance improvement
+          const speedup = (time1 / time2).toFixed(1);
+          log(`Cache speedup: ${speedup}x faster`);
 
           // Test symbol too
+          log('Testing getContractSymbol caching...');
+          const symbolTime1 = performance.now();
           await web3.getContractSymbol();
+          const symbolTime2 = performance.now() - symbolTime1;
+          
+          const symbolTime3 = performance.now();
           await web3.getContractSymbol();
+          const symbolTime4 = performance.now() - symbolTime3;
+          
+          log(`Symbol: First call ${symbolTime2.toFixed(2)}ms, Second call ${symbolTime4.toFixed(2)}ms`);
 
           updateStats();
         } catch (error) {
-          log(`Test failed: ${error.message}`, "error");
+          log(`Test failed: ${error.message}`, 'error');
         }
       }
 
       // Test dynamic data caching
       async function testDynamicData() {
-        if (!web3.isConnected()) {
-          log("Please connect wallet first", "error");
+        if (!walletManager.isWalletConnected()) {
+          log('Please connect wallet first', 'error');
           return;
         }
+        
+        // Ensure contract is initialized
+        if (!web3.contract) {
+          log('Contract not initialized. Trying to initialize...', 'info');
+          try {
+            const chainId = await walletManager.getCurrentChainId();
+            await web3.initContract(chainId);
+            log(`Contract initialized on chain ${chainId}`, 'success');
+          } catch (error) {
+            log(`Failed to initialize contract: ${error.message}`, 'error');
+            return;
+          }
+        }
 
-        log("Testing dynamic data caching (30s TTL)...");
+        log('Testing dynamic data caching (30s TTL)...');
 
         try {
           // First call
@@ -315,55 +418,77 @@
 
           // Second call - should hit cache
           const supply2 = await web3.getTotalSupply();
-          log(`Total supply (cache hit): ${supply2}`, "success");
+          log(`Total supply (cache hit): ${supply2}`, 'success');
 
           // Test balance too
-          await web3.getBalance();
-          await web3.getBalance();
+          const account = walletManager.getAccount();
+          if (account) {
+            await web3.getBalance(account);
+            await web3.getBalance(account);
+          }
 
           updateStats();
         } catch (error) {
-          log(`Test failed: ${error.message}`, "error");
+          log(`Test failed: ${error.message}`, 'error');
         }
       }
 
       // Test batch operations
       async function testBatchOperations() {
-        if (!web3.isConnected()) {
-          log("Please connect wallet first", "error");
+        if (!walletManager.isWalletConnected()) {
+          log('Please connect wallet first', 'error');
           return;
         }
+        
+        // Ensure contract is initialized
+        if (!web3.contract) {
+          log('Contract not initialized. Trying to initialize...', 'info');
+          try {
+            const chainId = await walletManager.getCurrentChainId();
+            await web3.initContract(chainId);
+            log(`Contract initialized on chain ${chainId}`, 'success');
+          } catch (error) {
+            log(`Failed to initialize contract: ${error.message}`, 'error');
+            return;
+          }
+        }
 
-        log("Testing batch operations...");
+        log('Testing batch operations...');
 
         try {
           const start = performance.now();
 
           // Run multiple operations in parallel
+          const account = walletManager.getAccount();
           const promises = [
             web3.getContractName(),
             web3.getContractSymbol(),
             web3.getTotalSupply(),
             web3.getMaxSupply(),
             web3.getNFTPrice(),
-            web3.getBalance(),
+            account ? web3.getBalance(account) : Promise.resolve('0'),
           ];
 
           const results = await Promise.all(promises);
           const time = performance.now() - start;
 
-          log(`Batch operations completed in ${time.toFixed(2)}ms`, "success");
+          log(`Batch operations completed in ${time.toFixed(2)}ms`, 'success');
           log(`Results: ${JSON.stringify(results, null, 2)}`);
 
           updateStats();
         } catch (error) {
-          log(`Test failed: ${error.message}`, "error");
+          log(`Test failed: ${error.message}`, 'error');
         }
       }
 
       // Test cache expiry
       async function testCacheExpiry() {
-        log("Testing cache expiry (this will take 35 seconds)...");
+        if (!walletManager.isWalletConnected()) {
+          log('Please connect wallet first', 'error');
+          return;
+        }
+
+        log('Testing cache expiry (this will take 35 seconds)...');
 
         try {
           // Get dynamic data
@@ -371,30 +496,29 @@
           log(`Initial supply: ${supply1}`);
 
           // Wait for cache to expire (30s + 5s buffer)
-          log("Waiting for cache to expire...");
+          log('Waiting for cache to expire...');
           await new Promise((resolve) => setTimeout(resolve, 35000));
 
           // Should miss cache now
           const supply2 = await web3.getTotalSupply();
-          log(
-            `Supply after expiry: ${supply2} (should be cache miss)`,
-            "success"
-          );
+          log(`Supply after expiry: ${supply2} (should be cache miss)`, 'success');
 
           updateStats();
         } catch (error) {
-          log(`Test failed: ${error.message}`, "error");
+          log(`Test failed: ${error.message}`, 'error');
         }
       }
 
       // Clear cache
       async function clearCache() {
         try {
-          await web3.clearCache();
-          log("Cache cleared", "success");
-          updateStats();
+          if (web3 && web3.cache) {
+            await web3.cache.clear();
+            log('Cache cleared', 'success');
+            updateStats();
+          }
         } catch (error) {
-          log(`Failed to clear cache: ${error.message}`, "error");
+          log(`Failed to clear cache: ${error.message}`, 'error');
         }
       }
 
@@ -403,11 +527,11 @@
         try {
           if (web3.cache) {
             await web3.cache.clearExpired();
-            log("Expired entries cleared", "success");
+            log('Expired entries cleared', 'success');
             updateStats();
           }
         } catch (error) {
-          log(`Failed to clear expired: ${error.message}`, "error");
+          log(`Failed to clear expired: ${error.message}`, 'error');
         }
       }
 
@@ -415,20 +539,20 @@
       function resetStats() {
         if (web3.cache) {
           web3.cache.resetStats();
-          log("Statistics reset", "success");
+          log('Statistics reset', 'success');
           updateStats();
         }
       }
 
       // Run all tests
       async function runAllTests() {
-        log("Running all tests...");
+        log('Running all tests...');
         await testImmutableData();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         await testDynamicData();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         await testBatchOperations();
-        log("All tests completed!", "success");
+        log('All tests completed!', 'success');
       }
     </script>
   </body>

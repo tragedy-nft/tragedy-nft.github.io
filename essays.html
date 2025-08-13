@@ -1,30 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Essay Collection - The Mythical Cursed-Nightmare</title>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="alternate icon" href="favicon.svg">
-    
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" href="favicon.svg" />
+
     <!-- Apple Touch Icon (180x180 for iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.svg" />
-    
+
     <!-- PWA対応 -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
+
     <!-- Additional Meta Tags -->
-    <meta name="theme-color" content="#6B46C1">
-    <meta name="description" content="Essay Collection - Legendary Tales from the Cursed Realm. Explore the complete anthology of generated essays.">
-    
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
-    
-    <!-- Centralized Contract Configuration -->
-    <script src="js/contracts-config.js"></script>
+    <meta name="theme-color" content="#6B46C1" />
+    <meta
+      name="description"
+      content="Essay Collection - Legendary Tales from the Cursed Realm. Explore the complete anthology of generated essays."
+    />
+
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <!-- Common utilities and managers -->
+    <script src="js/config/contracts.js"></script>
+    <script src="js/utils/format.js"></script>
+    <script src="js/wallet/manager.js"></script>
+    <script src="js/contracts/manager.js"></script>
+    <script src="js/ui/components.js"></script>
     <style>
       .stories-grid {
         display: grid;
@@ -32,7 +39,7 @@
         gap: 20px;
         margin-top: 30px;
       }
-      
+
       .story-card {
         background: rgba(107, 70, 193, 0.1);
         border: 1px solid rgba(107, 70, 193, 0.3);
@@ -43,28 +50,28 @@
         position: relative;
         overflow: hidden;
       }
-      
+
       .story-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        border-color: #A78BFA;
+        border-color: #a78bfa;
       }
-      
+
       .story-card.legendary {
         background: linear-gradient(45deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
-        border-color: #EF4444;
+        border-color: #ef4444;
       }
-      
+
       .story-card.epic {
         background: linear-gradient(45deg, rgba(147, 51, 234, 0.2), rgba(167, 139, 250, 0.2));
-        border-color: #A78BFA;
+        border-color: #a78bfa;
       }
-      
+
       .story-card.rare {
         background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
-        border-color: #60A5FA;
+        border-color: #60a5fa;
       }
-      
+
       .story-thumbnail {
         width: 100%;
         height: 150px;
@@ -72,52 +79,52 @@
         object-fit: cover;
         margin-bottom: 15px;
       }
-      
+
       div.story-thumbnail {
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
       }
-      
+
       div.story-thumbnail svg {
         width: 100%;
         height: 100%;
         object-fit: contain;
       }
-      
+
       .story-title {
         font-size: 1.3em;
-        color: #E9D5FF;
+        color: #e9d5ff;
         margin-bottom: 10px;
         font-weight: bold;
       }
-      
+
       .story-excerpt {
         font-size: 0.9em;
-        color: #C084FC;
+        color: #c084fc;
         line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      
+
       .story-meta {
         margin-top: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 0.8em;
-        color: #9CA3AF;
+        color: #9ca3af;
       }
-      
+
       .story-id {
         background: rgba(0, 0, 0, 0.3);
         padding: 4px 10px;
         border-radius: 15px;
       }
-      
+
       .filter-controls {
         display: flex;
         gap: 15px;
@@ -125,65 +132,65 @@
         margin: 20px 0;
         flex-wrap: wrap;
       }
-      
+
       .filter-button {
         background: rgba(107, 70, 193, 0.2);
         border: 1px solid rgba(107, 70, 193, 0.3);
         padding: 8px 20px;
         border-radius: 20px;
-        color: #C084FC;
+        color: #c084fc;
         cursor: pointer;
         transition: all 0.3s;
         font-size: 14px;
       }
-      
+
       .filter-button:hover {
         background: rgba(107, 70, 193, 0.3);
-        color: #E9D5FF;
+        color: #e9d5ff;
       }
-      
+
       .filter-button.active {
-        background: linear-gradient(45deg, #6B46C1, #9333EA);
+        background: linear-gradient(45deg, #6b46c1, #9333ea);
         color: white;
         border-color: transparent;
       }
-      
+
       .load-more {
         text-align: center;
         margin: 40px 0;
       }
-      
+
       .story-badge {
         position: absolute;
         top: 10px;
         right: 10px;
-        background: linear-gradient(45deg, #FFD700, #FFA500);
+        background: linear-gradient(45deg, #ffd700, #ffa500);
         color: #1a0033;
         padding: 4px 10px;
         border-radius: 15px;
         font-size: 0.7em;
         font-weight: bold;
       }
-      
+
       .story-badge.legendary {
-        background: linear-gradient(45deg, #DC2626, #EF4444);
+        background: linear-gradient(45deg, #dc2626, #ef4444);
         color: white;
       }
-      
+
       @media (max-width: 768px) {
         .stories-grid {
           grid-template-columns: 1fr;
           gap: 15px;
         }
-        
+
         .story-card {
           padding: 15px;
         }
-        
+
         .story-thumbnail {
           height: 120px;
         }
-        
+
         .story-title {
           font-size: 1.1em;
         }
@@ -193,17 +200,17 @@
   <body>
     <div class="container">
       <h1>Essay Collection</h1>
-      <p style="font-size: 20px; color: #ddd; margin-top: 8px; text-align: center; font-weight: 500;">
+      <p style="font-size: 20px; color: #ddd; margin-top: 8px; text-align: center; font-weight: 500">
         Legendary Tales from the Cursed Realm
       </p>
-      <p style="font-size: 14px; color: #666; margin-top: 15px; text-align: center;">
+      <p style="font-size: 14px; color: #666; margin-top: 15px; text-align: center">
         Explore the complete anthology of generated essays
       </p>
-      
+
       <div class="button-group">
         <button onclick="window.location.href='generate.html'">← Back to Generator</button>
       </div>
-      
+
       <div class="filter-controls">
         <button class="filter-button" onclick="filterStories('own')">Own</button>
         <button class="filter-button active" onclick="filterStories('all')">Minted</button>
@@ -213,21 +220,21 @@
         <button class="filter-button" onclick="filterStories('ultimate')">Ultimate</button>
         <button class="filter-button" onclick="filterStories('legendary')">Legendary</button>
       </div>
-      
-      <div id="walletStatus" style="text-align: center; margin-top: 20px; display: none;">
+
+      <div id="walletStatus" style="text-align: center; margin-top: 20px; display: none">
         <button id="connectWalletBtn" onclick="connectWallet()" class="legendary-button">Connect Wallet</button>
-        <p id="walletAddress" style="color: #A78BFA; margin-top: 10px;"></p>
+        <p id="walletAddress" style="color: #a78bfa; margin-top: 10px"></p>
       </div>
-      
+
       <div id="storiesGrid" class="stories-grid">
         <!-- Stories will be dynamically loaded here -->
       </div>
-      
+
       <div class="load-more">
         <button onclick="loadMoreStories()" class="nav-button">Load More Essays</button>
       </div>
-      
-      <footer style="text-align: center; margin-top: 40px; padding-top: 20px; color: #C084FC; font-size: 14px;">
+
+      <footer style="text-align: center; margin-top: 40px; padding-top: 20px; color: #c084fc; font-size: 14px">
         © 2025 The Mythical Cursed-Nightmare
       </footer>
     </div>
@@ -236,12 +243,10 @@
       let currentFilter = 'all';
       let loadedStories = [];
       let displayCount = 12;
+      let walletManager = null;
+      let contractManager = null;
       let provider;
-      let metadataBank;
-      let blockchainConfig = null;
       let userAddress = null;
-      let bankedNFTContract = null;
-      let legendaryBankContract = null;
       let ownedTokenIds = [];
       let mintedTokenIds = [];
       let legendaryTokenIds = [];
@@ -250,13 +255,97 @@
       const BATCH_SIZE = 20; // Load 20 NFTs at a time
       let isLoading = false;
       let hasMoreToLoad = true;
-      
-      // Load blockchain configuration
+
+      // Load ABI files
+      let BANKED_NFT_ABI = null;
+      async function loadABIs() {
+        try {
+          const response = await fetch('/abi/BankedNFT.abi.json');
+          if (response.ok) {
+            BANKED_NFT_ABI = await response.json();
+            console.log(
+              'Loaded BankedNFT ABI from file, functions:',
+              BANKED_NFT_ABI.filter((item) => item.type === 'function').map((f) => f.name)
+            );
+            return true;
+          }
+        } catch (error) {
+          console.error('Failed to load ABI file:', error);
+        }
+        return false;
+      }
+
+      // Initialize WalletManager
+      async function initializeWalletManager() {
+        walletManager = new WalletManager({
+          defaultNetwork: 'bonsoleil',
+          onConnect: async (account, chainId) => {
+            userAddress = account;
+            provider = walletManager.getProvider();
+            const signer = walletManager.getSigner();
+
+            // Update UI
+            document.getElementById('connectWalletBtn').style.display = 'none';
+            document.getElementById('walletAddress').textContent = `Connected: ${formatAddress(userAddress)}`;
+
+            // Initialize ContractManager with signer
+            await initializeContractManager();
+
+            // Load owned NFTs
+            await loadOwnedNFTs();
+          },
+          onDisconnect: () => {
+            userAddress = null;
+            provider = null;
+            document.getElementById('connectWalletBtn').style.display = 'block';
+            document.getElementById('walletAddress').textContent = '';
+            filterStories('all'); // Reset to all stories
+          },
+          onAccountChange: async (account) => {
+            userAddress = account;
+            document.getElementById('walletAddress').textContent = `Connected: ${formatAddress(userAddress)}`;
+
+            // Update ContractManager signer
+            if (contractManager) {
+              const signer = walletManager.getSigner();
+              contractManager.updateSigner(signer);
+            }
+
+            // Reload owned NFTs
+            await loadOwnedNFTs();
+            filterStories(currentFilter);
+          },
+          onNetworkChange: (chainId) => {
+            window.location.reload();
+          },
+        });
+
+        return await walletManager.init();
+      }
+
+      // Initialize ContractManager
+      async function initializeContractManager() {
+        if (!contractManager) {
+          contractManager = new ContractManager();
+        }
+        const signer = walletManager ? walletManager.getSigner() : null;
+        await contractManager.initialize(provider, signer);
+      }
+
+      // Load blockchain configuration (no longer needed - handled by ContractManager)
       async function loadBlockchainConfig() {
+        return true;
+      }
+
+      // TEMP - DELETE THIS LONG FUNCTION
+      async function loadBlockchainConfig_OLD() {
         // Try to use centralized config first
         if (typeof CONTRACTS_CONFIG !== 'undefined') {
+          // Ensure deployment is loaded first
+          await CONTRACTS_CONFIG.loadDeployment();
+
           const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
-          if (network) {
+          if (network && network.contracts && network.contracts.metadataBank) {
             blockchainConfig = {
               networks: {
                 bonsoleil: {
@@ -264,224 +353,193 @@
                   rpcUrl: network.rpcUrl,
                   contracts: {
                     metadataBank: {
-                      address: network.contracts.metadataBank,
+                      address: network.contracts.metadataBank || network.contracts.MetadataBank,
                       abi: [
-                        "function getMetadataCount() view returns (uint256)",
-                        "function getMetadata(uint256 index) view returns (string)"
-                      ]
+                        'function getMetadataCount() view returns (uint256)',
+                        'function getMetadata(uint256 index) view returns (string)',
+                      ],
                     },
                     bankedNFT: {
-                      address: network.contracts.bankedNFT,
+                      address: network.contracts.bankedNFT || network.contracts.BankedNFT,
                       abi: [
-                        "function balanceOf(address owner) view returns (uint256)",
-                        "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-                        "function ownerOf(uint256 tokenId) view returns (address)",
-                        "function tokenURI(uint256 tokenId) view returns (string)",
-                        "function totalSupply() view returns (uint256)"
-                      ]
+                        'function balanceOf(address owner) view returns (uint256)',
+                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
+                        'function ownerOf(uint256 tokenId) view returns (address)',
+                        'function tokenURI(uint256 tokenId) view returns (string)',
+                        'function totalSupply() view returns (uint256)',
+                      ],
                     },
-                    legendaryBank: {
-                      address: network.contracts.legendaryBank,
+                    LegendaryBank: {
+                      address: network.contracts.LegendaryBank,
                       abi: [
-                        "function getLegendaryCount() view returns (uint256)",
-                        "function legendaryIds(uint256 index) view returns (uint256)",
-                        "function isLegendaryId(uint256 tokenId) view returns (bool)",
-                        "function getLegendaryTitle(uint256 tokenId) view returns (string)",
-                        "function getLegendaryDescription(uint256 tokenId) view returns (string)"
-                      ]
-                    }
-                  }
-                }
+                        'function getLegendaryCount() view returns (uint256)',
+                        'function legendaryIds(uint256 index) view returns (uint256)',
+                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
+                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
+                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
+                      ],
+                    },
+                  },
+                },
               },
-              defaultNetwork: "bonsoleil"
+              defaultNetwork: 'bonsoleil',
             };
             console.log('Using centralized contract configuration');
             return true;
           }
         }
-        
+
         // Try to load deployment.json and setting.json first
         let deployment = null;
         let settings = null;
-        
+
         try {
           const [deploymentRes, settingRes] = await Promise.all([
             fetch('config/deployment.json'),
-            fetch('config/setting.json')
+            fetch('config/setting.json'),
           ]);
-          
+
           if (deploymentRes.ok) {
             deployment = await deploymentRes.json();
             console.log('Deployment configuration loaded');
           }
-          
+
           if (settingRes.ok) {
             settings = await settingRes.json();
             console.log('Settings configuration loaded');
           }
-          
+
           if (deployment) {
             // Create blockchainConfig from deployment.json and setting.json
             blockchainConfig = {
               networks: {
                 bonsoleil: {
-                  name: "Bon-Soleil Testnet",
-                  rpcUrl: "https://dev2.bon-soleil.com/rpc",
+                  name: 'Bon-Soleil Testnet',
+                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
                   contracts: {
                     metadataBank: {
                       address: deployment.contracts.MetadataBank,
                       abi: [
-                        "function getMetadataCount() view returns (uint256)",
-                        "function getMetadata(uint256 index) view returns (string)"
-                      ]
+                        'function getMetadataCount() view returns (uint256)',
+                        'function getMetadata(uint256 index) view returns (string)',
+                      ],
                     },
                     bankedNFT: {
                       address: deployment.contracts.BankedNFT,
                       abi: [
-                        "function balanceOf(address owner) view returns (uint256)",
-                        "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-                        "function ownerOf(uint256 tokenId) view returns (address)",
-                        "function tokenURI(uint256 tokenId) view returns (string)",
-                        "function totalSupply() view returns (uint256)"
-                      ]
+                        'function balanceOf(address owner) view returns (uint256)',
+                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
+                        'function ownerOf(uint256 tokenId) view returns (address)',
+                        'function tokenURI(uint256 tokenId) view returns (string)',
+                        'function totalSupply() view returns (uint256)',
+                      ],
                     },
-                    legendaryBank: {
+                    LegendaryBank: {
                       address: deployment.contracts.LegendaryBank,
                       abi: [
-                        "function getLegendaryCount() view returns (uint256)",
-                        "function legendaryIds(uint256 index) view returns (uint256)",
-                        "function isLegendaryId(uint256 tokenId) view returns (bool)",
-                        "function getLegendaryTitle(uint256 tokenId) view returns (string)",
-                        "function getLegendaryDescription(uint256 tokenId) view returns (string)",
-                        "function getLegendaryRarity(uint256 tokenId) view returns (uint8)",
-                        "function getAllLegendaryIds() view returns (uint256[])"
-                      ]
+                        'function getLegendaryCount() view returns (uint256)',
+                        'function legendaryIds(uint256 index) view returns (uint256)',
+                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
+                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
+                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
+                        'function getLegendaryRarity(uint256 tokenId) view returns (uint8)',
+                        'function getAllLegendaryIds() view returns (uint256[])',
+                      ],
                     },
-                    miscContract: {
-                      address: settings?.addresses?.miscContract || "0x0000000000000000000000000000000000000000"
-                    }
-                  }
-                }
+                  },
+                },
               },
-              defaultNetwork: 'bonsoleil'
+              defaultNetwork: 'bonsoleil',
             };
             return true;
           }
         } catch (error) {
-          console.log('Failed to load deployment/setting configs:', error);
+          console.error('Failed to load config files:', error);
         }
-        
-        // Fallback to loading blockchain.json
+
+        // Try to load deployment.json
         try {
-          const response = await fetch('config/blockchain.json');
-          if (response.ok) {
-            blockchainConfig = await response.json();
-            console.log('Blockchain configuration loaded from JSON');
+          const deploymentResponse = await fetch('config/deployment.json');
+          if (deploymentResponse.ok) {
+            const deployment = await deploymentResponse.json();
+            console.log('Deployment configuration loaded');
+
+            // Create blockchainConfig from deployment.json
+            blockchainConfig = {
+              networks: {
+                bonsoleil: {
+                  name: 'Bon-Soleil Testnet',
+                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
+                  contracts: {
+                    metadataBank: {
+                      address: deployment.contracts.MetadataBank,
+                      abi: [
+                        'function getMetadataCount() view returns (uint256)',
+                        'function getMetadata(uint256 index) view returns (string)',
+                      ],
+                    },
+                    bankedNFT: {
+                      address: deployment.contracts.BankedNFT,
+                      abi: [
+                        'function balanceOf(address owner) view returns (uint256)',
+                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
+                        'function ownerOf(uint256 tokenId) view returns (address)',
+                        'function tokenURI(uint256 tokenId) view returns (string)',
+                        'function totalSupply() view returns (uint256)',
+                      ],
+                    },
+                    legendaryBank: {
+                      address: deployment.contracts.LegendaryBank,
+                      abi: [
+                        'function getLegendaryCount() view returns (uint256)',
+                        'function legendaryIds(uint256 index) view returns (uint256)',
+                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
+                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
+                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
+                      ],
+                    },
+                  },
+                },
+              },
+              defaultNetwork: 'bonsoleil',
+            };
             return true;
           }
         } catch (error) {
-          console.log('Failed to load blockchain config, using defaults');
+          console.error('Failed to load deployment.json:', error);
+          throw new Error('Failed to load deployment.json. Contract addresses are required.');
         }
-        
-        // Final fallback configuration
-        blockchainConfig = {
-          networks: {
-            bonsoleil: {
-              name: "Bon-Soleil Testnet",
-              rpcUrl: "https://dev2.bon-soleil.com/rpc",
-              contracts: {
-                metadataBank: {
-                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
-                  abi: [
-                    "function getMetadataCount() view returns (uint256)",
-                    "function getMetadata(uint256 index) view returns (string)"
-                  ]
-                },
-                bankedNFT: {
-                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
-                  abi: [
-                    "function balanceOf(address owner) view returns (uint256)",
-                    "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-                    "function ownerOf(uint256 tokenId) view returns (address)",
-                    "function tokenURI(uint256 tokenId) view returns (string)",
-                    "function totalSupply() view returns (uint256)"
-                  ]
-                },
-                legendaryBank: {
-                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
-                  abi: [
-                    "function getLegendaryCount() view returns (uint256)",
-                    "function legendaryIds(uint256 index) view returns (uint256)",
-                    "function isLegendaryId(uint256 tokenId) view returns (bool)",
-                    "function getLegendaryTitle(uint256 tokenId) view returns (string)",
-                    "function getLegendaryDescription(uint256 tokenId) view returns (string)"
-                  ]
-                }
-              }
-            }
-          },
-          defaultNetwork: "bonsoleil"
-        };
-        return true;
+
+        // deployment.jsonが読み込めない場合はエラー
+        throw new Error('deployment.json not found');
       }
-      
-      // Initialize blockchain connection
-      async function initBlockchain() {
-        try {
-          if (typeof ethers === 'undefined') {
-            alert('ethers.js library not loaded. Please check your internet connection.');
-            return false;
-          }
-          
-          await loadBlockchainConfig();
-          
-          const network = blockchainConfig.networks[blockchainConfig.defaultNetwork];
-          if (!network) {
-            console.error('Network configuration not found');
-            return false;
-          }
-          
-          provider = new ethers.JsonRpcProvider(network.rpcUrl);
-          await provider.getNetwork();
-          
-          const metadataBankConfig = network.contracts.metadataBank;
-          metadataBank = new ethers.Contract(metadataBankConfig.address, metadataBankConfig.abi, provider);
-          
-          const bankedNFTConfig = network.contracts.bankedNFT;
-          bankedNFTContract = new ethers.Contract(bankedNFTConfig.address, bankedNFTConfig.abi, provider);
-          
-          const legendaryBankConfig = network.contracts.legendaryBank;
-          legendaryBankContract = new ethers.Contract(legendaryBankConfig.address, legendaryBankConfig.abi, provider);
-          
-          console.log(`Connected to ${network.name} at ${network.rpcUrl}`);
-          console.log(`MetadataBank address: ${metadataBankConfig.address}`);
-          console.log(`BankedNFT address: ${bankedNFTConfig.address}`);
-          console.log(`LegendaryBank address: ${legendaryBankConfig.address}`);
-          
-          return true;
-        } catch (error) {
-          console.error('Failed to connect to blockchain:', error);
-          return false;
-        }
-      }
-      
+
       // Generate metadata from blockchain
       async function generateMetadataFromBlockchain(id) {
         try {
+          if (!contractManager) {
+            throw new Error('ContractManager not initialized');
+          }
+
+          const metadataBank = contractManager.getContract('metadataBank');
+          if (!metadataBank) {
+            throw new Error('MetadataBank contract not found');
+          }
+
           // Use id - 1 as index (no modulo to avoid wrapping)
           const index = Number(id) - 1;
           console.log(`Generating metadata for ID: ${id}, using index: ${index}`);
           let metadataUri = await metadataBank.getMetadata(index);
-          
+
           // Check if the result is an address (proxy pattern)
           if (metadataUri.startsWith('0x') && metadataUri.length === 42) {
             console.log('MetadataBank returned an address:', metadataUri);
-            const proxyMetadataBank = new ethers.Contract(
-              metadataUri, 
-              blockchainConfig.networks[blockchainConfig.defaultNetwork].contracts.metadataBank.abi, 
-              provider
-            );
-            
+            // Use the same ABI as the main MetadataBank contract
+            const metadataBankAbi = contractManager.abis.MetadataBank || [
+              'function getMetadata(uint256 index) view returns (string)',
+            ];
+            const proxyMetadataBank = new ethers.Contract(metadataUri, metadataBankAbi, provider);
+
             try {
               metadataUri = await proxyMetadataBank.getMetadata(index);
             } catch (proxyError) {
@@ -489,7 +547,7 @@
               throw proxyError;
             }
           }
-          
+
           // Decode the metadata
           let metadata;
           if (metadataUri.startsWith('data:application/json;base64,')) {
@@ -501,36 +559,47 @@
           } else {
             throw new Error('Invalid metadata format');
           }
-          
+
           // Add the ID to the metadata
           metadata.id = id;
-          
+
           // Log metadata for debugging
           console.log(`Metadata for ID ${id}:`, {
             id: metadata.id,
             name: metadata.name,
-            description: metadata.description?.substring(0, 50) + '...'
+            description: metadata.description?.substring(0, 50) + '...',
           });
-          
+
           return metadata;
         } catch (error) {
           console.error('Error fetching from blockchain:', error);
           throw error;
         }
       }
-      
+
       // Load minted NFTs in descending order (newest first)
       async function loadMintedNFTs() {
         try {
+          if (!contractManager) {
+            console.log('ContractManager not initialized');
+            return [];
+          }
+
+          const bankedNFTContract = contractManager.getContract('bankedNFT');
+          if (!bankedNFTContract) {
+            console.log('BankedNFT contract not found');
+            return [];
+          }
+
           const totalSupply = await bankedNFTContract.totalSupply();
           console.log(`Total minted NFTs: ${totalSupply.toString()}`);
-          
+
           mintedTokenIds = [];
           // Load in descending order (newest first)
           for (let i = totalSupply; i >= 1; i--) {
             mintedTokenIds.push(i);
           }
-          
+
           console.log('Minted token IDs (newest first):', mintedTokenIds.slice(0, 10), '...');
           return mintedTokenIds;
         } catch (error) {
@@ -538,19 +607,30 @@
           return [];
         }
       }
-      
+
       // Load legendary token IDs
       async function loadLegendaryTokenIds() {
         try {
+          if (!contractManager) {
+            console.log('ContractManager not initialized');
+            return [];
+          }
+
+          const legendaryBankContract = contractManager.getContract('LegendaryBank');
+          if (!legendaryBankContract) {
+            console.log('LegendaryBank contract not found');
+            return [];
+          }
+
           const count = await legendaryBankContract.getLegendaryCount();
           console.log(`Total legendary tokens: ${count.toString()}`);
-          
+
           legendaryTokenIds = [];
           for (let i = 0; i < count; i++) {
             const tokenId = await legendaryBankContract.legendaryIds(i);
             legendaryTokenIds.push(Number(tokenId));
           }
-          
+
           console.log('Legendary token IDs:', legendaryTokenIds);
           return legendaryTokenIds;
         } catch (error) {
@@ -558,46 +638,56 @@
           return [];
         }
       }
-      
+
       // Initialize with first batch of minted stories
       async function loadRandomStories() {
         const storiesGrid = document.getElementById('storiesGrid');
         storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading essays from blockchain...</p>';
-        
-        if (!metadataBank || !bankedNFTContract) {
-          storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Blockchain connection not available. Please refresh the page.</p>';
+
+        if (!contractManager) {
+          storiesGrid.innerHTML =
+            '<p style="text-align: center; color: #EF4444;">Blockchain connection not available. Please refresh the page.</p>';
           return;
         }
-        
+
+        const metadataBank = contractManager.getContract('metadataBank');
+        const bankedNFTContract = contractManager.getContract('bankedNFT');
+
+        if (!metadataBank || !bankedNFTContract) {
+          storiesGrid.innerHTML =
+            '<p style="text-align: center; color: #EF4444;">Contracts not available. Please refresh the page.</p>';
+          return;
+        }
+
         // Reset pagination
         currentPage = 0;
         loadedStories = [];
         hasMoreToLoad = true;
-        
+
         // Load all minted token IDs (but not their metadata yet)
         const minted = await loadMintedNFTs();
         if (minted.length === 0) {
           storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">No NFTs have been minted yet.</p>';
           return;
         }
-        
+
         // Load legendary token IDs for later use
         await loadLegendaryTokenIds();
-        
+
         // Load first batch
         await loadNextBatch();
       }
-      
+
       // Load next batch of stories
       async function loadNextBatch() {
         if (isLoading || !hasMoreToLoad) return;
-        
+
         isLoading = true;
         const storiesGrid = document.getElementById('storiesGrid');
-        
+
         try {
           let tokenIdsToLoad = [];
-          
+
           if (currentFilter === 'all') {
             // For "Minted", load next batch of minted NFTs (newest first)
             const start = currentPage * BATCH_SIZE;
@@ -618,94 +708,96 @@
             hasMoreToLoad = false;
             return;
           }
-          
+
           if (tokenIdsToLoad.length === 0) {
             hasMoreToLoad = false;
             isLoading = false;
             return;
           }
-          
+
           // Show loading indicator
           if (currentPage === 0) {
             storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading essays...</p>';
           }
-          
+
           // Load metadata for batch
-          const promises = tokenIdsToLoad.map(tokenId => {
+          const promises = tokenIdsToLoad.map((tokenId) => {
             // Check cache first
             if (metadataCache.has(tokenId)) {
               return Promise.resolve(metadataCache.get(tokenId));
             }
-            return generateMetadataFromBlockchain(tokenId).then(metadata => {
+            return generateMetadataFromBlockchain(tokenId).then((metadata) => {
               metadataCache.set(tokenId, metadata);
               return metadata;
             });
           });
-          
+
           const batchStories = await Promise.all(promises);
           loadedStories = [...loadedStories, ...batchStories];
-          
+
           currentPage++;
           displayStories();
-          
         } catch (error) {
           console.error('Failed to load batch:', error);
           if (currentPage === 0) {
-            storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Failed to load essays. Please try again.</p>';
+            storiesGrid.innerHTML =
+              '<p style="text-align: center; color: #EF4444;">Failed to load essays. Please try again.</p>';
           }
         } finally {
           isLoading = false;
         }
       }
-      
+
       // Display stories based on current filter
       function displayStories() {
         const storiesGrid = document.getElementById('storiesGrid');
         storiesGrid.innerHTML = '';
-        
+
         const filteredStories = filterStoriesByType(loadedStories, currentFilter);
         const storiesToShow = filteredStories.slice(0, displayCount);
-        
+
         if (storiesToShow.length === 0) {
-          storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC; grid-column: 1/-1;">No essays found for this filter.</p>';
+          storiesGrid.innerHTML =
+            '<p style="text-align: center; color: #C084FC; grid-column: 1/-1;">No essays found for this filter.</p>';
           return;
         }
-        
-        storiesToShow.forEach(story => {
+
+        storiesToShow.forEach((story) => {
           const storyCard = createStoryCard(story);
           storiesGrid.appendChild(storyCard);
         });
       }
-      
+
       // Filter stories by type
       function filterStoriesByType(stories, filter) {
         if (filter === 'all') return stories;
-        
+
         if (filter === 'own') {
           // Filter to show only owned NFTs
           console.log('Filtering for owned NFTs. OwnedTokenIds:', ownedTokenIds);
-          return stories.filter(story => {
+          return stories.filter((story) => {
             const tokenId = parseInt(story.id);
             const isOwned = ownedTokenIds.includes(tokenId);
-            if (story.id <= 10) { // Log first 10 for debugging
+            if (story.id <= 10) {
+              // Log first 10 for debugging
               console.log(`Story ID: ${story.id}, TokenID: ${tokenId}, Owned: ${isOwned}`);
             }
             return isOwned;
           });
         }
-        
+
         if (filter === 'legendary') {
           // Filter to show only legendary NFTs from LegendaryBank
-          return stories.filter(story => {
+          return stories.filter((story) => {
             const tokenId = parseInt(story.id);
             return legendaryTokenIds.includes(tokenId);
           });
         }
-        
-        return stories.filter(story => {
-          const rarity = story.attributes.find(a => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
-          
-          switch(filter) {
+
+        return stories.filter((story) => {
+          const rarity = story.attributes.find((a) => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
+
+          switch (filter) {
             case 'epic':
               return rarity === 'epic';
             case 'rare':
@@ -719,19 +811,19 @@
           }
         });
       }
-      
+
       // Create story card element
       function createStoryCard(story) {
         const card = document.createElement('div');
-        const rarity = story.attributes.find(a => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
-        const isSpecial = story.attributes.find(a => a.trait_type === 'Special');
-        const isLegendary = story.attributes.find(a => a.trait_type === 'Legendary');
-        
+        const rarity = story.attributes.find((a) => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
+        const isSpecial = story.attributes.find((a) => a.trait_type === 'Special');
+        const isLegendary = story.attributes.find((a) => a.trait_type === 'Legendary');
+
         card.className = `story-card ${rarity}`;
-        
+
         // Use the ID directly from the story object
         const storyId = story.id || '1';
-        
+
         // Create badge HTML
         let badgeHtml = '';
         if (isLegendary) {
@@ -739,7 +831,7 @@
         } else if (isSpecial) {
           badgeHtml = '<div class="story-badge">✨ SPECIAL</div>';
         }
-        
+
         // Create image HTML with SVG support
         let imageHtml = '';
         if (story.image && story.image.startsWith('data:image/svg+xml;base64,')) {
@@ -757,10 +849,10 @@
           // For non-base64 SVG images, use img tag
           imageHtml = `<img src="${story.image}" alt="${story.name}" class="story-thumbnail">`;
         }
-        
+
         // Always add token ID to the display name for consistency
         const displayName = `${story.name} #${storyId}`;
-        
+
         card.innerHTML = `
           ${badgeHtml}
           ${imageHtml}
@@ -771,50 +863,55 @@
             <span>${rarity.charAt(0).toUpperCase() + rarity.slice(1)}</span>
           </div>
         `;
-        
+
         card.onclick = () => {
           window.location.href = `generate.html?id=${storyId}`;
         };
-        
+
         return card;
       }
-      
+
       // Connect wallet function
       async function connectWallet() {
-        if (typeof window.ethereum === 'undefined') {
-          alert('Please install MetaMask to use this feature');
-          return;
-        }
-        
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          userAddress = accounts[0];
-          
-          document.getElementById('connectWalletBtn').style.display = 'none';
-          document.getElementById('walletAddress').textContent = `Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
-          
-          // Load owned NFTs
-          await loadOwnedNFTs();
+          await walletManager.connect('bonsoleil');
         } catch (error) {
           console.error('Failed to connect wallet:', error);
           alert('Failed to connect wallet');
         }
       }
-      
+
       // Load owned NFTs
       async function loadOwnedNFTs() {
-        if (!userAddress || !bankedNFTContract) {
-          console.log('Cannot load NFTs - userAddress:', userAddress, 'bankedNFTContract:', bankedNFTContract);
+        if (!userAddress || !contractManager) {
+          console.log('Cannot load NFTs - userAddress:', userAddress, 'contractManager:', contractManager);
           return;
         }
-        
+
+        let bankedNFTContract = contractManager.getContract('bankedNFT');
+
+        // If we have the full ABI loaded, create a new contract instance
+        if (BANKED_NFT_ABI && BANKED_NFT_ABI.length > 30) {
+          console.log('Creating BankedNFT contract with loaded ABI');
+          const deployment = await (await fetch('/config/deployment.json')).json();
+          const bankedNftAddress = deployment.contracts.BankedNFT;
+          bankedNFTContract = new ethers.Contract(bankedNftAddress, BANKED_NFT_ABI, provider);
+        } else if (!bankedNFTContract) {
+          console.log('BankedNFT contract not found and no ABI loaded');
+          return;
+        }
+
+        console.log('BankedNFT contract:', bankedNFTContract);
+        console.log('Has tokenOfOwnerByIndex:', typeof bankedNFTContract.tokenOfOwnerByIndex === 'function');
+        console.log('Contract functions:', Object.keys(bankedNFTContract.functions || {}));
+
         try {
           console.log('Loading NFTs for address:', userAddress);
           const balance = await bankedNFTContract.balanceOf(userAddress);
           console.log('Balance:', balance.toString());
-          
+
           ownedTokenIds = [];
-          
+
           // Use ERC721Enumerable tokenOfOwnerByIndex
           for (let i = 0; i < balance; i++) {
             try {
@@ -826,9 +923,9 @@
               console.error(`Error getting token at index ${i}:`, error);
             }
           }
-          
+
           console.log(`User owns ${ownedTokenIds.length} NFTs:`, ownedTokenIds);
-          
+
           // Load the metadata for owned NFTs
           if (ownedTokenIds.length > 0 && currentFilter === 'own') {
             await loadOwnedNFTsMetadata();
@@ -838,13 +935,11 @@
           console.error('Error details:', error.message);
         }
       }
-      
+
       // Load metadata for owned NFTs
       async function loadOwnedNFTsMetadata() {
-        const promises = ownedTokenIds.map(tokenId => 
-          generateMetadataFromBlockchain(tokenId)
-        );
-        
+        const promises = ownedTokenIds.map((tokenId) => generateMetadataFromBlockchain(tokenId));
+
         try {
           const ownedStories = await Promise.all(promises);
           // Replace loadedStories with owned stories when viewing "own" filter
@@ -856,53 +951,54 @@
           console.error('Failed to load owned NFT metadata:', error);
         }
       }
-      
+
       // Filter stories
       async function filterStories(filter) {
         const previousFilter = currentFilter;
         currentFilter = filter;
         displayCount = 12;
-        
+
         // Update active button
-        document.querySelectorAll('.filter-button').forEach(btn => {
+        document.querySelectorAll('.filter-button').forEach((btn) => {
           btn.classList.remove('active');
         });
         event.target.classList.add('active');
-        
+
         // Show wallet connection status for "Own" filter
         const walletStatus = document.getElementById('walletStatus');
         if (filter === 'own') {
           walletStatus.style.display = 'block';
           if (!userAddress) {
-            document.getElementById('storiesGrid').innerHTML = '<p style="text-align: center; color: #A78BFA;">Please connect your wallet to view your NFTs</p>';
+            document.getElementById('storiesGrid').innerHTML =
+              '<p style="text-align: center; color: #A78BFA;">Please connect your wallet to view your NFTs</p>';
             return;
           }
         } else {
           walletStatus.style.display = 'none';
         }
-        
+
         // Reset pagination when switching filters
         if (filter !== previousFilter) {
           currentPage = 0;
           hasMoreToLoad = true;
         }
-        
+
         // For legendary filter, load all legendary NFTs (minted or not)
         if (filter === 'legendary' && legendaryTokenIds.length > 0) {
           const storiesGrid = document.getElementById('storiesGrid');
           storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading legendary essays...</p>';
-          
+
           // Use cache for legendary NFTs too
-          const promises = legendaryTokenIds.map(tokenId => {
+          const promises = legendaryTokenIds.map((tokenId) => {
             if (metadataCache.has(tokenId)) {
               return Promise.resolve(metadataCache.get(tokenId));
             }
-            return generateMetadataFromBlockchain(tokenId).then(metadata => {
+            return generateMetadataFromBlockchain(tokenId).then((metadata) => {
               metadataCache.set(tokenId, metadata);
               return metadata;
             });
           });
-          
+
           try {
             loadedStories = await Promise.all(promises);
             displayStories();
@@ -918,7 +1014,7 @@
           displayStories();
         }
       }
-      
+
       // Load more stories
       async function loadMoreStories() {
         if (currentFilter === 'all' && hasMoreToLoad) {
@@ -930,18 +1026,51 @@
           displayStories();
         }
       }
-      
+
       // Load stories on page load
       window.addEventListener('DOMContentLoaded', async () => {
-        // Initialize blockchain connection
-        const connected = await initBlockchain();
-        
-        if (!connected) {
-          document.getElementById('storiesGrid').innerHTML = 
-            '<p style="text-align: center; color: #EF4444;">Failed to connect to blockchain. Please refresh the page.</p>';
-          return;
+        // Initialize UI Components
+        initializeUIStyles();
+
+        // Load ABIs first
+        await loadABIs();
+
+        // Initialize WalletManager
+        await initializeWalletManager();
+
+        // Initialize provider for read-only operations
+        if (!provider) {
+          // ethers v5
+          provider = new ethers.providers.JsonRpcProvider('https://dev2.bon-soleil.com/rpc');
+          console.log('Initialized JsonRpcProvider for read-only operations');
         }
-        
+
+        // Initialize ContractManager with provider
+        if (!contractManager) {
+          contractManager = new ContractManager();
+        }
+        await contractManager.initialize(provider, null); // null signer for read-only
+        console.log('ContractManager initialized with provider');
+
+        // Check if wallet already connected
+        if (walletManager && walletManager.isWalletConnected()) {
+          provider = walletManager.getProvider();
+          const signer = walletManager.getSigner();
+          if (signer) {
+            contractManager.updateSigner(signer);
+          }
+        }
+
+        // Load legendary token IDs
+        await loadLegendaryTokenIds();
+
+        // Check if wallet status should be shown (for 'own' filter)
+        const walletStatus = document.getElementById('walletStatus');
+        if (currentFilter === 'own') {
+          walletStatus.style.display = 'block';
+        }
+
+        // Load first batch of stories
         loadRandomStories();
       });
     </script>
