@@ -736,8 +736,8 @@
                     chainId: polygonChainId,
                     chainName: "Polygon",
                     nativeCurrency: {
-                      name: "MATIC",
-                      symbol: "MATIC",
+                      name: "POL",
+                      symbol: "POL",
                       decimals: 18,
                     },
                     rpcUrls: ["https://polygon-rpc.com/"],
@@ -837,7 +837,7 @@
               errorMessage =
                 "Contract addresses cannot mint. Please use a regular wallet.";
             } else if (error.message.includes("insufficient funds")) {
-              errorMessage = "Insufficient MATIC balance for gas fees.";
+              errorMessage = "Insufficient POL balance for gas fees.";
             } else if (error.message.includes("execution reverted")) {
               // Try to extract revert reason
               const revertMatch = error.message.match(
@@ -1266,7 +1266,13 @@
         const isMetaMaskBrowser =
           typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
 
-        if (isMobile && !isMetaMaskBrowser) {
+        // Also check for Twitter/X WebView
+        const isTwitterWebView =
+          navigator.userAgent.includes("Twitter") ||
+          navigator.userAgent.includes("X/") ||
+          window.location.href.includes("t.co");
+
+        if ((isMobile || isTwitterWebView) && !isMetaMaskBrowser) {
           // Show mobile instructions
           showMobileInstructions();
         }

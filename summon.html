@@ -317,6 +317,15 @@
         text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
       }
 
+      .price-reason {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        font-style: italic;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
       .quantity-selector {
         display: flex;
         align-items: center;
@@ -605,7 +614,15 @@
 
           <div class="price-display">
             <div class="price-label">Price</div>
-            <div class="price-value" id="priceDisplay">0.005 ETH</div>
+            <div class="price-value" id="priceDisplay">33 POL</div>
+            <div class="price-reason">
+              33 POL - The Master Number of Transformation<br>
+              <span style="font-size: 0.8em; opacity: 0.9;">
+                At 33, souls reach a crossroads between light and shadow.<br>
+                In Japanese tradition, 33 marks spiritual awakening.<br>
+                But what awakens in the digital realm... may be nightmares.
+              </span>
+            </div>
           </div>
 
           <button class="mint-btn" id="mintBtn" onclick="mintNFT()" disabled>
@@ -657,7 +674,7 @@
     <script src="js/web3-integration.js"></script>
 
     <script>
-      let nftPrice = 0.005;
+      let nftPrice = 33;
       let isConnected = false;
 
       // パーティクル生成
@@ -845,11 +862,11 @@
           ) {
             // Set default values when contract is not deployed
             document.getElementById("contractName").textContent =
-              "Contract Not Deployed";
+              "Something Dark";
             document.getElementById("totalSupply").textContent = "0";
             document.getElementById("maxSupply").textContent = "10,000";
-            document.getElementById("priceDisplay").textContent = "0.005 ETH";
-            nftPrice = 0.005;
+            document.getElementById("priceDisplay").textContent = "33 POL";
+            nftPrice = 33;
             return;
           }
 
@@ -895,15 +912,15 @@
               document.getElementById("totalSupply").textContent = "Loading...";
               document.getElementById("maxSupply").textContent = "10,000";
               document.getElementById("priceDisplay").textContent = "TBD";
-              nftPrice = 0.005;
+              nftPrice = 33;
             } else {
               // Set default values on error for other networks
               document.getElementById("contractName").textContent =
                 "Unknown Collection";
               document.getElementById("totalSupply").textContent = "0";
               document.getElementById("maxSupply").textContent = "10,000";
-              document.getElementById("priceDisplay").textContent = "0.005 ETH";
-              nftPrice = 0.005;
+              document.getElementById("priceDisplay").textContent = "33 POL";
+              nftPrice = 33;
             }
           } catch {
             // Set default values on error
@@ -911,8 +928,8 @@
               "Unknown Collection";
             document.getElementById("totalSupply").textContent = "0";
             document.getElementById("maxSupply").textContent = "10,000";
-            document.getElementById("priceDisplay").textContent = "0.005 ETH";
-            nftPrice = 0.005;
+            document.getElementById("priceDisplay").textContent = "33 POL";
+            nftPrice = 33;
           }
         }
       }
