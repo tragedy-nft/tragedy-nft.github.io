@@ -715,6 +715,9 @@
         <div id="minting-controls" style="display: none">
           <div class="admin-section">
             <h3>🎨 Mint Your NFT</h3>
+            <div class="deployment-info" style="margin-bottom: 20px;">
+              <p>BankedNFT Contract: <span id="minting-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span></p>
+            </div>
 
             <div class="info-panel">
               <h4>Minting Information</h4>
@@ -1004,6 +1007,9 @@
         <div id="admin-controls" style="display: none">
           <div class="admin-section">
             <h3>👤 Owner Functions</h3>
+            <div class="deployment-info" style="margin-bottom: 20px;">
+              <p>BankedNFT Contract: <span id="admin-contract-address" style="color: #4caf50; font-family: monospace">Not loaded</span></p>
+            </div>
 
             <div class="function-group">
               <h4>Update Configuration</h4>
@@ -1129,7 +1135,7 @@
       async function loadDeployment() {
         try {
           console.log("Loading deployment.json...");
-          const response = await fetch("deployment.json");
+          const response = await fetch("../config/deployment.json");
           console.log("Response status:", response.status);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1206,7 +1212,6 @@
         "function balanceOf(address owner) view returns (uint256)",
         "function ownerOf(uint256 tokenId) view returns (address)",
         "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-        "function totalSupply() view returns (uint256)",
 
         // Write functions
         "function mint() payable returns (uint256)",
@@ -1254,6 +1259,12 @@
           if (!DEPLOYMENT) {
             throw new Error("Failed to load deployment configuration");
           }
+          console.log("Deployment loaded:", DEPLOYMENT);
+          console.log("Contract addresses from deployment:", {
+            BankedNFT: BANKED_NFT_ADDRESS,
+            MetadataBank: METADATA_BANK_ADDRESS,
+            TragedyComposer: COMPOSER_ADDRESS
+          });
           console.log("RPC URL:", RPC_URL);
           showStatus("Initializing...", "info", "viewer");
 
@@ -1277,14 +1288,36 @@
           }
 
           // Initialize contracts
+          console.log("Initializing BankedNFT contract with address:", BANKED_NFT_ADDRESS);
+          if (!BANKED_NFT_ADDRESS || BANKED_NFT_ADDRESS === "undefined") {
+            throw new Error("BankedNFT address is not set properly");
+          }
+          
+          // Check if address is valid
+          if (!ethers.utils.isAddress(BANKED_NFT_ADDRESS)) {
+            throw new Error(`Invalid BankedNFT address: ${BANKED_NFT_ADDRESS}`);
+          }
+          
           bankedNft = new ethers.Contract(
             BANKED_NFT_ADDRESS,
             BANKED_NFT_ABI,
             provider
           );
+          
+          // Verify contract exists by checking code
+          const code = await provider.getCode(BANKED_NFT_ADDRESS);
+          console.log("Contract code length:", code.length);
+          if (code === "0x") {
+            throw new Error(`No contract found at address ${BANKED_NFT_ADDRESS}`);
+          }
+          
           document.getElementById(
             "nft-address"
           ).innerHTML = `BankedNFT Contract: <span style="color: #4caf50; font-family: monospace">${BANKED_NFT_ADDRESS}</span>`;
+          
+          // Also update Minting and Admin tab addresses
+          document.getElementById("minting-contract-address").textContent = BANKED_NFT_ADDRESS;
+          document.getElementById("admin-contract-address").textContent = BANKED_NFT_ADDRESS;
 
           // Get current MetadataBank from BankedNFT
           try {
@@ -1518,15 +1551,46 @@
           const web3Provider = new ethers.providers.Web3Provider(
             window.ethereum
           );
+          
+          // Check network
+          const network = await web3Provider.getNetwork();
+          console.log("Connected to network:", network);
+          console.log("Expected chain ID: 21201");
+          
+          if (network.chainId !== 21201) {
+            alert(`Wrong network! Please switch to Bon-Soleil Testnet (Chain ID: 21201). Current chain ID: ${network.chainId}`);
+            return;
+          }
+          
           signer = web3Provider.getSigner();
           currentAccount = await signer.getAddress();
 
+          // Check if addresses are loaded
+          if (!BANKED_NFT_ADDRESS) {
+            console.error("BANKED_NFT_ADDRESS is not set");
+            alert("Contract addresses not loaded. Please refresh the page.");
+            return;
+          }
+          
+          console.log("Updating contracts with signer, address:", BANKED_NFT_ADDRESS);
+          
           // Update contracts with signer
           bankedNft = new ethers.Contract(
             BANKED_NFT_ADDRESS,
             BANKED_NFT_ABI,
             signer
           );
+          
+          // Verify contract is accessible
+          try {
+            const testName = await bankedNft.name();
+            console.log("Contract name verified:", testName);
+          } catch (testError) {
+            console.error("Failed to access contract:", testError);
+            console.error("Contract address:", BANKED_NFT_ADDRESS);
+            console.error("Signer address:", currentAccount);
+          }
+          
           if (METADATA_BANK_ADDRESS) {
             metadataBank = new ethers.Contract(
               METADATA_BANK_ADDRESS,
@@ -1567,6 +1631,12 @@
 
       async function loadMintingInfo() {
         try {
+          if (!bankedNft) {
+            console.error("BankedNFT contract not initialized");
+            document.getElementById("collection-name").textContent = "Error: Contract not initialized";
+            return;
+          }
+
           // Get all contract information
           const [
             name,
@@ -1628,6 +1698,10 @@
           if (currentMetadataBankElement) {
             currentMetadataBankElement.textContent = metadataBank;
           }
+
+          // Update contract address display
+          document.getElementById("minting-contract-address").textContent = BANKED_NFT_ADDRESS;
+          document.getElementById("admin-contract-address").textContent = BANKED_NFT_ADDRESS;
         } catch (error) {
           console.error("Error loading minting info:", error);
         }
@@ -2218,6 +2292,11 @@
         const infoDiv = document.getElementById("contract-info");
 
         try {
+          if (!bankedNft) {
+            infoDiv.innerHTML = '<span style="color: #ff6b6b">Error: Contract not initialized. Please refresh the page.</span>';
+            return;
+          }
+
           infoDiv.innerHTML = "Loading...";
 
           const [
