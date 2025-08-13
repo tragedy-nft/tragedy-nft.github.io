@@ -300,6 +300,77 @@
           }
         }
         
+        // Try to load deployment.json and setting.json first
+        let deployment = null;
+        let settings = null;
+        
+        try {
+          const [deploymentRes, settingRes] = await Promise.all([
+            fetch('config/deployment.json'),
+            fetch('config/setting.json')
+          ]);
+          
+          if (deploymentRes.ok) {
+            deployment = await deploymentRes.json();
+            console.log('Deployment configuration loaded');
+          }
+          
+          if (settingRes.ok) {
+            settings = await settingRes.json();
+            console.log('Settings configuration loaded');
+          }
+          
+          if (deployment) {
+            // Create blockchainConfig from deployment.json and setting.json
+            blockchainConfig = {
+              networks: {
+                bonsoleil: {
+                  name: "Bon-Soleil Testnet",
+                  rpcUrl: "https://dev2.bon-soleil.com/rpc",
+                  contracts: {
+                    metadataBank: {
+                      address: deployment.contracts.MetadataBank,
+                      abi: [
+                        "function getMetadataCount() view returns (uint256)",
+                        "function getMetadata(uint256 index) view returns (string)"
+                      ]
+                    },
+                    bankedNFT: {
+                      address: deployment.contracts.BankedNFT,
+                      abi: [
+                        "function balanceOf(address owner) view returns (uint256)",
+                        "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+                        "function ownerOf(uint256 tokenId) view returns (address)",
+                        "function tokenURI(uint256 tokenId) view returns (string)",
+                        "function totalSupply() view returns (uint256)"
+                      ]
+                    },
+                    legendaryBank: {
+                      address: deployment.contracts.LegendaryBank,
+                      abi: [
+                        "function getLegendaryCount() view returns (uint256)",
+                        "function legendaryIds(uint256 index) view returns (uint256)",
+                        "function isLegendaryId(uint256 tokenId) view returns (bool)",
+                        "function getLegendaryTitle(uint256 tokenId) view returns (string)",
+                        "function getLegendaryDescription(uint256 tokenId) view returns (string)",
+                        "function getLegendaryRarity(uint256 tokenId) view returns (uint8)",
+                        "function getAllLegendaryIds() view returns (uint256[])"
+                      ]
+                    },
+                    miscContract: {
+                      address: settings?.addresses?.miscContract || "0x0000000000000000000000000000000000000000"
+                    }
+                  }
+                }
+              },
+              defaultNetwork: 'bonsoleil'
+            };
+            return true;
+          }
+        } catch (error) {
+          console.log('Failed to load deployment/setting configs:', error);
+        }
+        
         // Fallback to loading blockchain.json
         try {
           const response = await fetch('config/blockchain.json');
@@ -320,14 +391,14 @@
               rpcUrl: "https://dev2.bon-soleil.com/rpc",
               contracts: {
                 metadataBank: {
-                  address: "0x565B793c191FE9C0D9980eCDB05A1471aBA198b4",
+                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
                   abi: [
                     "function getMetadataCount() view returns (uint256)",
                     "function getMetadata(uint256 index) view returns (string)"
                   ]
                 },
                 bankedNFT: {
-                  address: "0xD8543363D99314fdE362014CF89CF6b5417d2B68",
+                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
                   abi: [
                     "function balanceOf(address owner) view returns (uint256)",
                     "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
@@ -337,7 +408,7 @@
                   ]
                 },
                 legendaryBank: {
-                  address: "0xf6691E452fc377c3ea4975696bD20E3CCe4d686a",
+                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
                   abi: [
                     "function getLegendaryCount() view returns (uint256)",
                     "function legendaryIds(uint256 index) view returns (uint256)",

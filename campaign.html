@@ -596,7 +596,7 @@
                     href="https://opensea.io/collection/something-dark-is-awakening"
                     target="_blank"
                     style="color: #60a5fa; text-decoration: none"
-                    >0x800472c573b2f195d3f282e9befdb7bb7db30b8d</a
+                    >Loading...</a
                   >
                   <button class="copy-button" onclick="copyContractAddress()">
                     <span id="copyText">Copy</span>
@@ -639,9 +639,29 @@
       let userAccount;
       let currentLang = localStorage.getItem("selectedLanguage") || "en";
 
-      // SBT Contract configuration
-      const contractAddress = "0x800472c573b2f195d3f282e9befdb7bb7db30b8d";
+      // SBT Contract configuration - will be loaded from setting.json
+      let contractAddress = "0x0000000000000000000000000000000000000000";
       const contractABI = ["function mint() public"];
+      
+      // Load settings configuration
+      async function loadSettings() {
+        try {
+          const response = await fetch('config/setting.json');
+          if (response.ok) {
+            const settings = await response.json();
+            contractAddress = settings.contracts.Campaign || contractAddress;
+            console.log('Campaign contract loaded:', contractAddress);
+            
+            // Update the display
+            const addressElement = document.getElementById('contractAddressLink');
+            if (addressElement) {
+              addressElement.textContent = contractAddress;
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load setting.json:', error);
+        }
+      }
 
       const polygonChainId = "0x89"; // 137 in hex
 
@@ -1256,6 +1276,7 @@
 
       // Initialize on page load
       document.addEventListener("DOMContentLoaded", () => {
+        loadSettings();
         initWeb3();
 
         // Check if mobile and not in MetaMask browser

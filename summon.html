@@ -653,7 +653,8 @@
           <span class="nav-link-text-mobile">OpenSea</span>
         </a>
         <a
-          href="https://polygonscan.com/address/0x800472c573b2f195d3f282e9befdb7bb7db30b8d"
+          href="https://polygonscan.com/address/"
+          id="polygonscanLink"
           class="nav-link"
           id="basescanLink"
           target="_blank"
@@ -676,6 +677,25 @@
     <script>
       let nftPrice = 33;
       let isConnected = false;
+      
+      // Load settings and update campaign contract address
+      async function loadSettings() {
+        try {
+          const response = await fetch('config/setting.json');
+          if (response.ok) {
+            const settings = await response.json();
+            const campaignAddress = settings.contracts.Campaign;
+            if (campaignAddress) {
+              const polygonscanLink = document.getElementById('polygonscanLink');
+              if (polygonscanLink) {
+                polygonscanLink.href = `https://polygonscan.com/address/${campaignAddress}`;
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load setting.json:', error);
+        }
+      }
 
       // パーティクル生成
       function createParticles() {
@@ -1450,6 +1470,7 @@
 
       // Initialize
       document.addEventListener("DOMContentLoaded", () => {
+        loadSettings();
         createParticles();
         rotatePreviewImages();
 

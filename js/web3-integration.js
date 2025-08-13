@@ -3,8 +3,20 @@
 
 // Load centralized contract configuration
 // Note: This assumes contracts-config.js is loaded before this file in HTML
-const contractsConfig =
+let contractsConfig =
   typeof CONTRACTS_CONFIG !== "undefined" ? CONTRACTS_CONFIG : null;
+
+// Load deployment data if contracts config is available
+async function loadContractAddresses() {
+  if (contractsConfig && contractsConfig.loadDeployment) {
+    await contractsConfig.loadDeployment();
+    // Update CONTRACT_CONFIG with loaded addresses
+    CONTRACT_CONFIG.addresses = {
+      137: contractsConfig.getContract(137, "legendaryBank") || "0x0000000000000000000000000000000000000000",
+      21201: contractsConfig.getContract(21201, "legendaryBank") || "0x0000000000000000000000000000000000000000",
+    };
+  }
+}
 
 // Network configurations - dynamically built from contracts config if available
 const POLYGON_MAINNET_CONFIG = contractsConfig
@@ -47,17 +59,17 @@ const BON_SOLEIL_CONFIG = contractsConfig
       blockExplorerUrls: ["https://dev2.bon-soleil.com/explorer"],
     };
 
-// Contract configuration - use centralized config if available, fallback to hardcoded
+// Contract configuration - use centralized config if available
 const CONTRACT_CONFIG = {
   // Network-specific contract addresses from centralized config
   addresses: contractsConfig
     ? {
-        137: contractsConfig.getContract(137, "bankedNFT"),
-        21201: contractsConfig.getContract(21201, "bankedNFT"),
+        137: contractsConfig.getContract(137, "legendaryBank"),
+        21201: contractsConfig.getContract(21201, "legendaryBank"),
       }
     : {
         137: "0x0000000000000000000000000000000000000000",
-        21201: "0xD8543363D99314fdE362014CF89CF6b5417d2B68",
+        21201: "0x0000000000000000000000000000000000000000", // Will be loaded from deployment.json
       },
   abi: [
     // BankedNFT ABI for minting
@@ -600,6 +612,11 @@ class Web3Integration {
 
 // Create global instance
 window.web3Integration = new Web3Integration();
+
+// Load addresses when DOM is ready
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', loadContractAddresses);
+}
 
 // Export for module usage
 if (typeof module !== "undefined" && module.exports) {

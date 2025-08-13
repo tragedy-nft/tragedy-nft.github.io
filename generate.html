@@ -165,6 +165,44 @@
           }
         }
 
+        // Try to load deployment.json first
+        try {
+          const deploymentResponse = await fetch("config/deployment.json");
+          if (deploymentResponse.ok) {
+            const deployment = await deploymentResponse.json();
+            console.log("Deployment configuration loaded");
+            
+            // Create blockchainConfig from deployment.json
+            blockchainConfig = {
+              networks: {
+                bonsoleil: {
+                  name: "Bon-Soleil Testnet",
+                  rpcUrl: "https://dev2.bon-soleil.com/rpc",
+                  contracts: {
+                    metadataBank: {
+                      address: deployment.contracts.MetadataBank,
+                      abi: [
+                        "function getMetadataCount() view returns (uint256)",
+                        "function getMetadata(uint256 index) view returns (string)",
+                        "function composer() view returns (address)",
+                        "function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)",
+                        "function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)",
+                      ],
+                    },
+                    legendaryBank: {
+                      address: deployment.contracts.LegendaryBank,
+                    },
+                  },
+                },
+              },
+              defaultNetwork: "bonsoleil",
+            };
+            return true;
+          }
+        } catch (error) {
+          console.log("Failed to load deployment.json, trying blockchain.json");
+        }
+
         // Fallback to loading blockchain.json
         try {
           const response = await fetch("config/blockchain.json");
@@ -185,7 +223,7 @@
               rpcUrl: "https://dev2.bon-soleil.com/rpc",
               contracts: {
                 metadataBank: {
-                  address: "0x565B793c191FE9C0D9980eCDB05A1471aBA198b4",
+                  address: "0x0000000000000000000000000000000000000000", // Should be loaded from deployment.json
                   abi: [
                     "function getMetadataCount() view returns (uint256)",
                     "function getMetadata(uint256 index) view returns (string)",
@@ -267,9 +305,9 @@
               network.contracts.legendaryBank;
           }
 
-          // Final fallback to hardcoded address
+          // No fallback - must be configured in deployment.json or blockchain.json
           if (!legendaryBankAddress) {
-            legendaryBankAddress = "0xB5056b388d18000c95af0Eaf061b4428d5b71f0E";
+            console.error("LegendaryBank address not found in configuration");
           }
 
           if (legendaryBankAddress) {

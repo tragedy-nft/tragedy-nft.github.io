@@ -1,0 +1,16 @@
+{
+  "network": "chain-21201",
+  "timestamp": "2025-08-13T15:00:00.000Z",
+  "contracts": {
+    "Campaign": "0x800472c573b2f195d3f282e9befdb7bb7db30b8d"
+  },
+  "addresses": {
+    "openSeaProfile": "0xe8dA4B6E9dF0e8f2eE6898E44ca1D45a27ED7d0A",
+    "miscContract": "0xf6691E452fc377c3ea4975696bD20E3CCe4d686a"
+  },
+  "description": {
+    "Campaign": "Campaign contract for special events and promotions",
+    "openSeaProfile": "Official OpenSea profile address",
+    "miscContract": "Miscellaneous contract used in essays"
+  }
+}

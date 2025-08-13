@@ -1,7 +1,7 @@
 // Centralized contract configuration for all networks
-// This file should be the single source of truth for all contract addresses
+// This file loads contract addresses from deployment.json
 
-const CONTRACTS_CONFIG = {
+let CONTRACTS_CONFIG = {
   // Network configurations
   networks: {
     // Bon-Soleil Testnet (Development)
@@ -10,12 +10,7 @@ const CONTRACTS_CONFIG = {
       chainIdHex: "0x52d1",
       rpcUrl: "https://dev2.bon-soleil.com/rpc",
       blockExplorer: "https://dev2.bon-soleil.com/explorer",
-      contracts: {
-        bankedNFT: "0x7569AcDd1397D73c881340df4faB2917F946E914",
-        metadataBank: "0x1658C5Bd050C351E0DBf154913FFA4c9b666447f",
-        legendaryBank: "0xb552A7b29BF637667C0f2313D9617d448dd3aB8d",
-        composer: "0xfAB3DdC97d66a09A590f054004A3981EA2D7A8E4",
-      },
+      contracts: {}, // Will be populated from deployment.json
     },
     // Polygon Mainnet (Production)
     137: {
@@ -56,7 +51,58 @@ const CONTRACTS_CONFIG = {
   isValidAddress: function (address) {
     return address && address !== "0x0000000000000000000000000000000000000000";
   },
+
+  // Load deployment data from deployment.json
+  loadDeployment: async function() {
+    try {
+      const response = await fetch('/config/deployment.json');
+      if (!response.ok) {
+        throw new Error(`Failed to load deployment.json: ${response.status}`);
+      }
+      const deployment = await response.json();
+      
+      // Map deployment.json contract names to contracts-config names
+      const contractMapping = {
+        'BankedNFT': 'bankedNFT',
+        'MetadataBank': 'metadataBank',
+        'LegendaryBank': 'legendaryBank',
+        'TragedyComposer': 'composer',
+        'MonsterBank': 'monsterBank',
+        'ItemBank': 'itemBank',
+        'BackgroundBank': 'backgroundBank',
+        'EffectBank': 'effectBank',
+        'TragedyMetadata': 'tragedyMetadata',
+        'MonsterBank1': 'monsterBank1',
+        'MonsterBank2': 'monsterBank2',
+        'ItemBank1': 'itemBank1',
+        'ItemBank2': 'itemBank2'
+      };
+
+      // Update network contracts based on deployment
+      if (deployment.network === 'chain-21201') {
+        // Update Bon-Soleil testnet contracts
+        for (const [deploymentName, configName] of Object.entries(contractMapping)) {
+          if (deployment.contracts[deploymentName]) {
+            this.networks[21201].contracts[configName] = deployment.contracts[deploymentName];
+          }
+        }
+      }
+      
+      console.log('Contracts loaded from deployment.json:', this.networks[21201].contracts);
+      return true;
+    } catch (error) {
+      console.error('Failed to load deployment.json:', error);
+      return false;
+    }
+  }
 };
+
+// Auto-load deployment data when script loads
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    CONTRACTS_CONFIG.loadDeployment();
+  });
+}
 
 // Export for use in other scripts
 if (typeof module !== "undefined" && module.exports) {
