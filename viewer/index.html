@@ -569,7 +569,7 @@
         max-width: 450px;
         max-height: 450px;
       }
-      
+
       #composer-result .close-btn {
         position: absolute;
         top: 10px;
@@ -585,7 +585,7 @@
         line-height: 1;
         transition: color 0.3s;
       }
-      
+
       #composer-result .close-btn:hover {
         color: #ff6b6b;
       }
@@ -660,7 +660,7 @@
       <!-- NFT Viewer Section -->
       <div id="viewer-section" class="content-section active">
         <div class="deployment-info">
-          <h3>📋 Contract Information</h3>
+          <h3>Contract Information</h3>
           <p id="network">Network: <span>Not connected</span></p>
           <p id="nft-address">BankedNFT Contract: <span>Not loaded</span></p>
           <p id="metadata-address">MetadataBank: <span>Not loaded</span></p>
@@ -834,7 +834,7 @@
 
         <div id="metadata-display" style="display: none">
           <div class="info-panel">
-            <h3>📋 Metadata Details</h3>
+            <h3>Metadata Details</h3>
             <div
               class="code-display"
               id="raw-metadata"
@@ -873,10 +873,13 @@
       <div id="materials-section" class="content-section">
         <h2>Material Explorer</h2>
         <div class="deployment-info">
-          <h3>📋 Contract Information</h3>
+          <h3>Contract Information</h3>
           <p>MonsterBank: <span id="material-monster-bank">Not loaded</span></p>
           <p>ItemBank: <span id="material-item-bank">Not loaded</span></p>
-          <p>BackgroundBank: <span id="material-background-bank">Not loaded</span></p>
+          <p>
+            BackgroundBank:
+            <span id="material-background-bank">Not loaded</span>
+          </p>
           <p>EffectBank: <span id="material-effect-bank">Not loaded</span></p>
         </div>
         <div class="status" id="materials-status">
@@ -889,11 +892,14 @@
       <div id="composer-section" class="content-section">
         <h2>Composer Explorer</h2>
         <div class="deployment-info">
-          <h3>📋 Contract Information</h3>
+          <h3>Contract Information</h3>
           <p>Composer: <span id="composer-address-info">Not loaded</span></p>
           <p>MonsterBank: <span id="composer-monster-bank">Not loaded</span></p>
           <p>ItemBank: <span id="composer-item-bank">Not loaded</span></p>
-          <p>BackgroundBank: <span id="composer-background-bank">Not loaded</span></p>
+          <p>
+            BackgroundBank:
+            <span id="composer-background-bank">Not loaded</span>
+          </p>
           <p>EffectBank: <span id="composer-effect-bank">Not loaded</span></p>
         </div>
         <div class="admin-section">
@@ -967,7 +973,13 @@
           </button>
         </div>
         <div id="composer-result">
-          <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
+          <button
+            class="close-btn"
+            onclick="document.getElementById('composer-result').style.display='none'"
+            title="Close"
+          >
+            ×
+          </button>
           <div class="admin-section">
             <h3>Composition Result</h3>
             <div class="svg-display">
@@ -1034,15 +1046,16 @@
             <div class="function-group">
               <h4>Set MetadataBank</h4>
               <p style="color: #888; font-size: 12px; margin-bottom: 10px">
-                Current: <span id="current-metadata-bank" style="color: #4caf50; font-family: monospace">Loading...</span>
+                Current:
+                <span
+                  id="current-metadata-bank"
+                  style="color: #4caf50; font-family: monospace"
+                  >Loading...</span
+                >
               </p>
               <div class="input-group">
                 <label>Bank Address:</label>
-                <input
-                  type="text"
-                  id="bank-address"
-                  placeholder="0x..."
-                />
+                <input type="text" id="bank-address" placeholder="0x..." />
               </div>
               <button onclick="setMetadataBank()">Set MetadataBank</button>
               <div id="bank-result" class="tx-result"></div>
@@ -1069,7 +1082,7 @@
           </div>
 
           <div class="admin-section">
-            <h3>📋 Contract Information</h3>
+            <h3>Contract Information</h3>
             <div class="function-group">
               <h4>Read Contract States</h4>
               <button onclick="refreshContractInfo()">Refresh Info</button>
@@ -1111,7 +1124,7 @@
           element.innerHTML = `<span style="color: #4caf50; font-family: monospace">${address}</span>`;
         }
       }
-      
+
       // Load deployment data
       async function loadDeployment() {
         try {
@@ -1129,19 +1142,46 @@
           COMPOSER_ADDRESS = DEPLOYMENT.contracts.tragedyComposer;
           console.log("Loaded deployment:", DEPLOYMENT);
           console.log("Metadata address:", METADATA_BANK_ADDRESS);
-          
+
           // Update Material Explorer contract info
-          updateContractDisplay("material-monster-bank", DEPLOYMENT.contracts.monsterBank);
-          updateContractDisplay("material-item-bank", DEPLOYMENT.contracts.itemBank);
-          updateContractDisplay("material-background-bank", DEPLOYMENT.contracts.backgroundBank);
-          updateContractDisplay("material-effect-bank", DEPLOYMENT.contracts.effectBank);
-          
+          updateContractDisplay(
+            "material-monster-bank",
+            DEPLOYMENT.contracts.monsterBank
+          );
+          updateContractDisplay(
+            "material-item-bank",
+            DEPLOYMENT.contracts.itemBank
+          );
+          updateContractDisplay(
+            "material-background-bank",
+            DEPLOYMENT.contracts.backgroundBank
+          );
+          updateContractDisplay(
+            "material-effect-bank",
+            DEPLOYMENT.contracts.effectBank
+          );
+
           // Update Composer Explorer contract info
-          updateContractDisplay("composer-address-info", DEPLOYMENT.contracts.tragedyComposer);
-          updateContractDisplay("composer-monster-bank", DEPLOYMENT.contracts.monsterBank);
-          updateContractDisplay("composer-item-bank", DEPLOYMENT.contracts.itemBank);
-          updateContractDisplay("composer-background-bank", DEPLOYMENT.contracts.backgroundBank);
-          updateContractDisplay("composer-effect-bank", DEPLOYMENT.contracts.effectBank);
+          updateContractDisplay(
+            "composer-address-info",
+            DEPLOYMENT.contracts.tragedyComposer
+          );
+          updateContractDisplay(
+            "composer-monster-bank",
+            DEPLOYMENT.contracts.monsterBank
+          );
+          updateContractDisplay(
+            "composer-item-bank",
+            DEPLOYMENT.contracts.itemBank
+          );
+          updateContractDisplay(
+            "composer-background-bank",
+            DEPLOYMENT.contracts.backgroundBank
+          );
+          updateContractDisplay(
+            "composer-effect-bank",
+            DEPLOYMENT.contracts.effectBank
+          );
         } catch (error) {
           console.error("Failed to load deployment.json:", error);
           throw new Error("Failed to load deployment configuration");
@@ -1216,7 +1256,6 @@
           }
           console.log("RPC URL:", RPC_URL);
           showStatus("Initializing...", "info", "viewer");
-
 
           // Connect to network
           console.log("Connecting to network...");
@@ -1539,7 +1578,7 @@
             canMint,
             royaltyRate,
             owner,
-            metadataBank
+            metadataBank,
           ] = await Promise.all([
             bankedNft.name(),
             bankedNft.symbol(),
@@ -1550,7 +1589,7 @@
             bankedNft.canMint(),
             bankedNft.royaltyRate(),
             bankedNft.owner(),
-            bankedNft.metadataBank()
+            bankedNft.metadataBank(),
           ]);
 
           // Get user balance
@@ -1559,9 +1598,12 @@
           // Update all display elements
           document.getElementById("collection-name").textContent = name;
           document.getElementById("collection-symbol").textContent = symbol;
-          document.getElementById("mint-total-supply").textContent = totalSupply.toString();
-          document.getElementById("mint-max-supply").textContent = maxSupply.toString();
-          document.getElementById("mint-remaining").textContent = remainingSupply.toString();
+          document.getElementById("mint-total-supply").textContent =
+            totalSupply.toString();
+          document.getElementById("mint-max-supply").textContent =
+            maxSupply.toString();
+          document.getElementById("mint-remaining").textContent =
+            remainingSupply.toString();
           document.getElementById("mint-fee").textContent =
             ethers.utils.formatEther(mintFee) + " ETH";
           document.getElementById("user-balance").textContent =
@@ -1569,18 +1611,20 @@
           document.getElementById("can-mint").textContent = canMint
             ? "Yes ✅"
             : "No ❌";
-          document.getElementById("royalty-rate").textContent = 
-            (royaltyRate.toNumber() / 100) + "%";
-          document.getElementById("contract-owner").textContent = 
+          document.getElementById("royalty-rate").textContent =
+            royaltyRate.toNumber() / 100 + "%";
+          document.getElementById("contract-owner").textContent =
             owner.slice(0, 6) + "..." + owner.slice(-4);
 
           // Update contract balance for admin
           const contractBalance = await provider.getBalance(BANKED_NFT_ADDRESS);
           document.getElementById("contract-balance").textContent =
             ethers.utils.formatEther(contractBalance) + " ETH";
-          
+
           // Update current MetadataBank display
-          const currentMetadataBankElement = document.getElementById("current-metadata-bank");
+          const currentMetadataBankElement = document.getElementById(
+            "current-metadata-bank"
+          );
           if (currentMetadataBankElement) {
             currentMetadataBankElement.textContent = metadataBank;
           }
@@ -2595,7 +2639,7 @@
         const effect = document.getElementById("composer-effect").value;
 
         const resultDiv = document.getElementById("composer-result");
-        resultDiv.style.display = 'block';
+        resultDiv.style.display = "block";
         resultDiv.innerHTML = `
           <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
           <div class="status">Composing...</div>`;
@@ -2626,8 +2670,8 @@
           );
 
           // Make sure the result div is visible
-          resultDiv.style.display = 'block';
-          
+          resultDiv.style.display = "block";
+
           resultDiv.innerHTML = `
                     <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
                     <div class="admin-section">
@@ -2641,7 +2685,7 @@
                     </div>
                 `;
         } catch (error) {
-          resultDiv.style.display = 'block';
+          resultDiv.style.display = "block";
           resultDiv.innerHTML = `
             <button class="close-btn" onclick="document.getElementById('composer-result').style.display='none'" title="Close">×</button>
             <div class="error-message">Error: ${error.message}</div>`;

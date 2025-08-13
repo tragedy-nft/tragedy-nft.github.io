@@ -1,22 +1,22 @@
 const campaignTranslations = {
   en: {
-    title: "Japanese Cultural Heritage Initiative",
-    subtitle: "Preserving Obon Traditions Through Blockchain Technology",
+    title: "Transmitting Japanese Traditions with New Interpretations",
+    subtitle: "Redefining Traditional Events Through Blockchain Technology",
     description:
-      "In Japan, August brings Obon - a time-honored tradition<br />when ancestral spirits return to visit their families.<br /><br />During this sacred period, the boundary between<br />the world of the living and the dead grows thin.<br /><br />We choose this moment to birth digital souls<br />that will exist eternally on the blockchain.",
-    countdown: "Open Cultural Access - During Sacred Obon Period",
+      "In Japan, August brings Obon.<br />Ancestral spirits return to visit their families,<br />a tradition cherished since ancient times.<br /><br />During this sacred period in Japan,<br />the boundary between the world of the living and the dead grows thin.<br /><br />We have chosen this culturally significant time<br />to open the birth of \"SOUL\"<br />that will exist eternally on the blockchain.",
+    countdown: "Limited Cultural Access Opening | Free Mint Fee",
     backButton: "← Back to Home",
     features: {
       limited: {
         title: "Limited Time",
-        desc: "Special NFT only available during this period",
+        desc: "Special TOKEN only available now",
       },
       free: {
         title: "Free Mint",
         desc: "No minting fees - pay only gas",
       },
       soulbound: {
-        title: "Soulbound",
+        title: "SOUL BOUND",
         desc: "Non-transferable, forever yours",
       },
       polygon: {
@@ -57,10 +57,10 @@ const campaignTranslations = {
     },
   },
   ja: {
-    title: "新解釈による日本の伝統行事の発信",
-    subtitle: "ブロックチェーン技術による伝統行事の再解釈",
+    title: "新解釈による日本の伝統の発信",
+    subtitle: "ブロックチェーン技術による伝統行事の再定義",
     description:
-      "日本では8月にお盆を迎えます。<br />先祖の霊が家族のもとに帰ってくる、<br />古くから大切にされてきた伝統です。<br /><br />この神聖な期間、<br />生者と死者の世界の境界が薄れます。<br /><br />私たちはこの瞬間を選び、<br />ブロックチェーン上に永遠に存在し続ける<br />「魂:SOUL」の誕生を開放します。",
+      "日本では8月にお盆を迎えます。<br />先祖の霊が家族のもとに里帰りする、<br />古くから大切にされてきた伝統行事です。<br /><br />この神聖な期間、日本では<br />生者と死者の世界の境界が薄れます。<br /><br />私たちはこの文化的に重要な時期を選び、<br />ブロックチェーン上に永遠に存在し続ける<br />「魂:SOUL」の誕生を開放しました。",
     countdown: "期間限定の文化的アクセス開放 | mintFee無料",
     backButton: "← ホームに戻る",
     features: {
@@ -115,23 +115,23 @@ const campaignTranslations = {
     },
   },
   zh: {
-    title: "日本文化遗产计划",
-    subtitle: "通过区块链技术保存盂兰盆传统",
+    title: "以新诠释传播日本传统",
+    subtitle: "通过区块链技术重新定义传统活动",
     description:
-      "在日本，八月迎来盂兰盆节——<br />这是一个历史悠久的传统，<br />祖先的灵魂会回来探望家人。<br /><br />在这个神圣的时期，<br />生者与死者世界之间的界限变得模糊。<br /><br />我们选择这个时刻，<br />在区块链上诞生<br />将永恒存在的数字灵魂。",
-    countdown: "文化开放访问 - 神圣盂兰盆期间",
+      "在日本，八月迎来盂兰盆节。<br />祖先的灵魂回来探望家人，<br />这是自古以来备受珍视的传统活动。<br /><br />在这个神圣的时期，在日本<br />生者与死者世界之间的界限变得模糊。<br /><br />我们选择了这个文化上重要的时刻，<br />开放在区块链上永恒存在的<br />\"灵魂:SOUL\"的诞生。",
+    countdown: "限时文化访问开放 | 免费铸造费",
     backButton: "← 返回主页",
     features: {
       limited: {
         title: "限时优惠",
-        desc: "仅在此期间可获得的特别NFT",
+        desc: "现在才能获得的特别TOKEN",
       },
       free: {
         title: "免费铸造",
         desc: "无铸造费 - 仅需燃料费",
       },
       soulbound: {
-        title: "灵魂绑定",
+        title: "SOUL BOUND",
         desc: "不可转让，永远属于您",
       },
       polygon: {
@@ -170,23 +170,23 @@ const campaignTranslations = {
     },
   },
   ko: {
-    title: "일본 문화유산 이니셔티브",
-    subtitle: "블록체인 기술을 통한 오봉 전통의 보존",
+    title: "새로운 해석으로 전하는 일본의 전통",
+    subtitle: "블록체인 기술로 재정의하는 전통 행사",
     description:
-      "일본에서는 8월에 오봉을 맞이합니다.<br />조상의 영혼이 가족을 방문하는<br />오랜 전통입니다.<br /><br />이 신성한 기간 동안<br />산 자와 죽은 자의 세계 사이의<br />경계가 흐릿해집니다.<br /><br />우리는 이 순간을 선택하여<br />블록체인에 영원히 존재할<br />디지털 영혼을 탄생시킵니다.",
-    countdown: "문화적 접근 개방 - 신성한 오봉 기간 중",
+      "일본에서는 8월에 오봉을 맞이합니다.<br />조상의 영혼이 가족의 곳으로 돌아오는,<br />예로부터 소중히 여겨온 전통 행사입니다.<br /><br />이 신성한 기간, 일본에서는<br />생자와 사자의 세계 사이의 경계가 희미해집니다.<br /><br />우리는 이 문화적으로 중요한 시기를 선택하여,<br />블록체인 상에 영원히 존재하게 될<br />\"영혼:SOUL\"의 탄생을 개방했습니다.",
+    countdown: "기간 한정 문화적 접근 개방 | 민팅 수수료 무료",
     backButton: "← 홈으로 돌아가기",
     features: {
       limited: {
         title: "기간 한정",
-        desc: "이 시기에만 얻을 수 있는 특별한 NFT",
+        desc: "지금만 얻을 수 있는 특별한 TOKEN",
       },
       free: {
         title: "무료 민팅",
         desc: "민팅 수수료 없음 - 가스비만",
       },
       soulbound: {
-        title: "소울바운드",
+        title: "SOUL BOUND",
         desc: "양도 불가, 영원히 당신의 것",
       },
       polygon: {
@@ -226,24 +226,24 @@ const campaignTranslations = {
     },
   },
   es: {
-    title: "Iniciativa del Patrimonio Cultural Japonés",
+    title: "Transmitiendo las Tradiciones Japonesas con Nueva Interpretación",
     subtitle:
-      "Preservando las Tradiciones Obon a través de la Tecnología Blockchain",
+      "Redefiniendo Eventos Tradicionales a través de la Tecnología Blockchain",
     description:
-      "En Japón, agosto trae el Obon, una tradición ancestral<br />cuando los espíritus de los antepasados<br />regresan a visitar a sus familias.<br /><br />Durante este período sagrado,<br />el límite entre el mundo de los vivos<br />y los muertos se vuelve delgado.<br /><br />Elegimos este momento para dar vida<br />a almas digitales que existirán<br />eternamente en la blockchain.",
-    countdown: "Acceso Cultural Abierto - Durante el Período Sagrado de Obon",
+      "En Japón, agosto trae el Obon.<br />Los espíritus ancestrales regresan a visitar a sus familias,<br />un evento tradicional atesorado desde tiempos antiguos.<br /><br />Durante este período sagrado en Japón,<br />el límite entre el mundo de los vivos y los muertos se vuelve borroso.<br /><br />Hemos elegido este momento culturalmente significativo<br />para abrir el nacimiento de \"ALMAS:SOUL\"<br />que existirán eternamente en la blockchain.",
+    countdown: "Apertura de Acceso Cultural Limitado | Tarifa de Acuñación Gratis",
     backButton: "← Volver al Inicio",
     features: {
       limited: {
         title: "Tiempo Limitado",
-        desc: "NFT especial disponible solo durante este período",
+        desc: "TOKEN especial disponible solo ahora",
       },
       free: {
         title: "Acuñación Gratis",
         desc: "Sin tarifas de acuñación - solo gas",
       },
       soulbound: {
-        title: "Vinculado al Alma",
+        title: "SOUL BOUND",
         desc: "No transferible, tuyo para siempre",
       },
       polygon: {
@@ -286,23 +286,23 @@ const campaignTranslations = {
     },
   },
   fr: {
-    title: "Initiative du Patrimoine Culturel Japonais",
-    subtitle: "Préserver les Traditions Obon grâce à la Technologie Blockchain",
+    title: "Transmettre les Traditions Japonaises avec une Nouvelle Interprétation",
+    subtitle: "Redéfinir les Événements Traditionnels grâce à la Technologie Blockchain",
     description:
-      "Au Japon, août apporte l'Obon -<br />une tradition séculaire où les esprits ancestraux<br />reviennent visiter leurs familles.<br /><br />Pendant cette période sacrée,<br />la frontière entre le monde des vivants<br />et des morts s'amincit.<br /><br />Nous choisissons ce moment pour donner naissance<br />à des âmes numériques qui existeront<br />éternellement sur la blockchain.",
-    countdown: "Accès Culturel Ouvert - Pendant la Période Sacrée d'Obon",
+      "Au Japon, août apporte l'Obon.<br />Les esprits ancestraux reviennent visiter leurs familles,<br />un événement traditionnel chéri depuis les temps anciens.<br /><br />Pendant cette période sacrée au Japon,<br />la frontière entre le monde des vivants et des morts devient floue.<br /><br />Nous avons choisi ce moment culturellement significatif<br />pour ouvrir la naissance d'\"ÂMES:SOUL\"<br />qui existeront éternellement sur la blockchain.",
+    countdown: "Ouverture d'Accès Culturel Limité | Frais de Mint Gratuits",
     backButton: "← Retour à l'Accueil",
     features: {
       limited: {
         title: "Durée Limitée",
-        desc: "NFT spécial disponible uniquement pendant cette période",
+        desc: "TOKEN spécial disponible seulement maintenant",
       },
       free: {
         title: "Mint Gratuit",
         desc: "Pas de frais de mint - gas uniquement",
       },
       soulbound: {
-        title: "Lié à l'Âme",
+        title: "SOUL BOUND",
         desc: "Non transférable, à vous pour toujours",
       },
       polygon: {

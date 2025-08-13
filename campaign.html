@@ -216,6 +216,37 @@
         text-decoration: underline !important;
       }
 
+      .contract-address-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .copy-button {
+        background: rgba(147, 51, 234, 0.2);
+        border: 1px solid rgba(147, 51, 234, 0.4);
+        border-radius: 6px;
+        padding: 4px 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #c084fc;
+      }
+
+      .copy-button:hover {
+        background: rgba(147, 51, 234, 0.3);
+        transform: translateY(-1px);
+      }
+
+      .copy-button.copied {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #86efac;
+      }
+
       .language-tabs {
         display: flex;
         justify-content: center;
@@ -315,6 +346,85 @@
         color: #86efac;
       }
 
+      /* Mobile Instructions Modal */
+      #mobileInstructionsContainer {
+        display: none;
+      }
+
+      #mobileBanner {
+        background: linear-gradient(
+          135deg,
+          rgba(155, 77, 255, 0.1),
+          rgba(255, 77, 77, 0.1)
+        );
+        border: 2px solid #9b4dff;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 600px;
+        text-align: center;
+      }
+
+      .mobile-lang-tabs {
+        background: rgba(107, 70, 193, 0.1);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      .mobile-lang-button {
+        background: rgba(107, 70, 193, 0.2);
+        border: 1px solid rgba(107, 70, 193, 0.3);
+        padding: 6px 10px;
+        border-radius: 12px;
+        cursor: pointer;
+        color: #c084fc;
+        font-size: 11px;
+        min-width: 45px;
+        margin: 3px;
+      }
+
+      .mobile-lang-button.active {
+        background: linear-gradient(45deg, #6b46c1, #9333ea);
+        color: white;
+      }
+
+      .clipboard-notif {
+        background: rgba(77, 255, 77, 0.1);
+        border: 1px solid #4dff4d;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 15px;
+      }
+
+      .mobile-wallet-section {
+        background: rgba(155, 77, 255, 0.1);
+        border: 1px solid #9b4dff;
+        border-radius: 15px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .mobile-connect-button {
+        background: linear-gradient(45deg, #9b4dff, #ff4d4d);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s;
+        display: inline-block;
+      }
+
+      .mobile-connect-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(155, 77, 255, 0.5);
+      }
+
       @media (max-width: 768px) {
         .campaign-title {
           font-size: 2em;
@@ -331,6 +441,16 @@
         .mint-button {
           padding: 15px 40px;
           font-size: 1.2em;
+        }
+
+        /* Show mobile instructions container on mobile */
+        #mobileInstructionsContainer {
+          display: block;
+        }
+
+        /* Hide desktop mint section on mobile when not in MetaMask */
+        .mint-section.desktop-only {
+          display: none !important;
         }
       }
     </style>
@@ -387,6 +507,26 @@
             that will exist eternally on the blockchain.<br />
           </p>
 
+          <div
+            style="
+              background: rgba(255, 255, 255, 0.03);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 12px;
+              padding: 25px 30px;
+              margin: 30px auto;
+              max-width: 700px;
+              font-size: 0.95em;
+              line-height: 1.7;
+              color: rgba(255, 255, 255, 0.7);
+              text-align: center;
+              font-style: italic;
+            "
+          >
+            In partnership with global digital preservation efforts,<br />
+            we offer open access to this cultural documentation project<br />
+            during the sacred Obon observance.
+          </div>
+
           <div class="features-grid">
             <div class="feature-card">
               <h3 class="feature-title" id="feature-0-title">期間限定</h3>
@@ -416,7 +556,10 @@
             </div>
           </div>
 
-          <div class="mint-section">
+          <!-- Mobile Instructions Container (hidden on desktop) -->
+          <div id="mobileInstructionsContainer"></div>
+
+          <div class="mint-section" id="mintSection">
             <h2 id="mint-title" style="color: #e9d5ff; margin-bottom: 20px">
               Mint Your Free SBT
             </h2>
@@ -446,14 +589,20 @@
             </div>
             <div class="contract-detail">
               <span class="contract-label" id="contract-label">Contract:</span>
-              <span class="contract-value"
-                ><a
-                  href="https://opensea.io/collection/something-dark-is-awakening"
-                  target="_blank"
-                  style="color: #60a5fa; text-decoration: none"
-                  >0x800472c573b2f195d3f282e9befdb7bb7db30b8d</a
-                ></span
-              >
+              <span class="contract-value">
+                <div class="contract-address-wrapper">
+                  <a
+                    id="contractAddressLink"
+                    href="https://opensea.io/collection/something-dark-is-awakening"
+                    target="_blank"
+                    style="color: #60a5fa; text-decoration: none"
+                    >0x800472c573b2f195d3f282e9befdb7bb7db30b8d</a
+                  >
+                  <button class="copy-button" onclick="copyContractAddress()">
+                    <span id="copyText">Copy</span>
+                  </button>
+                </div>
+              </span>
             </div>
             <div class="contract-detail">
               <span class="contract-label" id="type-label">Token Type:</span>
@@ -795,9 +944,332 @@
           t.backButton;
       }
 
+      // Mobile language for instructions
+      let mobileCurrentLanguage = currentLang;
+
+      // Multi-language mobile instructions
+      const mobileTranslations = {
+        en: {
+          title: "📱 Mobile Users",
+          message: "To mint NFTs on mobile, you need to use MetaMask Browser",
+          clipboard:
+            "✅ URL has been copied to clipboard. Please paste it in MetaMask browser.",
+          steps: [
+            "Tap 'Connect MetaMask' button below",
+            "MetaMask app will open",
+            "Go to Browser tab",
+            "Paste the copied URL and connect",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "Wallet Connected",
+          walletNotConnected: "Wallet Not Connected",
+        },
+        ja: {
+          title: "📱 モバイルユーザーの方へ",
+          message: "モバイルでNFTをミントするには、MetaMaskブラウザが必要です",
+          clipboard:
+            "✅ クリップボードにURLがコピーされています。MetaMask上のブラウザにペーストしてください。",
+          steps: [
+            "下の「Connect MetaMask」ボタンをタップ",
+            "MetaMaskアプリが開きます",
+            "ブラウザタブに移動",
+            "コピーされたURLを貼り付けて接続",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "ウォレット接続済み",
+          walletNotConnected: "ウォレット未接続",
+        },
+        zh: {
+          title: "📱 移动用户",
+          message: "在移动设备上铸造NFT需要使用MetaMask浏览器",
+          clipboard: "✅ URL已复制到剪贴板。请在MetaMask浏览器中粘贴。",
+          steps: [
+            "点击下方「Connect MetaMask」按钮",
+            "MetaMask应用将打开",
+            "转到浏览器标签",
+            "粘贴复制的URL并连接",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "钱包已连接",
+          walletNotConnected: "钱包未连接",
+        },
+        ko: {
+          title: "📱 모바일 사용자",
+          message: "모바일에서 NFT를 민팅하려면 MetaMask 브라우저가 필요합니다",
+          clipboard:
+            "✅ URL이 클립보드에 복사되었습니다. MetaMask 브라우저에 붙여넣기하세요.",
+          steps: [
+            "아래 「Connect MetaMask」버튼 탭",
+            "MetaMask 앱이 열립니다",
+            "브라우저 탭으로 이동",
+            "복사된 URL을 붙여넣고 연결",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "지갑 연결됨",
+          walletNotConnected: "지갑 연결 안됨",
+        },
+        es: {
+          title: "📱 Usuarios Móviles",
+          message:
+            "Para mintear NFTs en móvil, necesitas usar el navegador MetaMask",
+          clipboard:
+            "✅ URL copiada al portapapeles. Por favor, pégala en el navegador MetaMask.",
+          steps: [
+            "Toca el botón 'Connect MetaMask' abajo",
+            "Se abrirá la app MetaMask",
+            "Ve a la pestaña Navegador",
+            "Pega la URL copiada y conecta",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "Cartera conectada",
+          walletNotConnected: "Cartera no conectada",
+        },
+        fr: {
+          title: "📱 Utilisateurs mobiles",
+          message:
+            "Pour minter des NFT sur mobile, vous devez utiliser le navigateur MetaMask",
+          clipboard:
+            "✅ L'URL a été copiée dans le presse-papiers. Veuillez la coller dans le navigateur MetaMask.",
+          steps: [
+            "Appuyez sur le bouton 'Connect MetaMask' ci-dessous",
+            "L'application MetaMask s'ouvrira",
+            "Allez dans l'onglet Navigateur",
+            "Collez l'URL copiée et connectez-vous",
+          ],
+          connectButton: "Connect MetaMask",
+          walletConnected: "Portefeuille connecté",
+          walletNotConnected: "Portefeuille non connecté",
+        },
+      };
+
+      // Show mobile instructions
+      function showMobileInstructions() {
+        const container = document.getElementById(
+          "mobileInstructionsContainer"
+        );
+        const mintSection = document.getElementById("mintSection");
+
+        // Use current language or default to English
+        const t =
+          mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
+
+        // Create info banner with language selector
+        const banner = document.createElement("div");
+        banner.id = "mobileBanner";
+
+        // Language tabs HTML
+        const langTabs = `
+          <div class="mobile-lang-tabs">
+            <div style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
+              <button onclick="switchMobileLanguage('en')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "en" ? "active" : ""
+              }">🇺🇸 EN</button>
+              <button onclick="switchMobileLanguage('ja')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "ja" ? "active" : ""
+              }">🇯🇵 JP</button>
+              <button onclick="switchMobileLanguage('zh')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "zh" ? "active" : ""
+              }">🇨🇳 CN</button>
+              <button onclick="switchMobileLanguage('ko')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "ko" ? "active" : ""
+              }">🇰🇷 KR</button>
+              <button onclick="switchMobileLanguage('es')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "es" ? "active" : ""
+              }">🇪🇸 ES</button>
+              <button onclick="switchMobileLanguage('fr')" class="mobile-lang-button ${
+                mobileCurrentLanguage === "fr" ? "active" : ""
+              }">🇫🇷 FR</button>
+            </div>
+          </div>
+        `;
+
+        banner.innerHTML = `
+          ${langTabs}
+          <h3 style="color: #ff4d4d; margin-bottom: 10px;">${t.title}</h3>
+          <p style="color: #e9d5ff; margin-bottom: 10px;">${t.message}</p>
+          <ol style="text-align: left; color: #b792ff; line-height: 1.8; margin: 0 0 20px 0; padding-left: 20px; padding-right: 10px;">
+            ${t.steps
+              .map(
+                (step) =>
+                  `<li style="margin-bottom: 5px; word-wrap: break-word;">${step}</li>`
+              )
+              .join("")}
+          </ol>
+          <div class="clipboard-notif" style="color: #4dff4d; font-weight: bold; margin: 0; font-size: 14px;">
+            <p style="margin: 0;">${t.clipboard}</p>
+          </div>
+
+          <!-- Wallet Status Section -->
+          <div class="mobile-wallet-section">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+              <span class="status-dot" id="mobileStatusDot" style="width: 10px; height: 10px; border-radius: 50%; background: #ff4d4d; animation: pulse 2s infinite;"></span>
+              <span id="mobileStatusText" style="color: #e9d5ff;">${
+                t.walletNotConnected
+              }</span>
+            </div>
+            <div id="mobileWalletAddress" style="color: #b792ff; margin-bottom: 10px;"></div>
+            <button onclick="mobileConnectWallet()" class="mobile-connect-button">
+              ${t.connectButton}
+            </button>
+          </div>
+        `;
+
+        // Insert into mobile instructions container
+        container.appendChild(banner);
+
+        // Hide the desktop mint section on mobile
+        mintSection.classList.add("desktop-only");
+
+        // Immediately copy URL to clipboard when showing mobile instructions
+        const currentUrl = window.location.href;
+        navigator.clipboard
+          .writeText(currentUrl)
+          .then(() => {
+            console.log("URL copied to clipboard automatically");
+          })
+          .catch((err) => {
+            console.error("Failed to copy URL automatically:", err);
+          });
+      }
+
+      // Switch mobile language function
+      window.switchMobileLanguage = function (lang) {
+        mobileCurrentLanguage = lang;
+        localStorage.setItem("selectedLanguage", lang);
+
+        // Remove old banner
+        const oldBanner = document.getElementById("mobileBanner");
+        if (oldBanner) {
+          oldBanner.remove();
+        }
+
+        // Show new banner with updated language
+        showMobileInstructions();
+      };
+
+      // Mobile connect function
+      window.mobileConnectWallet = function () {
+        // Copy URL to clipboard
+        const currentUrl = window.location.href;
+        navigator.clipboard
+          .writeText(currentUrl)
+          .then(() => {
+            // Update clipboard notification in the banner
+            const clipboardNotif = document.querySelector(
+              "#mobileBanner .clipboard-notif"
+            );
+            if (clipboardNotif) {
+              clipboardNotif.style.animation = "pulse 0.5s";
+              setTimeout(() => {
+                clipboardNotif.style.animation = "";
+              }, 500);
+            }
+
+            // Open MetaMask app
+            const deepLink =
+              "metamask://dapp/" + currentUrl.replace(/^https?:\/\//, "");
+            window.location.href = deepLink;
+          })
+          .catch((err) => {
+            console.error("Failed to copy URL:", err);
+            alert(
+              "Please copy the URL manually and paste it in MetaMask browser"
+            );
+          });
+      };
+
+      // Update mobile wallet UI
+      function updateMobileWalletUI(account) {
+        const mobileStatusDot = document.getElementById("mobileStatusDot");
+        const mobileStatusText = document.getElementById("mobileStatusText");
+        const mobileWalletAddress = document.getElementById(
+          "mobileWalletAddress"
+        );
+
+        if (mobileStatusDot && mobileStatusText && mobileWalletAddress) {
+          const t =
+            mobileTranslations[mobileCurrentLanguage] || mobileTranslations.en;
+
+          if (account) {
+            mobileStatusDot.style.background = "#4dff4d";
+            mobileStatusText.textContent = t.walletConnected;
+            mobileWalletAddress.textContent =
+              account.substring(0, 6) + "..." + account.substring(38);
+          } else {
+            mobileStatusDot.style.background = "#ff4d4d";
+            mobileStatusText.textContent = t.walletNotConnected;
+            mobileWalletAddress.textContent = "";
+          }
+        }
+      }
+
+      // Override updateWalletInfo to include mobile update
+      const originalUpdateWalletInfo = updateWalletInfo;
+      updateWalletInfo = function () {
+        originalUpdateWalletInfo();
+        updateMobileWalletUI(userAccount);
+      };
+
+      // Copy contract address function
+      function copyContractAddress() {
+        const address = contractAddress;
+        navigator.clipboard
+          .writeText(address)
+          .then(() => {
+            const copyButton = document.querySelector(".copy-button");
+            const copyIcon = document.getElementById("copyIcon");
+            const copyText = document.getElementById("copyText");
+
+            // Add copied class
+            copyButton.classList.add("copied");
+            copyIcon.textContent = "";
+            copyText.textContent = "Copied!";
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+              copyButton.classList.remove("copied");
+              copyIcon.textContent = "";
+              copyText.textContent = "Copy";
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy:", err);
+            alert("Failed to copy address");
+          });
+      }
+
+      // Format address for display
+      function formatAddress(address) {
+        if (window.innerWidth <= 768) {
+          return address.substring(0, 6) + "..." + address.substring(38);
+        }
+        return address;
+      }
+
+      // Update contract address display based on screen size
+      function updateContractAddressDisplay() {
+        const addressLink = document.getElementById("contractAddressLink");
+        if (addressLink) {
+          addressLink.textContent = formatAddress(contractAddress);
+        }
+      }
+
       // Initialize on page load
       document.addEventListener("DOMContentLoaded", () => {
         initWeb3();
+
+        // Check if mobile and not in MetaMask browser
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          );
+        const isMetaMaskBrowser =
+          typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
+
+        if (isMobile && !isMetaMaskBrowser) {
+          // Show mobile instructions
+          showMobileInstructions();
+        }
 
         // Set active language tab
         document.querySelectorAll(".lang-tab").forEach((tab) => {
@@ -810,6 +1282,12 @@
 
         // Update content to saved language
         updateContent();
+
+        // Update contract address display
+        updateContractAddressDisplay();
+
+        // Update on resize
+        window.addEventListener("resize", updateContractAddressDisplay);
       });
     </script>
   </body>
