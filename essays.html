@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
     <!-- Common utilities and managers -->
-    <script src="js/config/contracts.js"></script>
+    <script src="js/utils/console-override.js"></script>
     <script src="js/utils/format.js"></script>
     <script src="js/wallet/manager.js"></script>
     <script src="js/contracts/manager.js"></script>
@@ -212,7 +212,7 @@
       </div>
 
       <div class="filter-controls">
-        <button class="filter-button" onclick="filterStories('own')">Own</button>
+        <button class="filter-button" id="ownFilterBtn" onclick="filterStories('own')" style="display: none;">Own</button>
         <button class="filter-button active" onclick="filterStories('all')">Minted</button>
         <button class="filter-button" onclick="filterStories('rare')">Rare</button>
         <button class="filter-button" onclick="filterStories('epic')">Epic</button>
@@ -287,18 +287,24 @@
             // Update UI
             document.getElementById('connectWalletBtn').style.display = 'none';
             document.getElementById('walletAddress').textContent = `Connected: ${formatAddress(userAddress)}`;
+            document.getElementById('ownFilterBtn').style.display = 'inline-block';
 
             // Initialize ContractManager with signer
             await initializeContractManager();
 
-            // Load owned NFTs
-            await loadOwnedNFTs();
+            // Load owned NFTs only if on correct network
+            if (chainId === 21201) {
+              await loadOwnedNFTs();
+            } else {
+              console.log(`Wrong network for NFT loading. Current: ${chainId}, Required: 21201`);
+            }
           },
           onDisconnect: () => {
             userAddress = null;
             provider = null;
             document.getElementById('connectWalletBtn').style.display = 'block';
             document.getElementById('walletAddress').textContent = '';
+            document.getElementById('ownFilterBtn').style.display = 'none';
             filterStories('all'); // Reset to all stories
           },
           onAccountChange: async (account) => {
@@ -315,8 +321,16 @@
             await loadOwnedNFTs();
             filterStories(currentFilter);
           },
-          onNetworkChange: (chainId) => {
-            window.location.reload();
+          onNetworkChange: async (chainId) => {
+            console.log('Network changed to:', chainId);
+            // Re-load owned NFTs if on correct network
+            if (chainId === 21201 && userAddress) {
+              await loadOwnedNFTs();
+            } else if (userAddress && currentFilter === 'own') {
+              // If showing owned NFTs on wrong network, switch to all
+              filterStories('all');
+              alert('Switched to "All" view. To see your owned NFTs, please switch to Bon-Soleil Testnet.');
+            }
           },
         });
 
@@ -933,6 +947,12 @@
         } catch (error) {
           console.error('Failed to load owned NFTs:', error);
           console.error('Error details:', error.message);
+          
+          // Don't show alert for CALL_EXCEPTION errors, just log
+          if (error.code === 'CALL_EXCEPTION') {
+            console.log('Contract not available on current network');
+            ownedTokenIds = []; // Clear owned tokens
+          }
         }
       }
 

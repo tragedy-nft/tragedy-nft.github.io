@@ -24,10 +24,12 @@
     />
 
     <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/utils/console-override.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
-    <!-- Centralized Contract Configuration -->
-    <script src="js/config/contracts.js"></script>
+    <!-- Contract Manager -->
+    <script src="js/wallet/manager.js"></script>
+    <script src="js/contracts/manager.js"></script>
   </head>
   <body>
     <div class="container">
@@ -90,25 +92,32 @@
       let provider;
       let metadataBank;
       let legendaryBankContract;
-      // blockchainConfig is already declared in contracts-config.js
+      let contractManager = null;
+      let blockchainConfig = null;
+      
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', async () => {
+        contractManager = new ContractManager();
+        await contractManager.init();
+        await loadBlockchainConfig();
+      });
 
       // Load blockchain configuration
       async function loadBlockchainConfig() {
-        // Try to use centralized config first
-        if (typeof CONTRACTS_CONFIG !== 'undefined') {
-          // Ensure deployment is loaded first
-          await CONTRACTS_CONFIG.loadDeployment();
-
-          const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
-          if (network && network.contracts && network.contracts.metadataBank) {
+        // Try to use ContractManager first
+        if (contractManager) {
+          const metadataBankAddress = contractManager.getContractAddress('MetadataBank', 21201);
+          const legendaryBankAddress = contractManager.getContractAddress('LegendaryBank', 21201);
+          
+          if (metadataBankAddress) {
             blockchainConfig = {
               networks: {
                 bonsoleil: {
-                  name: network.name,
-                  rpcUrl: network.rpcUrl,
+                  name: 'Bon-Soleil Testnet',
+                  rpcUrl: 'https://rpc.bonsoleil.blockgeni.com',
                   contracts: {
                     metadataBank: {
-                      address: network.contracts.metadataBank || network.contracts.MetadataBank,
+                      address: metadataBankAddress,
                       abi: [
                         'function getMetadataCount() view returns (uint256)',
                         'function getMetadata(uint256 index) view returns (string)',
@@ -118,14 +127,14 @@
                       ],
                     },
                     LegendaryBank: {
-                      address: network.contracts.LegendaryBank,
+                      address: legendaryBankAddress,
                     },
                   },
                 },
               },
               defaultNetwork: 'bonsoleil',
             };
-            console.log('Using centralized contract configuration');
+            console.log('Using ContractManager configuration');
             return true;
           }
         }
@@ -208,9 +217,9 @@
           // Initialize LegendaryBank contract
           let legendaryBankAddress = null;
 
-          // Try centralized config first
-          if (typeof CONTRACTS_CONFIG !== 'undefined') {
-            legendaryBankAddress = CONTRACTS_CONFIG.getContract(21201, 'LegendaryBank');
+          // Try ContractManager first
+          if (contractManager) {
+            legendaryBankAddress = contractManager.getContractAddress('LegendaryBank', 21201);
           }
 
           // Fallback to blockchain config

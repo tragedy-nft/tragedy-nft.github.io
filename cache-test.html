@@ -201,34 +201,32 @@
     </div>
 
     <!-- Scripts -->
+    <script src="js/utils/console-override.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="js/config/contracts.js"></script>
     <script src="js/contracts/cache.js"></script>
     <script src="js/wallet/manager.js"></script>
-    <script src="js/contracts/web3-integration.js"></script>
+    <script src="js/contracts/manager.js"></script>
 
     <script>
-      let web3;
+      let contractManager;
       let walletManager;
+      let bankedNFTContract;
       const logArea = document.getElementById('logArea');
 
       // Initialize on page load
       window.addEventListener('load', async () => {
-        // Initialize web3Integration
-        web3 = window.web3Integration;
+        // Initialize ContractManager
+        contractManager = new ContractManager();
+        await contractManager.init();
+        log('ContractManager initialized', 'success');
         
-        // Load contract addresses from deployment.json
-        await web3.loadContractAddresses();
-        log('Contract addresses loaded from deployment.json', 'success');
-        
-        // Initialize cache
-        if (web3 && web3.initCache) {
-          await web3.initCache();
-          log('Cache system initialized', 'success');
+        // Initialize cache if available
+        if (window.contractCache) {
+          log('Cache system available', 'success');
         }
         
         // Try to initialize contract with default network if addresses are available
-        if (web3 && window.CONTRACTS_CONFIG) {
+        if (window.CONTRACTS_CONFIG) {
           // Find the first available network with a valid contract address
           const availableChains = [21201, 137]; // Prefer Bon-Soleil for testing
           for (const chainId of availableChains) {
@@ -246,10 +244,7 @@
             log(`Wallet connected: ${account}`, 'success');
             
             try {
-              // Ensure addresses are loaded
-              await web3.loadContractAddresses();
-              
-              // Initialize contract when wallet connects
+              // Get contract from ContractManager when wallet connects
               const chainId = await walletManager.getCurrentChainId();
               log(`Current network: Chain ${chainId}`);
               
@@ -260,7 +255,13 @@
                 return;
               }
               
-              await web3.initContract(chainId);
+              // Get contract instance from ContractManager
+              bankedNFTContract = contractManager.getContract('bankedNFT', chainId);
+              if (!bankedNFTContract) {
+                log(`Failed to get contract instance for chain ${chainId}`, 'error');
+                return;
+              }
+              
               log(`Contract initialized on chain ${chainId}`, 'success');
             } catch (error) {
               log(`Failed to initialize contract: ${error.message}`, 'error');
@@ -270,21 +271,20 @@
           },
           onDisconnect: () => {
             log('Wallet disconnected', 'info');
+            bankedNFTContract = null;
           }
         });
         await walletManager.init();
         
-        // Set wallet manager on web3Integration
-        if (web3 && web3.setWalletManager) {
-          web3.setWalletManager(walletManager);
-        }
+        // Set wallet manager on ContractManager
+        contractManager.setWalletManager(walletManager);
         
         log('RPC Cache Test Suite initialized');
 
         // Setup cache toggle
         document.getElementById('cacheToggle').addEventListener('change', (e) => {
-          if (web3 && web3.cache) {
-            web3.cache.enabled = e.target.checked;
+          if (window.contractCache) {
+            window.contractCache.enabled = e.target.checked;
             log(`Cache ${e.target.checked ? 'enabled' : 'disabled'}`);
           }
         });
@@ -300,8 +300,8 @@
 
       // Update statistics display
       async function updateStats() {
-        if (web3 && web3.cache) {
-          const stats = web3.cache.getStats();
+        if (window.contractCache) {
+          const stats = window.contractCache.getStats();
           document.getElementById('hits').textContent = stats.hits;
           document.getElementById('misses').textContent = stats.misses;
           const total = stats.hits + stats.misses;
@@ -309,7 +309,7 @@
           document.getElementById('hitRate').textContent = hitRate + '%';
           
           // getCacheSize is async
-          web3.cache.getCacheSize().then(size => {
+          window.contractCache.getCacheSize().then(size => {
             document.getElementById('cacheSize').textContent = size;
           });
         }
@@ -333,11 +333,15 @@
         }
         
         // Ensure contract is initialized
-        if (!web3.contract) {
+        if (!bankedNFTContract) {
           log('Contract not initialized. Trying to initialize...', 'info');
           try {
             const chainId = await walletManager.getCurrentChainId();
-            await web3.initContract(chainId);
+            bankedNFTContract = contractManager.getContract('bankedNFT', chainId);
+            if (!bankedNFTContract) {
+              log(`Failed to get contract instance for chain ${chainId}`, 'error');
+              return;
+            }
             log(`Contract initialized on chain ${chainId}`, 'success');
           } catch (error) {
             log(`Failed to initialize contract: ${error.message}`, 'error');
@@ -349,21 +353,21 @@
 
         try {
           // Clear stats before test
-          if (web3.cache) {
-            web3.cache.resetStats();
+          if (window.contractCache) {
+            window.contractCache.resetStats();
           }
           
           // First call - should miss cache
-          log('Making first call to getContractName (should miss cache)...');
+          log('Making first call to name() (should miss cache)...');
           const start1 = performance.now();
-          const name1 = await web3.getContractName();
+          const name1 = await bankedNFTContract.name();
           const time1 = performance.now() - start1;
           log(`First call result: "${name1}" - ${time1.toFixed(2)}ms`);
 
           // Second call - should hit cache
-          log('Making second call to getContractName (should hit cache)...');
+          log('Making second call to name() (should hit cache)...');
           const start2 = performance.now();
-          const name2 = await web3.getContractName();
+          const name2 = await bankedNFTContract.name();
           const time2 = performance.now() - start2;
           log(`Second call result: "${name2}" - ${time2.toFixed(2)}ms`, 'success');
           
@@ -372,13 +376,13 @@
           log(`Cache speedup: ${speedup}x faster`);
 
           // Test symbol too
-          log('Testing getContractSymbol caching...');
+          log('Testing symbol() caching...');
           const symbolTime1 = performance.now();
-          await web3.getContractSymbol();
+          await bankedNFTContract.symbol();
           const symbolTime2 = performance.now() - symbolTime1;
           
           const symbolTime3 = performance.now();
-          await web3.getContractSymbol();
+          await bankedNFTContract.symbol();
           const symbolTime4 = performance.now() - symbolTime3;
           
           log(`Symbol: First call ${symbolTime2.toFixed(2)}ms, Second call ${symbolTime4.toFixed(2)}ms`);
@@ -397,11 +401,15 @@
         }
         
         // Ensure contract is initialized
-        if (!web3.contract) {
+        if (!bankedNFTContract) {
           log('Contract not initialized. Trying to initialize...', 'info');
           try {
             const chainId = await walletManager.getCurrentChainId();
-            await web3.initContract(chainId);
+            bankedNFTContract = contractManager.getContract('bankedNFT', chainId);
+            if (!bankedNFTContract) {
+              log(`Failed to get contract instance for chain ${chainId}`, 'error');
+              return;
+            }
             log(`Contract initialized on chain ${chainId}`, 'success');
           } catch (error) {
             log(`Failed to initialize contract: ${error.message}`, 'error');
@@ -413,18 +421,18 @@
 
         try {
           // First call
-          const supply1 = await web3.getTotalSupply();
-          log(`Total supply (cache miss): ${supply1}`);
+          const supply1 = await bankedNFTContract.totalSupply();
+          log(`Total supply (cache miss): ${supply1.toString()}`);
 
           // Second call - should hit cache
-          const supply2 = await web3.getTotalSupply();
-          log(`Total supply (cache hit): ${supply2}`, 'success');
+          const supply2 = await bankedNFTContract.totalSupply();
+          log(`Total supply (cache hit): ${supply2.toString()}`, 'success');
 
           // Test balance too
           const account = walletManager.getAccount();
           if (account) {
-            await web3.getBalance(account);
-            await web3.getBalance(account);
+            await bankedNFTContract.balanceOf(account);
+            await bankedNFTContract.balanceOf(account);
           }
 
           updateStats();
@@ -441,11 +449,15 @@
         }
         
         // Ensure contract is initialized
-        if (!web3.contract) {
+        if (!bankedNFTContract) {
           log('Contract not initialized. Trying to initialize...', 'info');
           try {
             const chainId = await walletManager.getCurrentChainId();
-            await web3.initContract(chainId);
+            bankedNFTContract = contractManager.getContract('bankedNFT', chainId);
+            if (!bankedNFTContract) {
+              log(`Failed to get contract instance for chain ${chainId}`, 'error');
+              return;
+            }
             log(`Contract initialized on chain ${chainId}`, 'success');
           } catch (error) {
             log(`Failed to initialize contract: ${error.message}`, 'error');
@@ -461,19 +473,30 @@
           // Run multiple operations in parallel
           const account = walletManager.getAccount();
           const promises = [
-            web3.getContractName(),
-            web3.getContractSymbol(),
-            web3.getTotalSupply(),
-            web3.getMaxSupply(),
-            web3.getNFTPrice(),
-            account ? web3.getBalance(account) : Promise.resolve('0'),
+            bankedNFTContract.name(),
+            bankedNFTContract.symbol(),
+            bankedNFTContract.totalSupply(),
+            bankedNFTContract.maxSupply(),
+            bankedNFTContract.mintFee(),
+            account ? bankedNFTContract.balanceOf(account) : Promise.resolve(ethers.BigNumber.from('0')),
           ];
 
           const results = await Promise.all(promises);
           const time = performance.now() - start;
 
           log(`Batch operations completed in ${time.toFixed(2)}ms`, 'success');
-          log(`Results: ${JSON.stringify(results, null, 2)}`);
+          
+          // Format results for display
+          const formattedResults = [
+            results[0], // name
+            results[1], // symbol
+            results[2].toString(), // totalSupply
+            results[3].toString(), // maxSupply
+            ethers.utils.formatEther(results[4]), // mintFee in ETH
+            results[5].toString(), // balance
+          ];
+          
+          log(`Results: ${JSON.stringify(formattedResults, null, 2)}`);
 
           updateStats();
         } catch (error) {
@@ -492,16 +515,16 @@
 
         try {
           // Get dynamic data
-          const supply1 = await web3.getTotalSupply();
-          log(`Initial supply: ${supply1}`);
+          const supply1 = await bankedNFTContract.totalSupply();
+          log(`Initial supply: ${supply1.toString()}`);
 
           // Wait for cache to expire (30s + 5s buffer)
           log('Waiting for cache to expire...');
           await new Promise((resolve) => setTimeout(resolve, 35000));
 
           // Should miss cache now
-          const supply2 = await web3.getTotalSupply();
-          log(`Supply after expiry: ${supply2} (should be cache miss)`, 'success');
+          const supply2 = await bankedNFTContract.totalSupply();
+          log(`Supply after expiry: ${supply2.toString()} (should be cache miss)`, 'success');
 
           updateStats();
         } catch (error) {
@@ -512,8 +535,8 @@
       // Clear cache
       async function clearCache() {
         try {
-          if (web3 && web3.cache) {
-            await web3.cache.clear();
+          if (window.contractCache) {
+            await window.contractCache.clear();
             log('Cache cleared', 'success');
             updateStats();
           }
@@ -525,8 +548,8 @@
       // Clear expired entries
       async function clearExpired() {
         try {
-          if (web3.cache) {
-            await web3.cache.clearExpired();
+          if (window.contractCache) {
+            await window.contractCache.clearExpired();
             log('Expired entries cleared', 'success');
             updateStats();
           }
@@ -537,8 +560,8 @@
 
       // Reset statistics
       function resetStats() {
-        if (web3.cache) {
-          web3.cache.resetStats();
+        if (window.contractCache) {
+          window.contractCache.resetStats();
           log('Statistics reset', 'success');
           updateStats();
         }

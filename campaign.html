@@ -566,9 +566,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="js/utils/console-override.js"></script>
     <script src="js/utils/format.js"></script>
     <script src="js/wallet/manager.js"></script>
     <script src="js/contracts/manager.js"></script>
+    <script src="js/ui/shared-translations.js"></script>
     <script src="js/ui/campaign-translations.js"></script>
     <script src="js/ui/metamask-modal-translations.js"></script>
     <script src="js/ui/metamask-modal.js"></script>
@@ -734,28 +736,15 @@
             throw new Error('Campaign contract not initialized');
           }
 
-          // Debug info
-          console.log('=== Mint Debug Info ===');
-          console.log('Contract Address:', contractManager.getContractAddress('campaign'));
-          console.log('User Account:', userAccount);
-          console.log('Network:', await provider.getNetwork());
-
           // Call mint function
           const tx = await campaignContract.mint();
-          console.log('Transaction sent:', tx.hash);
 
           // Wait for transaction confirmation
           const receipt = await tx.wait();
-
-          console.log('Transaction receipt:', receipt);
           showAlert(t.alerts.mintSuccess, 'success');
           mintButton.textContent = t.alerts.minted;
         } catch (error) {
-          console.error('=== Minting Error Details ===');
-          console.error('Full error object:', error);
-          console.error('Error message:', error.message);
-          console.error('Error code:', error.code);
-          console.error('Error data:', error.data);
+          console.error('Minting error:', error.message);
 
           // Handle different error types
           let errorMessage = t.alerts.mintFailed;

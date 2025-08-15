@@ -630,19 +630,16 @@
       </div>
     </div>
 
+    <!-- Console override for debugging -->
+    <script src="js/utils/console-override.js"></script>
+
     <!-- Ethers.js v5 -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-    <!-- Centralized Contract Configuration (must be loaded first) -->
-    <script src="js/config/contracts.js"></script>
 
     <!-- Common utilities and managers -->
     <script src="js/utils/format.js"></script>
     <script src="js/wallet/manager.js"></script>
     <script src="js/contracts/manager.js"></script>
-
-    <!-- Web3 Integration (kept for compatibility) -->
-    <script src="js/contracts/web3-integration.js"></script>
 
     <!-- Common UI Components -->
     <script src="js/ui/components.js"></script>
@@ -793,7 +790,7 @@
           const chainIdDecimal = parseInt(chainId, 16);
 
           // Get contract address for current network
-          const contractAddress = window.web3Integration.getContractAddress();
+          const contractAddress = contractManager ? contractManager.getContractAddress('bankedNFT') : null;
 
           const openseaLink = document.getElementById('openseaLink');
           const basescanLink = document.getElementById('basescanLink');
@@ -836,8 +833,6 @@
           // Disconnect
           if (walletManager) {
             walletManager.disconnect();
-          } else {
-            window.web3Integration.disconnectWallet();
           }
         } else {
           // Connect
@@ -847,9 +842,6 @@
           try {
             if (walletManager) {
               await walletManager.connect('polygon');
-            } else {
-              const account = await window.web3Integration.connectWallet();
-              window.updateWalletUI(account);
             }
           } catch (error) {
             console.error('Connection failed:', error);
@@ -899,15 +891,17 @@
 
           // Get contract name first
           try {
-            const contractName = await window.web3Integration.getContractName();
+            const bankedNFTContract = contractManager.getContract('bankedNFT');
+          const contractName = bankedNFTContract ? await bankedNFTContract.name() : 'Unknown';
             document.getElementById('contractName').textContent = contractName;
           } catch (error) {
             console.error('Failed to get contract name:', error);
             document.getElementById('contractName').textContent = 'Unknown Collection';
           }
 
-          const totalSupply = await window.web3Integration.getTotalSupply();
-          const maxSupply = await window.web3Integration.getMaxSupply();
+          const bankedNFTContract = contractManager.getContract('bankedNFT');
+          const totalSupply = bankedNFTContract ? await bankedNFTContract.totalSupply() : 0;
+          const maxSupply = bankedNFTContract ? await bankedNFTContract.maxSupply() : 0;
 
           document.getElementById('totalSupply').textContent = totalSupply;
           document.getElementById('maxSupply').textContent = Number(maxSupply).toLocaleString();
@@ -919,8 +913,6 @@
               const priceWei = await bankedNFTContract.mintFee();
               nftPrice = parseFloat(ethers.formatEther(priceWei));
             }
-          } else {
-            nftPrice = await window.web3Integration.getNFTPrice();
           }
           document.getElementById('priceDisplay').textContent = `${nftPrice} POL`;
         } catch (error) {
@@ -966,8 +958,6 @@
         let contractAddress;
         if (contractManager) {
           contractAddress = contractManager.getContractAddress('bankedNFT');
-        } else {
-          contractAddress = window.web3Integration.getContractAddress();
         }
 
         // Get current chain ID
@@ -995,7 +985,20 @@
         });
 
         try {
-          const result = await window.web3Integration.mintNFT();
+          // Mint NFT using ContractManager
+          const bankedNFTContract = contractManager.getContract('bankedNFT');
+          if (!bankedNFTContract) {
+            throw new Error('Contract not initialized');
+          }
+          
+          const mintFee = await bankedNFTContract.mintFee();
+          const tx = await bankedNFTContract.mint({ value: mintFee });
+          const receipt = await tx.wait();
+          
+          const result = {
+            success: receipt.status === 1,
+            transactionHash: receipt.transactionHash
+          };
 
           if (result.success) {
             showTransactionModal({

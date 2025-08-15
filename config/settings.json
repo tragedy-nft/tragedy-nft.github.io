@@ -1,4 +1,10 @@
 {
+  "contracts": {
+    "Campaign": "0x800472c573b2f195d3f282e9befdb7bb7db30b8d"
+  },
+  "addresses": {
+    "openSeaProfile": "0xe8dA4B6E9dF0e8f2eE6898E44ca1D45a27ED7d0A"
+  },
   "social": {
     "twitter": {
       "url": "https://x.com/mythOfTragedy",
@@ -23,5 +29,9 @@
   },
   "deeplink": {
     "domain": "tragedy-nft.github.io"
+  },
+  "description": {
+    "Campaign": "Campaign contract for special events and promotions",
+    "openSeaProfile": "Official OpenSea profile address"
   }
 }
