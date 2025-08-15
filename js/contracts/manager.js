@@ -68,15 +68,26 @@ class ContractManager {
       console.error('Failed to load deployment.json:', error);
     }
 
-    // Load setting.json
+    // Load settings.json
     try {
-      const settingResponse = await fetch('/config/setting.json');
+      const settingResponse = await fetch('/config/settings.json');
       if (settingResponse.ok) {
         this.settings = await settingResponse.json();
         console.log('Settings configuration loaded');
       }
     } catch (error) {
-      console.error('Failed to load setting.json:', error);
+      console.error('Failed to load settings.json:', error);
+    }
+
+    // Load campaign.json for campaign contracts
+    try {
+      const campaignResponse = await fetch('/config/campaign.json');
+      if (campaignResponse.ok) {
+        this.campaign = await campaignResponse.json();
+        console.log('Campaign configuration loaded');
+      }
+    } catch (error) {
+      console.error('Failed to load campaign.json:', error);
     }
   }
 
@@ -156,6 +167,23 @@ class ContractManager {
       )) {
         if (this.isValidAddress(address)) {
           const abi = this.abis[contractName] || ['function mint() public'];
+          await this.addContract(contractName.toLowerCase(), address, abi);
+        }
+      }
+    }
+
+    // Initialize from campaign.json
+    if (this.campaign && this.campaign.contracts) {
+      for (const [contractName, address] of Object.entries(
+        this.campaign.contracts
+      )) {
+        if (this.isValidAddress(address)) {
+          // Use a simple ABI for campaign contract with mint function
+          const abi = this.abis[contractName] || [
+            'function mint() public',
+            'function balanceOf(address owner) view returns (uint256)',
+            'event Transfer(address indexed from, address indexed to, uint256 tokenId)'
+          ];
           await this.addContract(contractName.toLowerCase(), address, abi);
         }
       }

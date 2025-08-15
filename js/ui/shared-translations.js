@@ -232,6 +232,15 @@ const sharedTranslations = {
       es: 'Por favor instale MetaMask',
       fr: 'Veuillez installer MetaMask',
       de: 'Bitte installieren Sie MetaMask'
+    },
+    mobileRedirect: {
+      en: 'This dApp works best in MetaMask browser. Would you like to open it in MetaMask?',
+      ja: 'このdAppはMetaMaskブラウザで最適に動作します。MetaMaskで開きますか？',
+      zh: '此dApp在MetaMask浏览器中运行最佳。您想在MetaMask中打开吗？',
+      ko: '이 dApp은 MetaMask 브라우저에서 가장 잘 작동합니다. MetaMask에서 열까요?',
+      es: 'Esta dApp funciona mejor en el navegador MetaMask. ¿Desea abrirla en MetaMask?',
+      fr: 'Cette dApp fonctionne mieux dans le navigateur MetaMask. Voulez-vous l\'ouvrir dans MetaMask?',
+      de: 'Diese dApp funktioniert am besten im MetaMask-Browser. Möchten Sie sie in MetaMask öffnen?'
     }
   },
 

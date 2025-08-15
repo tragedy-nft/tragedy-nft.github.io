@@ -794,11 +794,12 @@
     </div>
 
     <script>
-      let currentLang = 'en';
+      let currentLang = localStorage.getItem('language') || 'en';
 
       // Switch language function
       function switchLanguage(lang) {
         currentLang = lang;
+        localStorage.setItem('language', lang);
 
         // Update active tab
         document.querySelectorAll('.lang-tab').forEach((tab) => {
@@ -828,6 +829,23 @@
 
       // Add some interactive effects
       document.addEventListener('DOMContentLoaded', () => {
+        // Set active language tab and show correct content based on saved language
+        document.querySelectorAll('.lang-tab').forEach((tab) => {
+          if (tab.onclick.toString().includes(currentLang)) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+        
+        // Hide all content and show selected language content
+        document.querySelectorAll('[id$="-content"]').forEach((content) => {
+          content.style.display = 'none';
+        });
+        const selectedContent = document.getElementById(currentLang + '-content');
+        if (selectedContent) {
+          selectedContent.style.display = 'block';
+        }
         // Animate text on scroll
         const observer = new IntersectionObserver(
           (entries) => {

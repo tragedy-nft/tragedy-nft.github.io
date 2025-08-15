@@ -443,14 +443,6 @@
         transform: translateY(-2px);
       }
 
-      /* Mobile text labels */
-      .nav-link-text {
-        display: inline;
-      }
-
-      .nav-link-text-mobile {
-        display: none;
-      }
 
       /* Loading Spinner */
       .spinner {
@@ -525,14 +517,6 @@
           font-size: 0.9rem;
         }
 
-        /* Show mobile text, hide desktop text */
-        .nav-link-text {
-          display: none;
-        }
-
-        .nav-link-text-mobile {
-          display: inline;
-        }
       }
     </style>
   </head>
@@ -557,8 +541,6 @@
         <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect MetaMask</button>
       </div>
 
-      <!-- Mobile Instructions Container (hidden on desktop) -->
-      <div id="mobileInstructionsContainer"></div>
 
       <!-- Mint Section -->
       <div class="mint-section" id="mintSection" style="display: none">
@@ -605,8 +587,7 @@
       <!-- Navigation -->
       <div class="nav-links">
         <a href="index.html" class="nav-link">
-          <span class="nav-link-text">← Back to Home</span>
-          <span class="nav-link-text-mobile">Home</span>
+          ← Back to Home
         </a>
         <a
           href="https://opensea.io/ja/collection/something-dark-is-awakening"
@@ -614,8 +595,7 @@
           id="openseaLink"
           target="_blank"
         >
-          <span class="nav-link-text">View on OpenSea</span>
-          <span class="nav-link-text-mobile">OpenSea</span>
+          View on OpenSea
         </a>
         <a
           href="https://polygonscan.com/address/"
@@ -624,8 +604,7 @@
           id="basescanLink"
           target="_blank"
         >
-          <span class="nav-link-text">View on PolygonScan</span>
-          <span class="nav-link-text-mobile">PolygonScan</span>
+          View on PolygonScan
         </a>
       </div>
     </div>
@@ -643,7 +622,7 @@
 
     <!-- Common UI Components -->
     <script src="js/ui/components.js"></script>
-    
+
     <!-- Import MetaMask modal functionality -->
     <script src="js/ui/metamask-modal-translations.js"></script>
     <script src="js/ui/metamask-modal.js"></script>
@@ -694,7 +673,7 @@
       // Load settings and update campaign contract address
       async function loadSettings() {
         try {
-          const response = await fetch('config/setting.json');
+          const response = await fetch('config/settings.json');
           if (response.ok) {
             const settings = await response.json();
             const campaignAddress = settings.contracts.Campaign;
@@ -706,7 +685,7 @@
             }
           }
         } catch (error) {
-          console.error('Failed to load setting.json:', error);
+          console.error('Failed to load settings.json:', error);
         }
       }
 
@@ -736,11 +715,6 @@
         const mintSection = document.getElementById('mintSection');
         const mintBtn = document.getElementById('mintBtn');
 
-        // Mobile elements
-        const mobileStatusDot = document.getElementById('mobileStatusDot');
-        const mobileStatusText = document.getElementById('mobileStatusText');
-        const mobileWalletAddress = document.getElementById('mobileWalletAddress');
-
         if (account) {
           isConnected = true;
           statusDot.classList.add('connected');
@@ -749,13 +723,6 @@
           connectBtn.textContent = 'Disconnect';
           mintSection.style.display = 'grid';
           mintBtn.disabled = false;
-
-          // Update mobile UI
-          if (mobileStatusDot) {
-            mobileStatusDot.style.background = '#4dff4d';
-            mobileStatusText.textContent = 'Wallet Connected';
-            mobileWalletAddress.textContent = formatAddress(account);
-          }
 
           // Update supply info
           updateSupplyInfo();
@@ -770,13 +737,6 @@
           connectBtn.textContent = 'Connect MetaMask';
           mintSection.style.display = 'none';
           mintBtn.disabled = true;
-
-          // Update mobile UI
-          if (mobileStatusDot) {
-            mobileStatusDot.style.background = '#ff4d4d';
-            mobileStatusText.textContent = 'Wallet Not Connected';
-            mobileWalletAddress.textContent = '';
-          }
         }
       };
 
@@ -892,7 +852,7 @@
           // Get contract name first
           try {
             const bankedNFTContract = contractManager.getContract('bankedNFT');
-          const contractName = bankedNFTContract ? await bankedNFTContract.name() : 'Unknown';
+            const contractName = bankedNFTContract ? await bankedNFTContract.name() : 'Unknown';
             document.getElementById('contractName').textContent = contractName;
           } catch (error) {
             console.error('Failed to get contract name:', error);
@@ -990,14 +950,14 @@
           if (!bankedNFTContract) {
             throw new Error('Contract not initialized');
           }
-          
+
           const mintFee = await bankedNFTContract.mintFee();
           const tx = await bankedNFTContract.mint({ value: mintFee });
           const receipt = await tx.wait();
-          
+
           const result = {
             success: receipt.status === 1,
-            transactionHash: receipt.transactionHash
+            transactionHash: receipt.transactionHash,
           };
 
           if (result.success) {
@@ -1145,274 +1105,6 @@
         }, 3000);
       }
 
-      // Current selected language (default to browser language)
-      let currentLanguage = localStorage.getItem('selectedLanguage') || navigator.language.substring(0, 2);
-
-      // Multi-language mobile instructions
-      function showMobileInstructions() {
-        // Move wallet section into mobile instructions container
-        const walletSection = document.getElementById('walletSection');
-        const container = document.getElementById('mobileInstructionsContainer');
-
-        const translations = {
-          en: {
-            title: '📱 Mobile Users',
-            message: 'To mint NFTs on mobile, you need to use MetaMask Browser',
-            clipboard: '✅ URL has been copied to clipboard. Please paste it in MetaMask browser.',
-            steps: [
-              "Tap 'Connect MetaMask' button below",
-              'MetaMask app will open',
-              'Go to Browser tab',
-              'Paste the copied URL and connect',
-            ],
-          },
-          ja: {
-            title: '📱 モバイルユーザーの方へ',
-            message: 'モバイルでNFTをミントするには、MetaMaskブラウザが必要です',
-            clipboard: '✅ クリップボードにURLがコピーされています。MetaMask上のブラウザにペーストしてください。',
-            steps: [
-              '下の「Connect MetaMask」ボタンをタップ',
-              'MetaMaskアプリが開きます',
-              'ブラウザタブに移動',
-              'コピーされたURLを貼り付けて接続',
-            ],
-          },
-          zh: {
-            title: '📱 移动用户',
-            message: '在移动设备上铸造NFT需要使用MetaMask浏览器',
-            clipboard: '✅ URL已复制到剪贴板。请在MetaMask浏览器中粘贴。',
-            steps: ['点击下方「Connect MetaMask」按钮', 'MetaMask应用将打开', '转到浏览器标签', '粘贴复制的URL并连接'],
-          },
-          ko: {
-            title: '📱 모바일 사용자',
-            message: '모바일에서 NFT를 민팅하려면 MetaMask 브라우저가 필요합니다',
-            clipboard: '✅ URL이 클립보드에 복사되었습니다. MetaMask 브라우저에 붙여넣기하세요.',
-            steps: [
-              '아래 「Connect MetaMask」버튼 탭',
-              'MetaMask 앱이 열립니다',
-              '브라우저 탭으로 이동',
-              '복사된 URL을 붙여넣고 연결',
-            ],
-          },
-          es: {
-            title: '📱 Usuarios Móviles',
-            message: 'Para mintear NFTs en móvil, necesitas usar el navegador MetaMask',
-            clipboard: '✅ URL copiada al portapapeles. Por favor, pégala en el navegador MetaMask.',
-            steps: [
-              "Toca el botón 'Connect MetaMask' abajo",
-              'Se abrirá la app MetaMask',
-              'Ve a la pestaña Navegador',
-              'Pega la URL copiada y conecta',
-            ],
-          },
-          de: {
-            title: '📱 Mobile Nutzer',
-            message: 'Um NFTs auf dem Handy zu minten, benötigen Sie den MetaMask Browser',
-            clipboard: '✅ URL wurde in die Zwischenablage kopiert. Bitte fügen Sie sie im MetaMask-Browser ein.',
-            steps: [
-              "Tippen Sie unten auf 'Connect MetaMask'",
-              'MetaMask App wird geöffnet',
-              'Gehen Sie zum Browser-Tab',
-              'Fügen Sie die kopierte URL ein und verbinden',
-            ],
-          },
-        };
-
-        // Use selected language or default to English
-        const t = translations[currentLanguage] || translations.en;
-
-        // Create info banner with language selector
-        const banner = document.createElement('div');
-        banner.id = 'mobileBanner';
-        banner.style.cssText = `
-                background: linear-gradient(135deg, rgba(155, 77, 255, 0.1), rgba(255, 77, 77, 0.1));
-                border: 2px solid #9b4dff;
-                border-radius: 15px;
-                padding: 20px;
-                margin: 20px auto;
-                max-width: 600px;
-                text-align: center;
-            `;
-
-        // Language tabs - wrapped in container
-        const langTabs = `
-                <div style="background: rgba(107, 70, 193, 0.1); border-radius: 10px; padding: 10px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                        <button onclick="switchMobileLanguage('en')" style="
-                            background: ${
-                              currentLanguage === 'en'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'en' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇺🇸 EN</button>
-                        <button onclick="switchMobileLanguage('ja')" style="
-                            background: ${
-                              currentLanguage === 'ja'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'ja' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇯🇵 JP</button>
-                        <button onclick="switchMobileLanguage('zh')" style="
-                            background: ${
-                              currentLanguage === 'zh'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'zh' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇨🇳 CN</button>
-                        <button onclick="switchMobileLanguage('ko')" style="
-                            background: ${
-                              currentLanguage === 'ko'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'ko' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇰🇷 KR</button>
-                        <button onclick="switchMobileLanguage('es')" style="
-                            background: ${
-                              currentLanguage === 'es'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'es' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇪🇸 ES</button>
-                        <button onclick="switchMobileLanguage('de')" style="
-                            background: ${
-                              currentLanguage === 'de'
-                                ? 'linear-gradient(45deg, #6B46C1, #9333EA)'
-                                : 'rgba(107, 70, 193, 0.2)'
-                            };
-                            border: 1px solid rgba(107, 70, 193, 0.3);
-                            padding: 6px 10px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            color: ${currentLanguage === 'de' ? 'white' : '#C084FC'};
-                            font-size: 11px;
-                            min-width: 45px;
-                        ">🇩🇪 DE</button>
-                    </div>
-                </div>
-            `;
-
-        banner.innerHTML = `
-                ${langTabs}
-                <h3 style="color: #ff4d4d; margin-bottom: 10px;">${t.title}</h3>
-                <p style="color: #e9d5ff; margin-bottom: 10px;">${t.message}</p>
-                <ol style="text-align: left; color: #b792ff; line-height: 1.8; margin: 0 0 20px 0; padding-left: 20px; padding-right: 10px;">
-                    ${t.steps
-                      .map((step) => `<li style="margin-bottom: 5px; word-wrap: break-word;">${step}</li>`)
-                      .join('')}
-                </ol>
-                <div class="clipboard-notif" style="background: rgba(77, 255, 77, 0.1); border: 1px solid #4dff4d; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
-                    <p style="color: #4dff4d; font-weight: bold; margin: 0; font-size: 14px;">${t.clipboard}</p>
-                </div>
-
-                <!-- Wallet Status Section -->
-                <div style="background: rgba(155, 77, 255, 0.1); border: 1px solid #9b4dff; border-radius: 15px; padding: 15px; margin-top: 20px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-                        <span class="status-dot" id="mobileStatusDot" style="width: 10px; height: 10px; border-radius: 50%; background: #ff4d4d; animation: pulse 2s infinite;"></span>
-                        <span id="mobileStatusText" style="color: #e9d5ff;">Wallet Not Connected</span>
-                    </div>
-                    <div id="mobileWalletAddress" style="color: #b792ff; margin-bottom: 10px;"></div>
-                    <button onclick="mobileConnectWallet()" style="
-                        background: linear-gradient(45deg, #9b4dff, #ff4d4d);
-                        color: white;
-                        border: none;
-                        padding: 1rem 2rem;
-                        font-size: 1.1rem;
-                        border-radius: 50px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        letter-spacing: 0.1em;
-                        transition: all 0.3s;
-                        display: inline-block;
-                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(155, 77, 255, 0.5)'"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        Connect MetaMask
-                    </button>
-                </div>
-            `;
-
-        // Insert into mobile instructions container
-        container.appendChild(banner);
-
-        // Hide the desktop wallet section on mobile
-        walletSection.style.display = 'none';
-      }
-
-      // Switch language function
-      window.switchMobileLanguage = function (lang) {
-        currentLanguage = lang;
-        localStorage.setItem('selectedLanguage', lang);
-
-        // Remove old banner
-        const oldBanner = document.getElementById('mobileBanner');
-        if (oldBanner) {
-          oldBanner.remove();
-        }
-
-        // Show new banner with updated language
-        showMobileInstructions();
-      };
-
-      // Mobile connect function
-      function mobileConnectWallet() {
-        // Copy URL to clipboard
-        const currentUrl = window.location.href;
-        navigator.clipboard
-          .writeText(currentUrl)
-          .then(() => {
-            // Update clipboard notification in the banner
-            const clipboardNotif = document.querySelector('#mobileBanner .clipboard-notif');
-            if (clipboardNotif) {
-              clipboardNotif.style.animation = 'pulse 0.5s';
-              setTimeout(() => {
-                clipboardNotif.style.animation = '';
-              }, 500);
-            }
-
-            // Open MetaMask app
-            const deepLink = 'metamask://dapp/' + currentUrl.replace(/^https?:\/\//, '');
-            window.location.href = deepLink;
-          })
-          .catch((err) => {
-            console.error('Failed to copy URL:', err);
-            alert('Please copy the URL manually and paste it in MetaMask browser');
-          });
-      }
 
       // Initialize
       document.addEventListener('DOMContentLoaded', async () => {
@@ -1438,14 +1130,6 @@
         createParticles();
         rotatePreviewImages();
 
-        // Check if mobile and not in MetaMask browser
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isMetaMaskBrowser = typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
-
-        if (isMobile && !isMetaMaskBrowser) {
-          // Show mobile instructions
-          showMobileInstructions();
-        }
 
         // Check if wallet is already connected
         if (window.ethereum && window.ethereum.selectedAddress) {

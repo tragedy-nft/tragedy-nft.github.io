@@ -212,7 +212,9 @@
       </div>
 
       <div class="filter-controls">
-        <button class="filter-button" id="ownFilterBtn" onclick="filterStories('own')" style="display: none;">Own</button>
+        <button class="filter-button" id="ownFilterBtn" onclick="filterStories('own')" style="display: none">
+          Own
+        </button>
         <button class="filter-button active" onclick="filterStories('all')">Minted</button>
         <button class="filter-button" onclick="filterStories('rare')">Rare</button>
         <button class="filter-button" onclick="filterStories('epic')">Epic</button>
@@ -410,7 +412,7 @@
         try {
           const [deploymentRes, settingRes] = await Promise.all([
             fetch('config/deployment.json'),
-            fetch('config/setting.json'),
+            fetch('config/settings.json'),
           ]);
 
           if (deploymentRes.ok) {
@@ -947,7 +949,7 @@
         } catch (error) {
           console.error('Failed to load owned NFTs:', error);
           console.error('Error details:', error.message);
-          
+
           // Don't show alert for CALL_EXCEPTION errors, just log
           if (error.code === 'CALL_EXCEPTION') {
             console.log('Contract not available on current network');
