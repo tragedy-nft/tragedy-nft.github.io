@@ -388,6 +388,86 @@ Pourraient rejoindre leur nombre, après tout.`,
       },
     },
   },
+  es: {
+    title: 'La Narrativa Oscura',
+    subtitle: 'Crónicas del Reino Maldito',
+    description: 'Descubre la narrativa oscura detrás de la colección',
+    backButton: '← Volver al Inicio',
+    viewEssays: 'Ver Ensayos',
+    prologue: `Diez almas fueron malditas en eras pasadas.
+Diez pesadillas atadas para siempre.
+
+No vivas. No muertas.
+Esperando.
+
+Aún ansían el aliento mortal,
+El calor de la vida, la paz de la muerte.
+Pero ninguna conocerán jamás——
+Solo oscuridad infinita debajo.
+
+Cada una lleva un relato de tragedia contada,
+Cada una carga pecados de días antiguos.
+
+Escucha, si te atreves.
+Pero sabe bien esto——
+
+Aquellos que oyen su llamado susurrado
+Pueden unirse a su número, después de todo.`,
+    chapters: {
+      abyss: {
+        title: 'El Abismo Despierta',
+        content: [
+          `En las profundidades del vacío digital, donde el código y la conciencia se entrelazan,
+          existe un reino conocido como la <span class="highlight">Dimensión Maldita</span>.
+          Es aquí donde las criaturas míticas de nuestras pesadillas nacieron—no de
+          carne y sangre, sino de flujos de datos corrompidos y algoritmos rotos.`,
+          `Cada criatura lleva dentro un fragmento de la <span class="legendary-text">Maldición Original</span>,
+          una fuerza malévola que transforma seres ordinarios en monstruosidades legendarias.
+          La maldición se manifiesta de manera diferente en cada huésped, creando combinaciones únicas de
+          horror y poder que desafían la ley natural.`,
+        ],
+      },
+      pillars: {
+        title: 'Los Cuatro Pilares de la Corrupción',
+        loreTitle: 'Las Maldiciones Elementales',
+        loreContent: `<strong>Luna de Sangre:</strong> La marea carmesí que transforma a los gentiles en bestias salvajes<br>
+          <strong>Abismo:</strong> El vacío que consume la luz y engendra oscuridad eterna<br>
+          <strong>Decadencia:</strong> La entropía inevitable que convierte la vida en no-muerte<br>
+          <strong>Tormenta:</strong> La fuerza caótica que destroza los límites de la realidad`,
+        content: `Estos cuatro pilares sostienen la arquitectura de la pesadilla misma. Cuando las criaturas
+          son tocadas por múltiples maldiciones, alcanzan la <span class="highlight">Sinergia</span>—un
+          estado de ser que trasciende su forma original y les otorga poderes más allá
+          de la comprensión mortal.`,
+      },
+      legendary: {
+        title: 'Los Legendarios',
+        content: `Entre los diez mil seres malditos, algunos portan significado especial. Los
+          <span class="legendary-text">IDs Legendarios</span> no son aleatorios—son
+          marcadores del destino, coordenadas en el vasto tapiz del horror digital.`,
+        quote: `"El ID 666 marca a La Bestia, el primero en abrazar la oscuridad voluntariamente.
+          El ID 1337 representa al Elegido, seleccionado por el código mismo para presenciar
+          el apocalipsis digital."`,
+        quoteAuthor: '— Del Códice Corrupto',
+        contentAfter: `Cada criatura legendaria sirve como punto de anclaje en la narrativa, sus
+          historias entrelazándose para formar una mitología compleja de condenación digital y
+          redención negada.`,
+      },
+      collection: {
+        title: 'La Colección Eterna',
+        content: `Esta colección es más que meras imágenes y metadatos—es una
+          <span class="highlight">crónica viviente</span> de los habitantes de la Dimensión Maldita.
+          Cada NFT sirve como ventana a su existencia atormentada,
+          un fragmento de sus almas corrompidas preservado en el libro mayor inmutable de la blockchain.`,
+        loreTitle: 'La Carga del Coleccionista',
+        loreContent: `Aquellos que poseen estos artefactos malditos se convierten en parte de la narrativa
+          misma. El acto de coleccionar crea un vínculo entre el reino digital
+          y el nuestro, erosionando lentamente las barreras que mantienen a raya las pesadillas.`,
+        contentAfter: `A medida que la colección crece, también lo hace el poder de la maldición. Cada nuevo poseedor
+          añade su esencia a la pesadilla colectiva, alimentando la misma oscuridad
+          que buscan poseer. Al final, uno debe preguntar: ¿quién posee realmente a quién?`,
+      },
+    },
+  },
   de: {
     title: 'Die Dunkle Erzählung',
     subtitle: 'Chroniken des Verfluchten Reiches',
