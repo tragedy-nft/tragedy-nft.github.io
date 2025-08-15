@@ -580,21 +580,8 @@
       </div>
 
       <!-- Social Links -->
-      <div class="social-links">
-        <a href="https://x.com/mythOfTragedy" class="social-link" title="X" target="_blank">
-          <span>X</span>
-        </a>
-        <a href="https://discord.gg/sQ2nxm7w" class="social-link" title="Discord" target="_blank">
-          <span>Discord</span>
-        </a>
-        <a
-          href="https://opensea.io/0xe8dA4B6E9dF0e8f2eE6898E44ca1D45a27ED7d0A"
-          class="social-link"
-          title="OpenSea"
-          target="_blank"
-        >
-          <span>OpenSea</span>
-        </a>
+      <div class="social-links" id="socialLinks">
+        <!-- Social links will be loaded dynamically -->
       </div>
 
       <!-- Manifest Link -->
@@ -626,6 +613,9 @@
     <!-- Import MetaMask modal functionality -->
     <script src="js/ui/metamask-modal-translations.js"></script>
     <script src="js/ui/metamask-modal.js"></script>
+    
+    <!-- Import Settings Loader -->
+    <script src="js/config/settings-loader.js"></script>
     
     <script>
       // パーティクル生成
@@ -1724,6 +1714,9 @@
       setInterval(updateCountdown, 1000);
       checkBrowserAndShowMetaMaskWarning();
       rotateMonsterImages();
+      
+      // Load social links
+      renderSocialLinks('socialLinks');
     </script>
   </body>
 </html>

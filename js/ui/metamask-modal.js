@@ -46,7 +46,7 @@ function changeLanguage(lang) {
 }
 
 // Browser detection and MetaMask recommendation
-function checkBrowserAndShowMetaMaskWarning() {
+async function checkBrowserAndShowMetaMaskWarning() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isMetaMaskBrowser = window.ethereum && window.ethereum.isMetaMask;
   const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
@@ -62,7 +62,8 @@ function checkBrowserAndShowMetaMaskWarning() {
     
     // Get current page path for deep link
     const currentPath = window.location.pathname;
-    const deepLinkUrl = `https://metamask.app.link/dapp/tragedy-nft.github.io${currentPath}`;
+    const domain = settingsLoader ? await settingsLoader.getDeeplinkDomain() : 'tragedy-nft.github.io';
+    const deepLinkUrl = `https://metamask.app.link/dapp/${domain}${currentPath}`;
     
     const warningModal = document.createElement('div');
     warningModal.setAttribute('data-metamask-modal', 'true');

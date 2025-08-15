@@ -1,0 +1,27 @@
+{
+  "social": {
+    "twitter": {
+      "url": "https://x.com/mythOfTragedy",
+      "title": "X",
+      "enabled": true
+    },
+    "discord": {
+      "url": "https://discord.gg/wunxU8cy",
+      "title": "Discord",
+      "enabled": true
+    },
+    "opensea": {
+      "url": "https://opensea.io/0xe8dA4B6E9dF0e8f2eE6898E44ca1D45a27ED7d0A",
+      "title": "OpenSea",
+      "enabled": true
+    },
+    "github": {
+      "url": "https://github.com/mythOfTragedy",
+      "title": "GitHub",
+      "enabled": false
+    }
+  },
+  "deeplink": {
+    "domain": "tragedy-nft.github.io"
+  }
+}
