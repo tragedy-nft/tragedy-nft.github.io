@@ -141,6 +141,15 @@ const campaignPageTranslations = {
         es: 'ACUÑAR AHORA',
         fr: 'MINTER MAINTENANT',
         de: 'JETZT PRÄGEN'
+      },
+      connectButton: {
+        en: 'CONNECT WALLET',
+        ja: 'ウォレットに接続',
+        zh: '连接钱包',
+        ko: '지갑 연결',
+        es: 'CONECTAR BILLETERA',
+        fr: 'CONNECTER LE PORTEFEUILLE',
+        de: 'WALLET VERBINDEN'
       }
     },
     contract: {

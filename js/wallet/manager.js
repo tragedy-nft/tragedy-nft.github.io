@@ -98,21 +98,7 @@ class WalletManager {
       }
     } catch (error) {
       console.error('Failed to load blockchain.json:', error);
-      // Fallback configuration
-      this.networks = {
-        polygon: {
-          name: 'Polygon Mainnet',
-          chainId: 137,
-          rpcUrl: 'https://polygon-rpc.com',
-          symbol: 'POL',
-        },
-        bonsoleil: {
-          name: 'Bon-Soleil Testnet',
-          chainId: 21201,
-          rpcUrl: 'https://dev2.bon-soleil.com/rpc',
-          symbol: 'SOL',
-        },
-      };
+      throw new Error('Failed to load blockchain.json. Configuration file is required.');
     }
   }
 

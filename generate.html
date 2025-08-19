@@ -100,7 +100,7 @@
       document.addEventListener('DOMContentLoaded', async () => {
         try {
           if (window.ethereum) {
-            // Check if we need to switch to Amoy network
+            // Check deployment network configuration
             const deploymentResponse = await fetch('/config/deployment.json');
             if (deploymentResponse.ok) {
               const deployment = await deploymentResponse.json();
@@ -128,18 +128,27 @@
             
             // Initialize ContractManager
             contractManager = new ContractManager();
-            // Try using JsonRpcProvider directly instead of Web3Provider
+            // Load blockchain config to get RPC URL
+            const blockchainConfigResponse = await fetch('/config/blockchain.json');
             let provider;
-            try {
-              // First try with JsonRpcProvider for Amoy
-              provider = new ethers.providers.JsonRpcProvider('https://rpc-amoy.polygon.technology/');
-              const network = await provider.getNetwork();
-              console.log('Using JsonRpcProvider, network:', network.chainId);
-            } catch (e) {
-              // Fallback to Web3Provider
-              console.log('JsonRpcProvider failed, using Web3Provider');
+            
+            if (blockchainConfigResponse.ok) {
+              const blockchainConfig = await blockchainConfigResponse.json();
+              const defaultNetwork = blockchainConfig.defaultNetwork || 'polygon';
+              const networkConfig = blockchainConfig.networks[defaultNetwork];
+              
+              if (networkConfig && networkConfig.rpcUrl) {
+                console.log(`Using ${defaultNetwork} network RPC:`, networkConfig.rpcUrl);
+                provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+              }
+            }
+            
+            // Fallback to Web3Provider if config not found
+            if (!provider) {
+              console.log('Using Web3Provider');
               provider = new ethers.providers.Web3Provider(window.ethereum);
             }
+            
             await contractManager.initialize(provider, 'deployment');
             console.log('ContractManager initialized, networkId:', contractManager.networkId);
             
@@ -203,51 +212,18 @@
             };
             console.log(`Using ContractManager configuration for ${networkConfig.name}`);
             return true;
+            } else {
+              throw new Error(`No network configuration found for chain ID ${contractManager.networkId} in blockchain.json`);
             }
+          } else {
+            throw new Error('Failed to load blockchain.json');
           }
+        } else {
+          throw new Error('ContractManager not initialized');
         }
 
-        // Try to load deployment.json first
-        try {
-          const deploymentResponse = await fetch('config/deployment.json');
-          if (deploymentResponse.ok) {
-            const deployment = await deploymentResponse.json();
-            console.log('Deployment configuration loaded');
-
-            // Create blockchainConfig from deployment.json
-            blockchainConfig = {
-              networks: {
-                bonsoleil: {
-                  name: 'Bon-Soleil Testnet',
-                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
-                  contracts: {
-                    metadataBank: {
-                      address: deployment.contracts.MetadataBank,
-                      abi: [
-                        'function getMetadataCount() view returns (uint256)',
-                        'function getMetadata(uint256 index) view returns (string)',
-                        'function composer() view returns (address)',
-                        'function decodeTokenId(uint256 tokenId) view returns (uint8 species, uint8 background, uint8 item, uint8 effect)',
-                        'function generateMetadata(uint256 tokenId, uint8 species, uint8 background, uint8 item, uint8 effect) view returns (string)',
-                      ],
-                    },
-                    LegendaryBank: {
-                      address: deployment.contracts.LegendaryBank,
-                    },
-                  },
-                },
-              },
-              defaultNetwork: 'bonsoleil',
-            };
-            return true;
-          }
-        } catch (error) {
-          console.error('Failed to load deployment.json:', error);
-          throw new Error('Failed to load deployment.json. Contract addresses are required.');
-        }
-
-        // deployment.jsonが読み込めない場合はエラー
-        throw new Error('deployment.json not found');
+        // Configuration not found
+        throw new Error('Failed to load blockchain configuration. Make sure blockchain.json and deployment.json are properly configured.');
       }
 
       // Initialize blockchain connection

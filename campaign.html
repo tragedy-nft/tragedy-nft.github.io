@@ -582,13 +582,18 @@
       // Update wallet info display
       function updateWalletInfo() {
         const walletInfo = document.getElementById('walletInfo');
+        const mintButton = document.getElementById('mintButton');
 
         if (userAccount) {
           walletInfo.textContent = getTrans('wallet.connected') + ': ' + formatAddress(userAccount);
           walletInfo.style.color = '#86EFAC';
+          // Update button to show "MINT NOW" when connected
+          mintButton.textContent = getTrans('campaign.mint.button');
         } else {
           walletInfo.textContent = getTrans('wallet.notConnected');
           walletInfo.style.color = '#9CA3AF';
+          // Update button to show "CONNECT WALLET" when not connected
+          mintButton.textContent = getTrans('campaign.mint.connectButton');
         }
       }
 
@@ -641,6 +646,8 @@
         if (!userAccount) {
           const connected = await connectWallet();
           if (!connected) return;
+          // After successful connection, button text will be updated by wallet event handler
+          return; // Exit here, user needs to click again to mint
         }
 
         // Check if on Polygon network
@@ -780,7 +787,7 @@
         // Update mint section
         document.getElementById('mint-title').textContent = getTrans('campaign.mint.title');
         document.getElementById('mint-instruction').textContent = getTrans('campaign.mint.instruction');
-        document.getElementById('mintButton').textContent = getTrans('campaign.mint.button');
+        // Button text will be set by updateWalletInfo() based on connection status
 
         // Update contract info
         document.getElementById('contract-title').textContent = getTrans('campaign.contract.title');

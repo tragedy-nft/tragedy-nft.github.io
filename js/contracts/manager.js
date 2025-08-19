@@ -166,7 +166,6 @@ class ContractManager {
         ItemBank: 'itemBank',
         BackgroundBank: 'backgroundBank',
         EffectBank: 'effectBank',
-        TragedyMetadata: 'tragedyMetadata',
         LegendaryBank: 'LegendaryBank',
       };
 
@@ -178,11 +177,7 @@ class ContractManager {
         }
       }
     } else if (configFile === 'campaign') {
-      // campaign.json format - only load if on correct network
-      if (config.network === 'polygon' && this.networkId !== 137) {
-        console.warn('Campaign contracts are for Polygon mainnet, but current network is different');
-        return;
-      }
+      // campaign.json format - load contracts
       
       for (const [contractName, address] of Object.entries(config.contracts)) {
         if (this.isValidAddress(address)) {
@@ -218,7 +213,6 @@ class ContractManager {
       ItemBank: 'itemBank',
       BackgroundBank: 'backgroundBank',
       EffectBank: 'effectBank',
-      TragedyMetadata: 'tragedyMetadata',
       LegendaryBank: 'LegendaryBank',
     };
 
@@ -250,8 +244,8 @@ class ContractManager {
       }
     }
 
-    // Initialize from campaign.json (only for Polygon mainnet)
-    if (this.campaign && this.campaign.contracts && this.campaign.network === 'polygon' && this.networkId === 137) {
+    // Initialize from campaign.json
+    if (this.campaign && this.campaign.contracts) {
       for (const [contractName, address] of Object.entries(
         this.campaign.contracts
       )) {

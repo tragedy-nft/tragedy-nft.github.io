@@ -294,12 +294,8 @@
             // Initialize ContractManager with signer
             await initializeContractManager();
 
-            // Load owned NFTs only if on correct network
-            if (chainId === 21201) {
-              await loadOwnedNFTs();
-            } else {
-              console.log(`Wrong network for NFT loading. Current: ${chainId}, Required: 21201`);
-            }
+            // Load owned NFTs
+            await loadOwnedNFTs();
           },
           onDisconnect: () => {
             userAddress = null;
@@ -325,8 +321,8 @@
           },
           onNetworkChange: async (chainId) => {
             console.log('Network changed to:', chainId);
-            // Re-load owned NFTs if on correct network
-            if (chainId === 21201 && userAddress) {
+            // Re-load owned NFTs
+            if (userAddress) {
               await loadOwnedNFTs();
             } else if (userAddress && currentFilter === 'own') {
               // If showing owned NFTs on wrong network, switch to all
@@ -348,186 +344,11 @@
         await contractManager.initialize(provider, 'deployment', signer);
       }
 
-      // Load blockchain configuration (no longer needed - handled by ContractManager)
+      // Load blockchain configuration (handled by ContractManager)
       async function loadBlockchainConfig() {
+        // Configuration is now handled by ContractManager
+        // This function is kept for compatibility
         return true;
-      }
-
-      // TEMP - DELETE THIS LONG FUNCTION
-      async function loadBlockchainConfig_OLD() {
-        // Try to use centralized config first
-        if (typeof CONTRACTS_CONFIG !== 'undefined') {
-          // Ensure deployment is loaded first
-          await CONTRACTS_CONFIG.loadDeployment();
-
-          const network = CONTRACTS_CONFIG.getNetwork(21201); // Bon-Soleil Testnet
-          if (network && network.contracts && network.contracts.metadataBank) {
-            blockchainConfig = {
-              networks: {
-                bonsoleil: {
-                  name: network.name,
-                  rpcUrl: network.rpcUrl,
-                  contracts: {
-                    metadataBank: {
-                      address: network.contracts.metadataBank || network.contracts.MetadataBank,
-                      abi: [
-                        'function getMetadataCount() view returns (uint256)',
-                        'function getMetadata(uint256 index) view returns (string)',
-                      ],
-                    },
-                    bankedNFT: {
-                      address: network.contracts.bankedNFT || network.contracts.BankedNFT,
-                      abi: [
-                        'function balanceOf(address owner) view returns (uint256)',
-                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
-                        'function ownerOf(uint256 tokenId) view returns (address)',
-                        'function tokenURI(uint256 tokenId) view returns (string)',
-                        'function totalSupply() view returns (uint256)',
-                      ],
-                    },
-                    LegendaryBank: {
-                      address: network.contracts.LegendaryBank,
-                      abi: [
-                        'function getLegendaryCount() view returns (uint256)',
-                        'function legendaryIds(uint256 index) view returns (uint256)',
-                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
-                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
-                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
-                      ],
-                    },
-                  },
-                },
-              },
-              defaultNetwork: 'bonsoleil',
-            };
-            console.log('Using centralized contract configuration');
-            return true;
-          }
-        }
-
-        // Try to load deployment.json and setting.json first
-        let deployment = null;
-        let settings = null;
-
-        try {
-          const [deploymentRes, settingRes] = await Promise.all([
-            fetch('config/deployment.json'),
-            fetch('config/settings.json'),
-          ]);
-
-          if (deploymentRes.ok) {
-            deployment = await deploymentRes.json();
-            console.log('Deployment configuration loaded');
-          }
-
-          if (settingRes.ok) {
-            settings = await settingRes.json();
-            console.log('Settings configuration loaded');
-          }
-
-          if (deployment) {
-            // Create blockchainConfig from deployment.json and setting.json
-            blockchainConfig = {
-              networks: {
-                bonsoleil: {
-                  name: 'Bon-Soleil Testnet',
-                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
-                  contracts: {
-                    metadataBank: {
-                      address: deployment.contracts.MetadataBank,
-                      abi: [
-                        'function getMetadataCount() view returns (uint256)',
-                        'function getMetadata(uint256 index) view returns (string)',
-                      ],
-                    },
-                    bankedNFT: {
-                      address: deployment.contracts.BankedNFT,
-                      abi: [
-                        'function balanceOf(address owner) view returns (uint256)',
-                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
-                        'function ownerOf(uint256 tokenId) view returns (address)',
-                        'function tokenURI(uint256 tokenId) view returns (string)',
-                        'function totalSupply() view returns (uint256)',
-                      ],
-                    },
-                    LegendaryBank: {
-                      address: deployment.contracts.LegendaryBank,
-                      abi: [
-                        'function getLegendaryCount() view returns (uint256)',
-                        'function legendaryIds(uint256 index) view returns (uint256)',
-                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
-                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
-                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
-                        'function getLegendaryRarity(uint256 tokenId) view returns (uint8)',
-                        'function getAllLegendaryIds() view returns (uint256[])',
-                      ],
-                    },
-                  },
-                },
-              },
-              defaultNetwork: 'bonsoleil',
-            };
-            return true;
-          }
-        } catch (error) {
-          console.error('Failed to load config files:', error);
-        }
-
-        // Try to load deployment.json
-        try {
-          const deploymentResponse = await fetch('config/deployment.json');
-          if (deploymentResponse.ok) {
-            const deployment = await deploymentResponse.json();
-            console.log('Deployment configuration loaded');
-
-            // Create blockchainConfig from deployment.json
-            blockchainConfig = {
-              networks: {
-                bonsoleil: {
-                  name: 'Bon-Soleil Testnet',
-                  rpcUrl: 'https://dev2.bon-soleil.com/rpc',
-                  contracts: {
-                    metadataBank: {
-                      address: deployment.contracts.MetadataBank,
-                      abi: [
-                        'function getMetadataCount() view returns (uint256)',
-                        'function getMetadata(uint256 index) view returns (string)',
-                      ],
-                    },
-                    bankedNFT: {
-                      address: deployment.contracts.BankedNFT,
-                      abi: [
-                        'function balanceOf(address owner) view returns (uint256)',
-                        'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
-                        'function ownerOf(uint256 tokenId) view returns (address)',
-                        'function tokenURI(uint256 tokenId) view returns (string)',
-                        'function totalSupply() view returns (uint256)',
-                      ],
-                    },
-                    legendaryBank: {
-                      address: deployment.contracts.LegendaryBank,
-                      abi: [
-                        'function getLegendaryCount() view returns (uint256)',
-                        'function legendaryIds(uint256 index) view returns (uint256)',
-                        'function isLegendaryId(uint256 tokenId) view returns (bool)',
-                        'function getLegendaryTitle(uint256 tokenId) view returns (string)',
-                        'function getLegendaryDescription(uint256 tokenId) view returns (string)',
-                      ],
-                    },
-                  },
-                },
-              },
-              defaultNetwork: 'bonsoleil',
-            };
-            return true;
-          }
-        } catch (error) {
-          console.error('Failed to load deployment.json:', error);
-          throw new Error('Failed to load deployment.json. Contract addresses are required.');
-        }
-
-        // deployment.jsonが読み込めない場合はエラー
-        throw new Error('deployment.json not found');
       }
 
       // Generate metadata from blockchain
@@ -890,7 +711,7 @@
       // Connect wallet function
       async function connectWallet() {
         try {
-          await walletManager.connect('bonsoleil');
+          await walletManager.connect('polygon');
         } catch (error) {
           console.error('Failed to connect wallet:', error);
           alert('Failed to connect wallet');
@@ -1062,9 +883,27 @@
 
         // Initialize provider for read-only operations
         if (!provider) {
-          // ethers v5
-          provider = new ethers.providers.JsonRpcProvider('https://dev2.bon-soleil.com/rpc');
-          console.log('Initialized JsonRpcProvider for read-only operations');
+          try {
+            // Load blockchain config to get RPC URL
+            const response = await fetch('/config/blockchain.json');
+            if (!response.ok) {
+              throw new Error('Failed to load blockchain.json');
+            }
+            const blockchainConfig = await response.json();
+            const defaultNetwork = blockchainConfig.defaultNetwork;
+            const networkConfig = blockchainConfig.networks[defaultNetwork];
+            
+            if (!networkConfig || !networkConfig.rpcUrl) {
+              throw new Error('Network configuration not found');
+            }
+            
+            // ethers v5
+            provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+            console.log(`Initialized JsonRpcProvider for ${defaultNetwork}`);
+          } catch (error) {
+            console.error('Failed to initialize provider:', error);
+            throw error;
+          }
         }
 
         // Initialize ContractManager with provider

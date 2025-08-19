@@ -753,7 +753,7 @@
           const contractAddress = contractManager ? contractManager.getContractAddress('bankedNFT') : null;
 
           const openseaLink = document.getElementById('openseaLink');
-          const basescanLink = document.getElementById('basescanLink');
+          const basescanLink = document.getElementById('polygonscanLink');
 
           if (contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000') {
             // Update links based on network
@@ -768,14 +768,9 @@
             } else if (chainIdDecimal === 137) {
               // Polygon Mainnet
               openseaLink.textContent = 'View on OpenSea';
-              openseaLink.href = `https://opensea.io/assets/matic/${contractAddress}`;
+              openseaLink.href = `https://opensea.io/item/matic/${contractAddress}`;
               basescanLink.textContent = 'View on PolygonScan';
               basescanLink.href = `https://polygonscan.com/address/${contractAddress}`;
-            } else if (chainIdDecimal === 21201) {
-              // Bon Soleil Testnet (legacy support)
-              openseaLink.textContent = 'View Contract';
-              openseaLink.href = `https://dev2.bon-soleil.com/explorer/address/${contractAddress}`;
-              basescanLink.style.display = 'none'; // Hide BaseScan for custom network
             }
 
             console.log(`External links updated for contract: ${contractAddress}`);
@@ -836,10 +831,7 @@
             contractAddress = window.web3Integration.getContractAddress();
           }
 
-          // For Bon-Soleil testnet, always try to fetch data
-          if (chainIdDecimal === 21201) {
-            // Continue with fetching data even if contract address check fails
-          } else if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+          if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
             // Set default values when contract is not deployed
             document.getElementById('contractName').textContent = 'Something Dark';
             document.getElementById('totalSupply').textContent = '0';
@@ -871,7 +863,9 @@
             const bankedNFTContract = contractManager.getContract('bankedNFT');
             if (bankedNFTContract) {
               const priceWei = await bankedNFTContract.mintFee();
-              nftPrice = parseFloat(ethers.formatEther(priceWei));
+              // Handle both ethers v5 and v6
+              const formatEther = ethers.formatEther || (ethers.utils && ethers.utils.formatEther);
+              nftPrice = parseFloat(formatEther(priceWei));
             }
           }
           document.getElementById('priceDisplay').textContent = `${nftPrice} POL`;
@@ -885,22 +879,12 @@
             });
             const chainIdDecimal = parseInt(chainId, 16);
 
-            // For Bon-Soleil testnet, show more specific error
-            if (chainIdDecimal === 21201) {
-              console.log('Contract might not be initialized properly on testnet');
-              document.getElementById('contractName').textContent = 'Loading...';
-              document.getElementById('totalSupply').textContent = 'Loading...';
-              document.getElementById('maxSupply').textContent = '10,000';
-              document.getElementById('priceDisplay').textContent = 'TBD';
-              nftPrice = 33;
-            } else {
-              // Set default values on error for other networks
-              document.getElementById('contractName').textContent = 'Unknown Collection';
-              document.getElementById('totalSupply').textContent = '0';
-              document.getElementById('maxSupply').textContent = '10,000';
-              document.getElementById('priceDisplay').textContent = '33 POL';
-              nftPrice = 33;
-            }
+            // Set default values on error
+            document.getElementById('contractName').textContent = 'Unknown Collection';
+            document.getElementById('totalSupply').textContent = '0';
+            document.getElementById('maxSupply').textContent = '10,000';
+            document.getElementById('priceDisplay').textContent = '33 POL';
+            nftPrice = 33;
           } catch {
             // Set default values on error
             document.getElementById('contractName').textContent = 'Unknown Collection';
@@ -926,12 +910,9 @@
         });
         const chainIdDecimal = parseInt(chainId, 16);
 
-        // Allow minting on Bon-Soleil testnet even if contract check fails
-        if (chainIdDecimal !== 21201) {
-          if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-            showComingSoonModal();
-            return;
-          }
+        if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+          showComingSoonModal();
+          return;
         }
 
         const mintBtn = document.getElementById('mintBtn');
@@ -951,7 +932,13 @@
             throw new Error('Contract not initialized');
           }
 
+          // Debug info
+          console.log('Minting on network:', contractManager.networkId);
+          console.log('Contract address:', contractManager.getContractAddress('bankedNFT'));
+          
           const mintFee = await bankedNFTContract.mintFee();
+          console.log('Mint fee:', mintFee.toString());
+          
           const tx = await bankedNFTContract.mint({ value: mintFee });
           const receipt = await tx.wait();
 
@@ -973,18 +960,21 @@
           }
         } catch (error) {
           console.error('Minting failed:', error);
+          console.error('Error details:', {
+            message: error.message,
+            code: error.code,
+            data: error.data,
+            reason: error.reason
+          });
+          
           let errorMessage = 'The summoning ritual failed. ';
 
-          if (error.message.includes('insufficient funds')) {
-            errorMessage += 'Insufficient ETH balance.';
-          } else if (error.message.includes('user rejected')) {
+          if (error.message && error.message.includes('insufficient funds')) {
+            errorMessage += 'Insufficient POL balance.';
+          } else if (error.code === 4001 || (error.message && error.message.includes('user rejected'))) {
             errorMessage += 'Transaction was cancelled.';
-          } else if (error.message.includes('Contract not initialized')) {
-            // On Bon-Soleil testnet, show a different error message
-            if (chainIdDecimal === 21201) {
-              errorMessage = 'Contract initialization failed. Please refresh the page and try again.';
-              showAlert(errorMessage, 'error');
-            } else {
+          } else if (error.message && error.message.includes('Contract not initialized')) {
+            {
               showComingSoonModal();
             }
             mintBtn.disabled = false;

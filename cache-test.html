@@ -227,14 +227,22 @@
         
         // Try to initialize contract with default network if addresses are available
         if (window.CONTRACTS_CONFIG) {
-          // Find the first available network with a valid contract address
-          const availableChains = [21201, 137]; // Prefer Bon-Soleil for testing
-          for (const chainId of availableChains) {
-            const contractAddress = window.CONTRACTS_CONFIG.getContract(chainId, 'bankedNFT');
-            if (contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000') {
-              log(`Default network selected: Chain ${chainId}`, 'info');
-              break;
+          // Load blockchain configuration to get available chains
+          try {
+            const response = await fetch('/config/blockchain.json');
+            if (response.ok) {
+              const blockchainConfig = await response.json();
+              const availableChains = Object.values(blockchainConfig.networks).map(n => n.chainId);
+              for (const chainId of availableChains) {
+                const contractAddress = window.CONTRACTS_CONFIG.getContract(chainId, 'bankedNFT');
+                if (contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000') {
+                  log(`Default network selected: Chain ${chainId}`, 'info');
+                  break;
+                }
+              }
             }
+          } catch (error) {
+            log('Failed to load blockchain configuration', 'error');
           }
         }
         
@@ -251,7 +259,7 @@
               // Check if we have a contract for this chain
               const contractAddress = window.CONTRACTS_CONFIG?.getContract(chainId, 'bankedNFT');
               if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-                log(`No contract found for chain ${chainId}. Please switch to Bon-Soleil (21201) in MetaMask.`, 'error');
+                log(`No contract found for chain ${chainId}. Please switch to a supported network.`, 'error');
                 return;
               }
               
