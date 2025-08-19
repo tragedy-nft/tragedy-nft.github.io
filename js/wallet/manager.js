@@ -153,7 +153,9 @@ class WalletManager {
         let network;
         try {
           network = await this.provider.getNetwork();
+          console.log('Current network:', network);
         } catch (e) {
+          console.error('Failed to get network:', e);
           if (this.provider.network) {
             network = this.provider.network;
           }
@@ -166,6 +168,19 @@ class WalletManager {
           } else {
             this.currentChainId = network.chainId;
           }
+          
+          // Log network details
+          const networkConfig = this.blockchainConfig?.networks ? 
+            Object.entries(this.blockchainConfig.networks).find(
+              ([key, net]) => net.chainId === this.currentChainId
+            ) : null;
+          
+          console.log('Connected to network:', {
+            chainId: this.currentChainId,
+            networkName: networkConfig ? networkConfig[1].name : 'Unknown',
+            networkKey: networkConfig ? networkConfig[0] : null,
+            account: this.currentAccount
+          });
         }
 
         // Notify connection

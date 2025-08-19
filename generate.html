@@ -94,30 +94,64 @@
       let legendaryBankContract;
       let contractManager = null;
       let blockchainConfig = null;
+      let isInitialized = false;
       
       // Initialize on page load
       document.addEventListener('DOMContentLoaded', async () => {
-        contractManager = new ContractManager();
-        await contractManager.init();
-        await loadBlockchainConfig();
+        try {
+          contractManager = new ContractManager();
+          
+          // Create provider and initialize ContractManager
+          if (window.ethereum) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await contractManager.initialize(provider);
+            console.log('ContractManager initialized, networkId:', contractManager.networkId);
+            
+            // Only load blockchain config after ContractManager is initialized
+            if (contractManager && contractManager.networkId) {
+              await loadBlockchainConfig();
+              // Initialize blockchain connection automatically
+              const initialized = await initBlockchain();
+              if (initialized) {
+                isInitialized = true;
+                console.log('Blockchain connection initialized');
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to initialize:', error);
+        }
       });
 
       // Load blockchain configuration
       async function loadBlockchainConfig() {
-        // Try to use ContractManager first
-        if (contractManager) {
-          const metadataBankAddress = contractManager.getContractAddress('MetadataBank', 21201);
-          const legendaryBankAddress = contractManager.getContractAddress('LegendaryBank', 21201);
+        // Use ContractManager to get contract addresses and network info
+        if (contractManager && contractManager.networkId) {
+          const metadataBankAddress = contractManager.getContractAddress('metadataBank');
+          const legendaryBankAddress = contractManager.getContractAddress('LegendaryBank');
           
-          if (metadataBankAddress) {
-            blockchainConfig = {
-              networks: {
-                bonsoleil: {
-                  name: 'Bon-Soleil Testnet',
-                  rpcUrl: 'https://rpc.bonsoleil.blockgeni.com',
-                  contracts: {
-                    metadataBank: {
-                      address: metadataBankAddress,
+          // Get network configuration from blockchain.json
+          const blockchainConfigResponse = await fetch('/config/blockchain.json');
+          if (blockchainConfigResponse.ok) {
+            const fullConfig = await blockchainConfigResponse.json();
+            
+            // Find the network configuration that matches the current chain ID
+            const networkEntry = Object.entries(fullConfig.networks).find(
+              ([key, net]) => net.chainId === contractManager.networkId
+            );
+            
+            if (networkEntry) {
+              const [networkKey, networkConfig] = networkEntry;
+              
+              blockchainConfig = {
+                networks: {
+                  [networkKey]: {
+                    name: networkConfig.name,
+                    rpcUrl: networkConfig.rpcUrl,
+                    chainId: networkConfig.chainId,
+                    contracts: {
+                      metadataBank: {
+                        address: metadataBankAddress,
                       abi: [
                         'function getMetadataCount() view returns (uint256)',
                         'function getMetadata(uint256 index) view returns (string)',
@@ -132,10 +166,11 @@
                   },
                 },
               },
-              defaultNetwork: 'bonsoleil',
+              defaultNetwork: networkKey,
             };
-            console.log('Using ContractManager configuration');
+            console.log(`Using ContractManager configuration for ${networkConfig.name}`);
             return true;
+            }
           }
         }
 
@@ -185,64 +220,45 @@
       // Initialize blockchain connection
       async function initBlockchain() {
         try {
+          // Return true if already initialized
+          if (isInitialized && metadataBank) {
+            return true;
+          }
+          
           if (typeof ethers === 'undefined') {
             alert('ethers.js library not loaded. Please check your internet connection.');
             return false;
           }
 
-          // Load configuration first
-          await loadBlockchainConfig();
-
-          const network = blockchainConfig.networks[blockchainConfig.defaultNetwork];
-          if (!network) {
-            console.error('Network configuration not found');
+          // Use ContractManager for all contract interactions
+          if (!contractManager || !contractManager.networkId) {
+            console.error('ContractManager not initialized or network not set');
             return false;
           }
 
-          provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
-          await provider.getNetwork();
+          // Get the provider from ContractManager
+          provider = contractManager.provider;
+          const networkId = contractManager.networkId;
+          
+          console.log(`Using network ID: ${networkId}`);
 
-          const metadataBankConfig = network.contracts.metadataBank;
-          console.log('Using MetadataBank configuration:', metadataBankConfig);
-
-          // 明示的にアドレスを確認
-          const contractAddress = metadataBankConfig.address;
-          console.log(`Creating contract instance with address: ${contractAddress}`);
-
-          metadataBank = new ethers.Contract(contractAddress, metadataBankConfig.abi, provider);
-
-          console.log(`Connected to ${network.name || 'Network'} at ${network.rpcUrl}`);
-          console.log(`MetadataBank address: ${contractAddress}`);
-
-          // Initialize LegendaryBank contract
-          let legendaryBankAddress = null;
-
-          // Try ContractManager first
-          if (contractManager) {
-            legendaryBankAddress = contractManager.getContractAddress('LegendaryBank', 21201);
+          // Get MetadataBank contract from ContractManager
+          metadataBank = contractManager.getContract('metadataBank');
+          if (!metadataBank) {
+            console.error('MetadataBank contract not found in ContractManager');
+            return false;
           }
 
-          // Fallback to blockchain config
-          if (!legendaryBankAddress && network.contracts && network.contracts.LegendaryBank) {
-            legendaryBankAddress = network.contracts.LegendaryBank.address || network.contracts.LegendaryBank;
-          }
+          const metadataBankAddress = contractManager.getContractAddress('metadataBank');
+          console.log(`MetadataBank address: ${metadataBankAddress}`);
 
-          // No fallback - must be configured in deployment.json or blockchain.json
-          if (!legendaryBankAddress) {
-            console.error('LegendaryBank address not found in configuration');
-          }
-
-          if (legendaryBankAddress) {
-            legendaryBankContract = new ethers.Contract(
-              legendaryBankAddress,
-              [
-                'function getLegendaryCount() view returns (uint256)',
-                'function legendaryIds(uint256 index) view returns (uint256)',
-                'function getLegendaryTitle(uint256 tokenId) view returns (string)',
-              ],
-              provider
-            );
-            console.log('LegendaryBank contract initialized:', legendaryBankAddress);
+          // Get LegendaryBank contract from ContractManager
+          legendaryBankContract = contractManager.getContract('LegendaryBank');
+          if (!legendaryBankContract) {
+            console.warn('LegendaryBank contract not found in ContractManager');
+          } else {
+            const legendaryBankAddress = contractManager.getContractAddress('LegendaryBank');
+            console.log(`LegendaryBank address: ${legendaryBankAddress}`);
           }
 
           // Test connection - but don't fail if getMetadataCount doesn't work
@@ -312,9 +328,13 @@
       async function generateSingle() {
         const id = Math.floor(Math.random() * 10000) + 1;
 
-        if (!metadataBank) {
-          alert('Blockchain connection not available. Please refresh the page.');
-          return;
+        if (!isInitialized || !metadataBank) {
+          const initialized = await initBlockchain();
+          if (!initialized) {
+            alert('Failed to connect to blockchain. Please refresh the page.');
+            return;
+          }
+          isInitialized = true;
         }
 
         try {
@@ -342,9 +362,13 @@
           return;
         }
 
-        if (!metadataBank) {
-          alert('Blockchain connection not available. Please refresh the page.');
-          return;
+        if (!isInitialized || !metadataBank) {
+          const initialized = await initBlockchain();
+          if (!initialized) {
+            alert('Failed to connect to blockchain. Please refresh the page.');
+            return;
+          }
+          isInitialized = true;
         }
 
         try {

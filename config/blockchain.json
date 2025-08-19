@@ -11,6 +11,12 @@
       "rpcUrl": "https://dev2.bon-soleil.com/rpc",
       "chainId": 21201,
       "symbol": "SOL"
+    },
+    "amoy": {
+      "name": "Polygon Amoy Testnet",
+      "rpcUrl": "https://polygon-amoy-bor-rpc.publicnode.com",
+      "chainId": 80002,
+      "symbol": "POL"
     }
   },
   "defaultNetwork": "bonsoleil",

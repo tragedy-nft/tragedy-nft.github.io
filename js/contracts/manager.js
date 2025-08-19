@@ -31,14 +31,98 @@ class ContractManager {
     this.provider = provider;
     this.signer = signer;
 
-    // Get network ID
-    const network = await this.provider.getNetwork();
-    this.networkId = Number(network.chainId);
-
-    console.log(`ContractManager initializing on network ${this.networkId}`);
-
-    // Load configurations
+    // Load configurations first to get deployment network
     await this.loadConfigurations();
+
+    // Check if deployment specifies a network
+    if (this.deployment && this.deployment.network) {
+      const deploymentChainId = this.parseChainIdFromNetwork(this.deployment.network);
+      if (deploymentChainId) {
+        console.log(`Deployment is for chain ${deploymentChainId}`);
+        
+        // Get current network
+        const currentNetwork = await this.provider.getNetwork();
+        const currentChainId = Number(currentNetwork.chainId);
+        
+        // Switch network if needed
+        if (currentChainId !== deploymentChainId) {
+          console.log(`Current network (${currentChainId}) doesn't match deployment (${deploymentChainId})`);
+          
+          // Load blockchain config to get network details
+          const blockchainConfig = await this.loadBlockchainConfig();
+          if (blockchainConfig && blockchainConfig.networks) {
+            const targetNetworkEntry = Object.entries(blockchainConfig.networks).find(
+              ([key, net]) => net.chainId === deploymentChainId
+            );
+            
+            if (targetNetworkEntry) {
+              const [networkKey, networkConfig] = targetNetworkEntry;
+              console.log(`Switching to ${networkConfig.name} network...`);
+              
+              try {
+                // Request network switch
+                await window.ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: `0x${deploymentChainId.toString(16)}` }]
+                });
+                
+                // Update provider after switch
+                this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                this.networkId = deploymentChainId;
+                console.log(`Successfully switched to ${networkConfig.name}`);
+              } catch (error) {
+                if (error.code === 4902) {
+                  console.log('Network not added to wallet, attempting to add...');
+                  try {
+                    await window.ethereum.request({
+                      method: 'wallet_addEthereumChain',
+                      params: [{
+                        chainId: `0x${deploymentChainId.toString(16)}`,
+                        chainName: networkConfig.name,
+                        nativeCurrency: {
+                          name: networkConfig.symbol,
+                          symbol: networkConfig.symbol,
+                          decimals: 18
+                        },
+                        rpcUrls: [networkConfig.rpcUrl]
+                      }]
+                    });
+                    // Update provider after adding network
+                    this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                    this.networkId = deploymentChainId;
+                    console.log(`Successfully added and switched to ${networkConfig.name}`);
+                  } catch (addError) {
+                    console.error('Failed to add network:', addError);
+                    this.networkId = currentChainId;
+                  }
+                } else {
+                  console.error('Failed to switch network:', error);
+                  this.networkId = currentChainId;
+                }
+              }
+            } else {
+              console.warn(`No configuration found for chain ${deploymentChainId}`);
+              this.networkId = currentChainId;
+            }
+          } else {
+            this.networkId = currentChainId;
+          }
+        } else {
+          this.networkId = currentChainId;
+          console.log('Already on the correct network');
+        }
+      } else {
+        // Get network ID from provider
+        const network = await this.provider.getNetwork();
+        this.networkId = Number(network.chainId);
+      }
+    } else {
+      // Get network ID from provider
+      const network = await this.provider.getNetwork();
+      this.networkId = Number(network.chainId);
+    }
+
+    console.log(`ContractManager initialized on network ${this.networkId}`);
 
     // Initialize ABIs
     await this.initializeABIs();
@@ -128,6 +212,30 @@ class ContractManager {
   }
 
   /**
+   * Load blockchain configuration
+   */
+  async loadBlockchainConfig() {
+    try {
+      const response = await fetch('/config/blockchain.json');
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('Failed to load blockchain.json:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Parse chain ID from network string (e.g., "chain-80002" -> 80002)
+   */
+  parseChainIdFromNetwork(networkString) {
+    if (!networkString) return null;
+    const match = networkString.match(/chain-(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  /**
    * Initialize all contracts
    */
   async initializeContracts() {
@@ -172,8 +280,8 @@ class ContractManager {
       }
     }
 
-    // Initialize from campaign.json
-    if (this.campaign && this.campaign.contracts) {
+    // Initialize from campaign.json (only for Polygon mainnet)
+    if (this.campaign && this.campaign.contracts && this.campaign.network === 'polygon' && this.networkId === 137) {
       for (const [contractName, address] of Object.entries(
         this.campaign.contracts
       )) {
