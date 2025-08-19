@@ -345,7 +345,7 @@
           contractManager = new ContractManager();
         }
         const signer = walletManager ? walletManager.getSigner() : null;
-        await contractManager.initialize(provider, { useConfig: 'deployment', signer });
+        await contractManager.initialize(provider, 'deployment', signer);
       }
 
       // Load blockchain configuration (no longer needed - handled by ContractManager)
@@ -1071,7 +1071,7 @@
         if (!contractManager) {
           contractManager = new ContractManager();
         }
-        await contractManager.initialize(provider, { useConfig: 'deployment', signer: null }); // null signer for read-only
+        await contractManager.initialize(provider, 'deployment', null); // null signer for read-only
         console.log('ContractManager initialized with provider');
 
         // Check if wallet already connected

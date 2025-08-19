@@ -24,124 +24,48 @@ class ContractManager {
   /**
    * Initialize the contract manager
    * @param {ethers.Provider} provider - Ethers provider
-   * @param {Object} options - Options object
-   * @param {string} options.useConfig - Which config to use ('deployment', 'campaign', 'settings')
-   * @param {ethers.Signer} options.signer - Ethers signer (optional)
+   * @param {string} configFile - Which config file to use ('deployment', 'campaign', 'settings')
+   * @param {ethers.Signer} signer - Ethers signer (optional)
    * @returns {Promise<void>}
    */
-  async initialize(provider, options = {}) {
+  async initialize(provider, configFile = 'deployment', signer = null) {
     this.provider = provider;
-    this.signer = options.signer || null;
-    const useConfig = options.useConfig || 'deployment';
-
-    // Load configurations
-    await this.loadConfigurations();
-
-    // Determine which config to use for network switching
-    let targetConfig = null;
-    let targetChainId = null;
+    this.signer = signer;
     
-    if (useConfig === 'campaign' && this.campaign) {
-      targetConfig = this.campaign;
-      // Campaign uses polygon mainnet (chainId: 137)
-      targetChainId = 137;
-    } else if (useConfig === 'deployment' && this.deployment && this.deployment.network) {
-      targetConfig = this.deployment;
-      targetChainId = this.parseChainIdFromNetwork(this.deployment.network);
-    }
+    // Get network ID from provider
+    const network = await this.provider.getNetwork();
+    this.networkId = Number(network.chainId);
     
-    // Check if we need to switch networks
-    if (targetConfig && targetChainId) {
-      console.log(`${useConfig} config is for chain ${targetChainId}`);
-      
-      // Get current network
-      const currentNetwork = await this.provider.getNetwork();
-      const currentChainId = Number(currentNetwork.chainId);
-      
-      // Switch network if needed
-      if (currentChainId !== targetChainId) {
-        console.log(`Current network (${currentChainId}) doesn't match ${useConfig} (${targetChainId})`);
-        
-        // Load blockchain config to get network details
-        const blockchainConfig = await this.loadBlockchainConfig();
-        if (blockchainConfig && blockchainConfig.networks) {
-          const targetNetworkEntry = Object.entries(blockchainConfig.networks).find(
-            ([key, net]) => net.chainId === targetChainId
-          );
-          
-          if (targetNetworkEntry) {
-            const [networkKey, networkConfig] = targetNetworkEntry;
-            console.log(`Switching to ${networkConfig.name} network...`);
-            
-            try {
-              // Request network switch
-              await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: `0x${targetChainId.toString(16)}` }]
-              });
-              
-              // Update provider after switch
-              this.provider = new ethers.providers.Web3Provider(window.ethereum);
-              this.networkId = targetChainId;
-              console.log(`Successfully switched to ${networkConfig.name}`);
-            } catch (error) {
-              if (error.code === 4902) {
-                console.log('Network not added to wallet, attempting to add...');
-                try {
-                  await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                      chainId: `0x${targetChainId.toString(16)}`,
-                      chainName: networkConfig.name,
-                      nativeCurrency: {
-                        name: networkConfig.symbol,
-                        symbol: networkConfig.symbol,
-                        decimals: 18
-                      },
-                      rpcUrls: [networkConfig.rpcUrl]
-                    }]
-                  });
-                  // Update provider after adding network
-                  this.provider = new ethers.providers.Web3Provider(window.ethereum);
-                  this.networkId = targetChainId;
-                  console.log(`Successfully added and switched to ${networkConfig.name}`);
-                } catch (addError) {
-                  console.error('Failed to add network:', addError);
-                  this.networkId = currentChainId;
-                }
-              } else {
-                console.error('Failed to switch network:', error);
-                this.networkId = currentChainId;
-              }
-            }
-          } else {
-            console.warn(`No configuration found for chain ${targetChainId}`);
-            this.networkId = currentChainId;
-          }
-        } else {
-          this.networkId = currentChainId;
-        }
-      } else {
-        this.networkId = currentChainId;
-        console.log('Already on the correct network');
-      }
-    } else {
-      // Get network ID from provider
-      const network = await this.provider.getNetwork();
-      this.networkId = Number(network.chainId);
-    }
+    console.log(`ContractManager initializing on network ${this.networkId}`);
 
-    console.log(`ContractManager initialized on network ${this.networkId}`);
+    // Load only the specified configuration
+    await this.loadConfiguration(configFile);
 
     // Initialize ABIs
     await this.initializeABIs();
 
-    // Initialize all contracts
-    await this.initializeContracts();
+    // Initialize contracts from the specified config
+    await this.initializeContractsFromConfig(configFile);
   }
 
   /**
-   * Load all configuration files
+   * Load specific configuration file
+   */
+  async loadConfiguration(configFile) {
+    try {
+      const response = await fetch(`/config/${configFile}.json`);
+      if (response.ok) {
+        const config = await response.json();
+        this[configFile] = config;
+        console.log(`${configFile} configuration loaded`);
+      }
+    } catch (error) {
+      console.error(`Failed to load ${configFile}.json:`, error);
+    }
+  }
+
+  /**
+   * Load all configuration files (deprecated - kept for compatibility)
    */
   async loadConfigurations() {
     // Try to use existing CONTRACTS_CONFIG if available
@@ -220,32 +144,69 @@ class ContractManager {
     }
   }
 
+
   /**
-   * Load blockchain configuration
+   * Initialize contracts from specific config
    */
-  async loadBlockchainConfig() {
-    try {
-      const response = await fetch('/config/blockchain.json');
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch (error) {
-      console.error('Failed to load blockchain.json:', error);
+  async initializeContractsFromConfig(configFile) {
+    const config = this[configFile];
+    if (!config || !config.contracts) {
+      console.warn(`No contracts found in ${configFile} config`);
+      return;
     }
-    return null;
+
+    // Handle different config formats
+    if (configFile === 'deployment') {
+      // deployment.json format
+      const contractMapping = {
+        BankedNFT: 'bankedNFT',
+        MetadataBank: 'metadataBank',
+        TragedyComposer: 'composer',
+        MonsterBank: 'monsterBank',
+        ItemBank: 'itemBank',
+        BackgroundBank: 'backgroundBank',
+        EffectBank: 'effectBank',
+        TragedyMetadata: 'tragedyMetadata',
+        LegendaryBank: 'LegendaryBank',
+      };
+
+      for (const [deploymentName, internalName] of Object.entries(contractMapping)) {
+        const address = config.contracts[deploymentName];
+        if (address && this.isValidAddress(address)) {
+          const abi = this.abis[deploymentName] || [];
+          await this.addContract(internalName, address, abi);
+        }
+      }
+    } else if (configFile === 'campaign') {
+      // campaign.json format - only load if on correct network
+      if (config.network === 'polygon' && this.networkId !== 137) {
+        console.warn('Campaign contracts are for Polygon mainnet, but current network is different');
+        return;
+      }
+      
+      for (const [contractName, address] of Object.entries(config.contracts)) {
+        if (this.isValidAddress(address)) {
+          const abi = this.abis[contractName] || [
+            'function mint() public',
+            'function balanceOf(address owner) view returns (uint256)',
+            'event Transfer(address indexed from, address indexed to, uint256 tokenId)'
+          ];
+          await this.addContract(contractName.toLowerCase(), address, abi);
+        }
+      }
+    } else if (configFile === 'settings') {
+      // settings.json format
+      for (const [contractName, address] of Object.entries(config.contracts)) {
+        if (this.isValidAddress(address)) {
+          const abi = this.abis[contractName] || ['function mint() public'];
+          await this.addContract(contractName.toLowerCase(), address, abi);
+        }
+      }
+    }
   }
 
   /**
-   * Parse chain ID from network string (e.g., "chain-80002" -> 80002)
-   */
-  parseChainIdFromNetwork(networkString) {
-    if (!networkString) return null;
-    const match = networkString.match(/chain-(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
-  }
-
-  /**
-   * Initialize all contracts
+   * Initialize all contracts (deprecated - kept for compatibility)
    */
   async initializeContracts() {
     // Contract name mapping (deployment.json name -> internal name)

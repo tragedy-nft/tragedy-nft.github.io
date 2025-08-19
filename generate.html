@@ -99,23 +99,56 @@
       // Initialize on page load
       document.addEventListener('DOMContentLoaded', async () => {
         try {
-          contractManager = new ContractManager();
-          
-          // Create provider and initialize ContractManager
           if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            await contractManager.initialize(provider, { useConfig: 'deployment' });
+            // Check if we need to switch to Amoy network
+            const deploymentResponse = await fetch('/config/deployment.json');
+            if (deploymentResponse.ok) {
+              const deployment = await deploymentResponse.json();
+              if (deployment.network) {
+                const match = deployment.network.match(/chain-(\d+)/);
+                if (match) {
+                  const targetChainId = parseInt(match[1], 10);
+                  
+                  // Get current network
+                  const currentChainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
+                  
+                  if (currentChainId !== targetChainId) {
+                    try {
+                      await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: `0x${targetChainId.toString(16)}` }]
+                      });
+                    } catch (error) {
+                      console.error('Failed to switch network:', error);
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Initialize ContractManager
+            contractManager = new ContractManager();
+            // Try using JsonRpcProvider directly instead of Web3Provider
+            let provider;
+            try {
+              // First try with JsonRpcProvider for Amoy
+              provider = new ethers.providers.JsonRpcProvider('https://rpc-amoy.polygon.technology/');
+              const network = await provider.getNetwork();
+              console.log('Using JsonRpcProvider, network:', network.chainId);
+            } catch (e) {
+              // Fallback to Web3Provider
+              console.log('JsonRpcProvider failed, using Web3Provider');
+              provider = new ethers.providers.Web3Provider(window.ethereum);
+            }
+            await contractManager.initialize(provider, 'deployment');
             console.log('ContractManager initialized, networkId:', contractManager.networkId);
             
-            // Only load blockchain config after ContractManager is initialized
-            if (contractManager && contractManager.networkId) {
-              await loadBlockchainConfig();
-              // Initialize blockchain connection automatically
-              const initialized = await initBlockchain();
-              if (initialized) {
-                isInitialized = true;
-                console.log('Blockchain connection initialized');
-              }
+            // Initialize blockchain connection
+            await loadBlockchainConfig();
+            const initialized = await initBlockchain();
+            if (initialized) {
+              isInitialized = true;
+              console.log('Blockchain connection initialized');
             }
           }
         } catch (error) {
@@ -281,45 +314,33 @@
         try {
           // Get metadata from blockchain
           const index = (Number(id) - 1) % 10000; // Convert ID to index (0-based)
-          let metadataUri = await metadataBank.getMetadata(index);
-
-          // Check if the result is an address (proxy pattern)
-          if (metadataUri.startsWith('0x') && metadataUri.length === 42) {
-            console.log('MetadataBank returned an address, likely a proxy pattern:', metadataUri);
-            // Try using the returned address as a new metadata bank
-            const proxyMetadataBank = new ethers.Contract(
-              metadataUri,
-              blockchainConfig.networks[blockchainConfig.defaultNetwork].contracts.metadataBank.abi,
-              provider
-            );
-
-            try {
-              metadataUri = await proxyMetadataBank.getMetadata(index);
-            } catch (proxyError) {
-              console.error('Failed to get metadata from proxy contract:', proxyError);
-              throw proxyError;
-            }
+          console.log(`Fetching metadata for ID ${id}, index ${index}`);
+          
+          let metadataUri;
+          try {
+            metadataUri = await metadataBank.getMetadata(index);
+            console.log(`Received metadata URI for ID ${id}:`, metadataUri);
+          } catch (err) {
+            console.error(`Error calling getMetadata for index ${index}:`, err);
+            throw err;
           }
 
-          // Decode the metadata
+          // Parse metadata
+          let metadata;
           if (metadataUri.startsWith('data:application/json;base64,')) {
             const base64Json = metadataUri.replace('data:application/json;base64,', '');
             const jsonString = atob(base64Json);
-            const metadata = JSON.parse(jsonString);
-
-            console.log('Fetched metadata from blockchain:', metadata);
-            return metadata;
+            metadata = JSON.parse(jsonString);
           } else if (metadataUri.startsWith('{')) {
-            // Plain JSON string
-            const metadata = JSON.parse(metadataUri);
-            console.log('Fetched metadata from blockchain:', metadata);
-            return metadata;
+            metadata = JSON.parse(metadataUri);
+          } else {
+            throw new Error('Invalid metadata format');
           }
 
-          throw new Error('Invalid metadata format: ' + metadataUri.substring(0, 50));
+          console.log('Fetched metadata from blockchain:', metadata);
+          return metadata;
         } catch (error) {
           console.error('Error fetching from blockchain:', error);
-          alert('Error loading NFT data from blockchain. Please try again.');
           throw error;
         }
       }

@@ -14,7 +14,7 @@
     },
     "amoy": {
       "name": "Polygon Amoy Testnet",
-      "rpcUrl": "https://polygon-amoy-bor-rpc.publicnode.com",
+      "rpcUrl": "https://rpc-amoy.polygon.technology/",
       "chainId": 80002,
       "symbol": "POL"
     }
