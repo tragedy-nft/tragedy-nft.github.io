@@ -24,97 +24,106 @@ class ContractManager {
   /**
    * Initialize the contract manager
    * @param {ethers.Provider} provider - Ethers provider
-   * @param {ethers.Signer} signer - Ethers signer (optional)
+   * @param {Object} options - Options object
+   * @param {string} options.useConfig - Which config to use ('deployment', 'campaign', 'settings')
+   * @param {ethers.Signer} options.signer - Ethers signer (optional)
    * @returns {Promise<void>}
    */
-  async initialize(provider, signer = null) {
+  async initialize(provider, options = {}) {
     this.provider = provider;
-    this.signer = signer;
+    this.signer = options.signer || null;
+    const useConfig = options.useConfig || 'deployment';
 
-    // Load configurations first to get deployment network
+    // Load configurations
     await this.loadConfigurations();
 
-    // Check if deployment specifies a network
-    if (this.deployment && this.deployment.network) {
-      const deploymentChainId = this.parseChainIdFromNetwork(this.deployment.network);
-      if (deploymentChainId) {
-        console.log(`Deployment is for chain ${deploymentChainId}`);
+    // Determine which config to use for network switching
+    let targetConfig = null;
+    let targetChainId = null;
+    
+    if (useConfig === 'campaign' && this.campaign) {
+      targetConfig = this.campaign;
+      // Campaign uses polygon mainnet (chainId: 137)
+      targetChainId = 137;
+    } else if (useConfig === 'deployment' && this.deployment && this.deployment.network) {
+      targetConfig = this.deployment;
+      targetChainId = this.parseChainIdFromNetwork(this.deployment.network);
+    }
+    
+    // Check if we need to switch networks
+    if (targetConfig && targetChainId) {
+      console.log(`${useConfig} config is for chain ${targetChainId}`);
+      
+      // Get current network
+      const currentNetwork = await this.provider.getNetwork();
+      const currentChainId = Number(currentNetwork.chainId);
+      
+      // Switch network if needed
+      if (currentChainId !== targetChainId) {
+        console.log(`Current network (${currentChainId}) doesn't match ${useConfig} (${targetChainId})`);
         
-        // Get current network
-        const currentNetwork = await this.provider.getNetwork();
-        const currentChainId = Number(currentNetwork.chainId);
-        
-        // Switch network if needed
-        if (currentChainId !== deploymentChainId) {
-          console.log(`Current network (${currentChainId}) doesn't match deployment (${deploymentChainId})`);
+        // Load blockchain config to get network details
+        const blockchainConfig = await this.loadBlockchainConfig();
+        if (blockchainConfig && blockchainConfig.networks) {
+          const targetNetworkEntry = Object.entries(blockchainConfig.networks).find(
+            ([key, net]) => net.chainId === targetChainId
+          );
           
-          // Load blockchain config to get network details
-          const blockchainConfig = await this.loadBlockchainConfig();
-          if (blockchainConfig && blockchainConfig.networks) {
-            const targetNetworkEntry = Object.entries(blockchainConfig.networks).find(
-              ([key, net]) => net.chainId === deploymentChainId
-            );
+          if (targetNetworkEntry) {
+            const [networkKey, networkConfig] = targetNetworkEntry;
+            console.log(`Switching to ${networkConfig.name} network...`);
             
-            if (targetNetworkEntry) {
-              const [networkKey, networkConfig] = targetNetworkEntry;
-              console.log(`Switching to ${networkConfig.name} network...`);
+            try {
+              // Request network switch
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: `0x${targetChainId.toString(16)}` }]
+              });
               
-              try {
-                // Request network switch
-                await window.ethereum.request({
-                  method: 'wallet_switchEthereumChain',
-                  params: [{ chainId: `0x${deploymentChainId.toString(16)}` }]
-                });
-                
-                // Update provider after switch
-                this.provider = new ethers.providers.Web3Provider(window.ethereum);
-                this.networkId = deploymentChainId;
-                console.log(`Successfully switched to ${networkConfig.name}`);
-              } catch (error) {
-                if (error.code === 4902) {
-                  console.log('Network not added to wallet, attempting to add...');
-                  try {
-                    await window.ethereum.request({
-                      method: 'wallet_addEthereumChain',
-                      params: [{
-                        chainId: `0x${deploymentChainId.toString(16)}`,
-                        chainName: networkConfig.name,
-                        nativeCurrency: {
-                          name: networkConfig.symbol,
-                          symbol: networkConfig.symbol,
-                          decimals: 18
-                        },
-                        rpcUrls: [networkConfig.rpcUrl]
-                      }]
-                    });
-                    // Update provider after adding network
-                    this.provider = new ethers.providers.Web3Provider(window.ethereum);
-                    this.networkId = deploymentChainId;
-                    console.log(`Successfully added and switched to ${networkConfig.name}`);
-                  } catch (addError) {
-                    console.error('Failed to add network:', addError);
-                    this.networkId = currentChainId;
-                  }
-                } else {
-                  console.error('Failed to switch network:', error);
+              // Update provider after switch
+              this.provider = new ethers.providers.Web3Provider(window.ethereum);
+              this.networkId = targetChainId;
+              console.log(`Successfully switched to ${networkConfig.name}`);
+            } catch (error) {
+              if (error.code === 4902) {
+                console.log('Network not added to wallet, attempting to add...');
+                try {
+                  await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                      chainId: `0x${targetChainId.toString(16)}`,
+                      chainName: networkConfig.name,
+                      nativeCurrency: {
+                        name: networkConfig.symbol,
+                        symbol: networkConfig.symbol,
+                        decimals: 18
+                      },
+                      rpcUrls: [networkConfig.rpcUrl]
+                    }]
+                  });
+                  // Update provider after adding network
+                  this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                  this.networkId = targetChainId;
+                  console.log(`Successfully added and switched to ${networkConfig.name}`);
+                } catch (addError) {
+                  console.error('Failed to add network:', addError);
                   this.networkId = currentChainId;
                 }
+              } else {
+                console.error('Failed to switch network:', error);
+                this.networkId = currentChainId;
               }
-            } else {
-              console.warn(`No configuration found for chain ${deploymentChainId}`);
-              this.networkId = currentChainId;
             }
           } else {
+            console.warn(`No configuration found for chain ${targetChainId}`);
             this.networkId = currentChainId;
           }
         } else {
           this.networkId = currentChainId;
-          console.log('Already on the correct network');
         }
       } else {
-        // Get network ID from provider
-        const network = await this.provider.getNetwork();
-        this.networkId = Number(network.chainId);
+        this.networkId = currentChainId;
+        console.log('Already on the correct network');
       }
     } else {
       // Get network ID from provider

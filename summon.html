@@ -645,7 +645,7 @@
             const signer = walletManager.getSigner();
 
             contractManager = new ContractManager();
-            await contractManager.initialize(provider, signer);
+            await contractManager.initialize(provider, { useConfig: 'deployment', signer });
 
             // Update UI using existing function
             window.updateWalletUI(account);

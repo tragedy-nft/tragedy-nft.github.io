@@ -547,7 +547,7 @@
       // Initialize ContractManager
       async function initializeContractManager() {
         contractManager = new ContractManager();
-        await contractManager.initialize(provider, signer);
+        await contractManager.initialize(provider, { useConfig: 'campaign', signer });
 
         // Get campaign contract
         campaignContract = contractManager.getContract('campaign');

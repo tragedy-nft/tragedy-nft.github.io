@@ -104,7 +104,7 @@
           // Create provider and initialize ContractManager
           if (window.ethereum) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            await contractManager.initialize(provider);
+            await contractManager.initialize(provider, { useConfig: 'deployment' });
             console.log('ContractManager initialized, networkId:', contractManager.networkId);
             
             // Only load blockchain config after ContractManager is initialized
