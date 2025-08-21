@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.svg" />
 
     <!-- PWA対応 -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- Additional Meta Tags -->
@@ -25,13 +25,6 @@
 
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-    <!-- Common utilities and managers -->
-    <script src="js/utils/console-override.js"></script>
-    <script src="js/utils/format.js"></script>
-    <script src="js/wallet/manager.js"></script>
-    <script src="js/contracts/manager.js"></script>
-    <script src="js/ui/components.js"></script>
     <style>
       .stories-grid {
         display: grid;
@@ -58,18 +51,23 @@
       }
 
       .story-card.legendary {
-        background: linear-gradient(45deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
         border-color: #ef4444;
       }
 
       .story-card.epic {
-        background: linear-gradient(45deg, rgba(147, 51, 234, 0.2), rgba(167, 139, 250, 0.2));
         border-color: #a78bfa;
       }
 
       .story-card.rare {
-        background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
         border-color: #60a5fa;
+      }
+
+      .story-card.trinity {
+        border-color: #4ade80;
+      }
+
+      .story-card.ultimate {
+        border-color: #fbbf24;
       }
 
       .story-thumbnail {
@@ -208,24 +206,18 @@
       </p>
 
       <div class="button-group">
-        <button onclick="window.location.href='generate.html'">← Back to Generator</button>
+        <button onclick="window.location.href='index.html'">← Back to Home</button>
+        <button onclick="window.location.href='story.html'">Chronicles</button>
+        <button onclick="window.location.href='manifesto.html'">Manifesto</button>
       </div>
 
       <div class="filter-controls">
-        <button class="filter-button" id="ownFilterBtn" onclick="filterStories('own')" style="display: none">
-          Own
-        </button>
-        <button class="filter-button active" onclick="filterStories('all')">Minted</button>
+        <button class="filter-button active" onclick="filterStories('all')">All</button>
         <button class="filter-button" onclick="filterStories('rare')">Rare</button>
         <button class="filter-button" onclick="filterStories('epic')">Epic</button>
         <button class="filter-button" onclick="filterStories('trinity')">Trinity</button>
         <button class="filter-button" onclick="filterStories('ultimate')">Ultimate</button>
         <button class="filter-button" onclick="filterStories('legendary')">Legendary</button>
-      </div>
-
-      <div id="walletStatus" style="text-align: center; margin-top: 20px; display: none">
-        <button id="connectWalletBtn" onclick="connectWallet()" class="legendary-button">Connect Wallet</button>
-        <p id="walletAddress" style="color: #a78bfa; margin-top: 10px"></p>
       </div>
 
       <div id="storiesGrid" class="stories-grid">
@@ -242,150 +234,136 @@
     </div>
 
     <script>
+      // Cache configuration
+      const CACHE_KEY = 'mythOfTragedy_essays';
+      const CACHE_VERSION = '1.0';
+      const CACHE_EXPIRY_HOURS = 24;
+      
+      const LEGENDARY_CACHE_KEY = 'mythOfTragedy_legendary';
+      const LEGENDARY_CACHE_VERSION = '1.0';
+      const LEGENDARY_CACHE_EXPIRY_DAYS = 14; // 2 weeks
+
+      let allStories = [];
       let currentFilter = 'all';
-      let loadedStories = [];
       let displayCount = 12;
-      let walletManager = null;
-      let contractManager = null;
-      let provider;
-      let userAddress = null;
-      let ownedTokenIds = [];
-      let mintedTokenIds = [];
-      let legendaryTokenIds = [];
-      let metadataCache = new Map(); // Cache for loaded metadata
-      let currentPage = 0;
-      const BATCH_SIZE = 20; // Load 20 NFTs at a time
+      let filteredStories = [];
+      let provider = null;
+      let contracts = {};
       let isLoading = false;
-      let hasMoreToLoad = true;
+      let legendaryTokenIds = [];
 
-      // Load ABI files
-      let BANKED_NFT_ABI = null;
-      async function loadABIs() {
+      // Cache management
+      function getCachedData() {
         try {
-          const response = await fetch('/abi/BankedNFT.abi.json');
-          if (response.ok) {
-            BANKED_NFT_ABI = await response.json();
-            console.log(
-              'Loaded BankedNFT ABI from file, functions:',
-              BANKED_NFT_ABI.filter((item) => item.type === 'function').map((f) => f.name)
-            );
-            return true;
+          const cached = localStorage.getItem(CACHE_KEY);
+          if (!cached) return null;
+          
+          const data = JSON.parse(cached);
+          const now = new Date().getTime();
+          const expiry = CACHE_EXPIRY_HOURS * 60 * 60 * 1000;
+          
+          if (data.version !== CACHE_VERSION || now - data.timestamp > expiry) {
+            localStorage.removeItem(CACHE_KEY);
+            return null;
           }
+          
+          return data.stories;
         } catch (error) {
-          console.error('Failed to load ABI file:', error);
+          console.error('Cache read error:', error);
+          return null;
         }
-        return false;
       }
 
-      // Initialize WalletManager
-      async function initializeWalletManager() {
-        walletManager = new WalletManager({
-          defaultNetwork: 'bonsoleil',
-          onConnect: async (account, chainId) => {
-            userAddress = account;
-            provider = walletManager.getProvider();
-            const signer = walletManager.getSigner();
-
-            // Update UI
-            document.getElementById('connectWalletBtn').style.display = 'none';
-            document.getElementById('walletAddress').textContent = `Connected: ${formatAddress(userAddress)}`;
-            document.getElementById('ownFilterBtn').style.display = 'inline-block';
-
-            // Initialize ContractManager with signer
-            await initializeContractManager();
-
-            // Load owned NFTs
-            await loadOwnedNFTs();
-          },
-          onDisconnect: () => {
-            userAddress = null;
-            provider = null;
-            document.getElementById('connectWalletBtn').style.display = 'block';
-            document.getElementById('walletAddress').textContent = '';
-            document.getElementById('ownFilterBtn').style.display = 'none';
-            filterStories('all'); // Reset to all stories
-          },
-          onAccountChange: async (account) => {
-            userAddress = account;
-            document.getElementById('walletAddress').textContent = `Connected: ${formatAddress(userAddress)}`;
-
-            // Update ContractManager signer
-            if (contractManager) {
-              const signer = walletManager.getSigner();
-              contractManager.updateSigner(signer);
-            }
-
-            // Reload owned NFTs
-            await loadOwnedNFTs();
-            filterStories(currentFilter);
-          },
-          onNetworkChange: async (chainId) => {
-            console.log('Network changed to:', chainId);
-            // Re-load owned NFTs
-            if (userAddress) {
-              await loadOwnedNFTs();
-            } else if (userAddress && currentFilter === 'own') {
-              // If showing owned NFTs on wrong network, switch to all
-              filterStories('all');
-              alert('Switched to "All" view. To see your owned NFTs, please switch to Bon-Soleil Testnet.');
-            }
-          },
-        });
-
-        return await walletManager.init();
-      }
-
-      // Initialize ContractManager
-      async function initializeContractManager() {
-        if (!contractManager) {
-          contractManager = new ContractManager();
-        }
-        const signer = walletManager ? walletManager.getSigner() : null;
-        await contractManager.initialize(provider, 'deployment', signer);
-      }
-
-      // Load blockchain configuration (handled by ContractManager)
-      async function loadBlockchainConfig() {
-        // Configuration is now handled by ContractManager
-        // This function is kept for compatibility
-        return true;
-      }
-
-      // Generate metadata from blockchain
-      async function generateMetadataFromBlockchain(id) {
+      function setCachedData(stories) {
         try {
-          if (!contractManager) {
-            throw new Error('ContractManager not initialized');
+          const data = {
+            version: CACHE_VERSION,
+            timestamp: new Date().getTime(),
+            stories: stories
+          };
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (error) {
+          console.error('Cache write error:', error);
+        }
+      }
+
+      // Initialize provider and contracts
+      async function initializeContracts() {
+        try {
+          // Load configurations
+          const [blockchainResponse, deploymentResponse] = await Promise.all([
+            fetch('/config/blockchain.json'),
+            fetch('/config/deployment.json')
+          ]);
+          
+          if (!blockchainResponse.ok || !deploymentResponse.ok) {
+            throw new Error('Failed to load configurations');
           }
+          
+          const blockchainConfig = await blockchainResponse.json();
+          const deployment = await deploymentResponse.json();
+          
+          const defaultNetwork = blockchainConfig.defaultNetwork;
+          const networkConfig = blockchainConfig.networks[defaultNetwork];
+          
+          provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+          
+          // Only initialize contracts we need
+          const bankedNFTAbi = [
+            'function totalSupply() view returns (uint256)',
+            'function tokenByIndex(uint256 index) view returns (uint256)'
+          ];
+          
+          const metadataBankAbi = [
+            'function getMetadata(uint256 index) view returns (string)'
+          ];
+          
+          const legendaryBankAbi = [
+            'function getLegendaryCount() view returns (uint256)',
+            'function legendaryIds(uint256 index) view returns (uint256)'
+          ];
+          
+          contracts.bankedNFT = new ethers.Contract(
+            deployment.contracts.BankedNFT,
+            bankedNFTAbi,
+            provider
+          );
+          
+          contracts.metadataBank = new ethers.Contract(
+            deployment.contracts.MetadataBank,
+            metadataBankAbi,
+            provider
+          );
+          
+          contracts.legendaryBank = new ethers.Contract(
+            deployment.contracts.LegendaryBank,
+            legendaryBankAbi,
+            provider
+          );
+          
+          return true;
+        } catch (error) {
+          console.error('Failed to initialize contracts:', error);
+          return false;
+        }
+      }
 
-          const metadataBank = contractManager.getContract('metadataBank');
-          if (!metadataBank) {
-            throw new Error('MetadataBank contract not found');
-          }
+      // Fetch metadata from contract
+      async function fetchMetadataFromContract(tokenId) {
+        try {
+          const index = Number(tokenId) - 1;
+          let metadataUri = await contracts.metadataBank.getMetadata(index);
 
-          // Use id - 1 as index (no modulo to avoid wrapping)
-          const index = Number(id) - 1;
-          console.log(`Generating metadata for ID: ${id}, using index: ${index}`);
-          let metadataUri = await metadataBank.getMetadata(index);
-
-          // Check if the result is an address (proxy pattern)
+          // Handle proxy pattern
           if (metadataUri.startsWith('0x') && metadataUri.length === 42) {
-            console.log('MetadataBank returned an address:', metadataUri);
-            // Use the same ABI as the main MetadataBank contract
-            const metadataBankAbi = contractManager.abis.MetadataBank || [
-              'function getMetadata(uint256 index) view returns (string)',
+            const metadataBankAbi = [
+              'function getMetadata(uint256 index) view returns (string)'
             ];
             const proxyMetadataBank = new ethers.Contract(metadataUri, metadataBankAbi, provider);
-
-            try {
-              metadataUri = await proxyMetadataBank.getMetadata(index);
-            } catch (proxyError) {
-              console.error('Failed to get metadata from proxy contract:', proxyError);
-              throw proxyError;
-            }
+            metadataUri = await proxyMetadataBank.getMetadata(index);
           }
 
-          // Decode the metadata
+          // Decode metadata
           let metadata;
           if (metadataUri.startsWith('data:application/json;base64,')) {
             const base64Json = metadataUri.replace('data:application/json;base64,', '');
@@ -397,542 +375,379 @@
             throw new Error('Invalid metadata format');
           }
 
-          // Add the ID to the metadata
-          metadata.id = id;
-
-          // Log metadata for debugging
-          console.log(`Metadata for ID ${id}:`, {
-            id: metadata.id,
-            name: metadata.name,
-            description: metadata.description?.substring(0, 50) + '...',
-          });
-
-          return metadata;
+          // Extract story data
+          const rarity = metadata.attributes?.find(a => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
+          const isLegendary = metadata.attributes?.find(a => a.trait_type === 'Legendary') !== undefined;
+          
+          return {
+            id: tokenId,
+            title: metadata.name.replace(/#\d+$/, '').trim(),
+            excerpt: metadata.description,
+            rarity: rarity,
+            image: metadata.image,
+            isLegendary: isLegendary,
+            attributes: metadata.attributes
+          };
         } catch (error) {
-          console.error('Error fetching from blockchain:', error);
-          throw error;
+          console.error(`Failed to fetch metadata for token ${tokenId}:`, error);
+          return null;
         }
       }
 
-      // Load minted NFTs in descending order (newest first)
-      async function loadMintedNFTs() {
-        try {
-          if (!contractManager) {
-            console.log('ContractManager not initialized');
-            return [];
-          }
-
-          const bankedNFTContract = contractManager.getContract('bankedNFT');
-          if (!bankedNFTContract) {
-            console.log('BankedNFT contract not found');
-            return [];
-          }
-
-          const totalSupply = await bankedNFTContract.totalSupply();
-          console.log(`Total minted NFTs: ${totalSupply.toString()}`);
-
-          mintedTokenIds = [];
-          // Load in descending order (newest first)
-          for (let i = totalSupply; i >= 1; i--) {
-            mintedTokenIds.push(i);
-          }
-
-          console.log('Minted token IDs (newest first):', mintedTokenIds.slice(0, 10), '...');
-          return mintedTokenIds;
-        } catch (error) {
-          console.error('Failed to load minted NFTs:', error);
-          return [];
-        }
-      }
-
-      // Load legendary token IDs
-      async function loadLegendaryTokenIds() {
-        try {
-          if (!contractManager) {
-            console.log('ContractManager not initialized');
-            return [];
-          }
-
-          const legendaryBankContract = contractManager.getContract('LegendaryBank');
-          if (!legendaryBankContract) {
-            console.log('LegendaryBank contract not found');
-            return [];
-          }
-
-          const count = await legendaryBankContract.getLegendaryCount();
-          console.log(`Total legendary tokens: ${count.toString()}`);
-
-          legendaryTokenIds = [];
-          for (let i = 0; i < count; i++) {
-            const tokenId = await legendaryBankContract.legendaryIds(i);
-            legendaryTokenIds.push(Number(tokenId));
-          }
-
-          console.log('Legendary token IDs:', legendaryTokenIds);
-          return legendaryTokenIds;
-        } catch (error) {
-          console.error('Failed to load legendary token IDs:', error);
-          return [];
-        }
-      }
-
-      // Initialize with first batch of minted stories
-      async function loadRandomStories() {
+      // Load all minted NFTs
+      async function loadAllStories() {
         const storiesGrid = document.getElementById('storiesGrid');
-        storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading essays from blockchain...</p>';
-
-        if (!contractManager) {
-          storiesGrid.innerHTML =
-            '<p style="text-align: center; color: #EF4444;">Blockchain connection not available. Please refresh the page.</p>';
-          return;
-        }
-
-        const metadataBank = contractManager.getContract('metadataBank');
-        const bankedNFTContract = contractManager.getContract('bankedNFT');
-
-        if (!metadataBank || !bankedNFTContract) {
-          storiesGrid.innerHTML =
-            '<p style="text-align: center; color: #EF4444;">Contracts not available. Please refresh the page.</p>';
-          return;
-        }
-
-        // Reset pagination
-        currentPage = 0;
-        loadedStories = [];
-        hasMoreToLoad = true;
-
-        // Load all minted token IDs (but not their metadata yet)
-        const minted = await loadMintedNFTs();
-        if (minted.length === 0) {
-          storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">No NFTs have been minted yet.</p>';
-          return;
-        }
-
-        // Load legendary token IDs for later use
-        await loadLegendaryTokenIds();
-
-        // Load first batch
-        await loadNextBatch();
-      }
-
-      // Load next batch of stories
-      async function loadNextBatch() {
-        if (isLoading || !hasMoreToLoad) return;
-
-        isLoading = true;
-        const storiesGrid = document.getElementById('storiesGrid');
-
-        try {
-          let tokenIdsToLoad = [];
-
-          if (currentFilter === 'all') {
-            // For "Minted", load next batch of minted NFTs (newest first)
-            const start = currentPage * BATCH_SIZE;
-            const end = Math.min(start + BATCH_SIZE, mintedTokenIds.length);
-            tokenIdsToLoad = mintedTokenIds.slice(start, end);
-            hasMoreToLoad = end < mintedTokenIds.length;
-          } else if (currentFilter === 'legendary') {
-            // For "Legendary", already loaded all
-            hasMoreToLoad = false;
-            return;
-          } else if (currentFilter === 'own') {
-            // For "Own", already loaded all
-            hasMoreToLoad = false;
-            return;
-          } else {
-            // For other filters (rare, epic, trinity, ultimate), they filter from minted NFTs
-            // So no separate loading needed
-            hasMoreToLoad = false;
-            return;
-          }
-
-          if (tokenIdsToLoad.length === 0) {
-            hasMoreToLoad = false;
-            isLoading = false;
-            return;
-          }
-
-          // Show loading indicator
-          if (currentPage === 0) {
-            storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading essays...</p>';
-          }
-
-          // Load metadata for batch
-          const promises = tokenIdsToLoad.map((tokenId) => {
-            // Check cache first
-            if (metadataCache.has(tokenId)) {
-              return Promise.resolve(metadataCache.get(tokenId));
-            }
-            return generateMetadataFromBlockchain(tokenId).then((metadata) => {
-              metadataCache.set(tokenId, metadata);
-              return metadata;
-            });
-          });
-
-          const batchStories = await Promise.all(promises);
-          loadedStories = [...loadedStories, ...batchStories];
-
-          currentPage++;
+        
+        // Check cache first
+        const cachedStories = getCachedData();
+        if (cachedStories && cachedStories.length > 0) {
+          allStories = cachedStories;
+          filteredStories = [...allStories];
           displayStories();
-        } catch (error) {
-          console.error('Failed to load batch:', error);
-          if (currentPage === 0) {
-            storiesGrid.innerHTML =
-              '<p style="text-align: center; color: #EF4444;">Failed to load essays. Please try again.</p>';
-          }
-        } finally {
-          isLoading = false;
-        }
-      }
-
-      // Display stories based on current filter
-      function displayStories() {
-        const storiesGrid = document.getElementById('storiesGrid');
-        storiesGrid.innerHTML = '';
-
-        const filteredStories = filterStoriesByType(loadedStories, currentFilter);
-        const storiesToShow = filteredStories.slice(0, displayCount);
-
-        if (storiesToShow.length === 0) {
-          storiesGrid.innerHTML =
-            '<p style="text-align: center; color: #C084FC; grid-column: 1/-1;">No essays found for this filter.</p>';
+          
+          // Update cache in background
+          updateCacheInBackground();
           return;
         }
 
-        storiesToShow.forEach((story) => {
-          const storyCard = createStoryCard(story);
-          storiesGrid.appendChild(storyCard);
-        });
-      }
-
-      // Filter stories by type
-      function filterStoriesByType(stories, filter) {
-        if (filter === 'all') return stories;
-
-        if (filter === 'own') {
-          // Filter to show only owned NFTs
-          console.log('Filtering for owned NFTs. OwnedTokenIds:', ownedTokenIds);
-          return stories.filter((story) => {
-            const tokenId = parseInt(story.id);
-            const isOwned = ownedTokenIds.includes(tokenId);
-            if (story.id <= 10) {
-              // Log first 10 for debugging
-              console.log(`Story ID: ${story.id}, TokenID: ${tokenId}, Owned: ${isOwned}`);
-            }
-            return isOwned;
-          });
+        // No cache, load from contract
+        storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading essays from blockchain...</p>';
+        
+        if (!await initializeContracts()) {
+          storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Failed to connect to blockchain. Please refresh the page.</p>';
+          return;
         }
 
-        if (filter === 'legendary') {
-          // Filter to show only legendary NFTs from LegendaryBank
-          return stories.filter((story) => {
-            const tokenId = parseInt(story.id);
-            return legendaryTokenIds.includes(tokenId);
-          });
-        }
-
-        return stories.filter((story) => {
-          const rarity = story.attributes.find((a) => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
-
-          switch (filter) {
-            case 'epic':
-              return rarity === 'epic';
-            case 'rare':
-              return rarity === 'rare';
-            case 'trinity':
-              return rarity === 'trinity';
-            case 'ultimate':
-              return rarity === 'ultimate';
-            default:
-              return true;
+        try {
+          const totalSupply = await contracts.bankedNFT.totalSupply();
+          const total = totalSupply.toNumber();
+          
+          if (total === 0) {
+            storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">No NFTs have been minted yet.</p>';
+            return;
           }
-        });
+
+          // Load in batches for better performance
+          const batchSize = 10;
+          const stories = [];
+          
+          for (let i = total; i >= 1; i -= batchSize) {
+            const batch = [];
+            const start = Math.max(1, i - batchSize + 1);
+            
+            for (let j = i; j >= start; j--) {
+              batch.push(fetchMetadataFromContract(j));
+            }
+            
+            const results = await Promise.all(batch);
+            stories.push(...results.filter(s => s !== null));
+            
+            // Update display progressively
+            if (stories.length > 0) {
+              allStories = stories;
+              filteredStories = [...allStories];
+              displayStories();
+            }
+          }
+
+          // Cache the loaded data
+          setCachedData(stories);
+          
+        } catch (error) {
+          console.error('Failed to load stories:', error);
+          storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Failed to load essays. Please try again.</p>';
+        }
       }
 
-      // Create story card element
+      // Update cache in background
+      async function updateCacheInBackground() {
+        if (!contracts.bankedNFT) {
+          if (!await initializeContracts()) return;
+        }
+
+        try {
+          const totalSupply = await contracts.bankedNFT.totalSupply();
+          const total = totalSupply.toNumber();
+          
+          // Check if there are new NFTs
+          const highestCachedId = Math.max(...allStories.map(s => s.id), 0);
+          if (total <= highestCachedId) return;
+
+          // Load only new NFTs
+          const newStories = [];
+          for (let i = total; i > highestCachedId; i--) {
+            const story = await fetchMetadataFromContract(i);
+            if (story) newStories.push(story);
+          }
+
+          if (newStories.length > 0) {
+            // Prepend new stories and update cache
+            allStories = [...newStories, ...allStories];
+            filteredStories = [...allStories];
+            setCachedData(allStories);
+            
+            // Re-display if on 'all' filter
+            if (currentFilter === 'all') {
+              displayStories();
+            }
+          }
+        } catch (error) {
+          console.error('Background cache update failed:', error);
+        }
+      }
+
       function createStoryCard(story) {
         const card = document.createElement('div');
-        const rarity = story.attributes.find((a) => a.trait_type === 'Rarity')?.value?.toLowerCase() || 'common';
-        const isSpecial = story.attributes.find((a) => a.trait_type === 'Special');
-        const isLegendary = story.attributes.find((a) => a.trait_type === 'Legendary');
+        card.className = `story-card ${story.rarity}`;
 
-        card.className = `story-card ${rarity}`;
-
-        // Use the ID directly from the story object
-        const storyId = story.id || '1';
-
-        // Create badge HTML
         let badgeHtml = '';
-        if (isLegendary) {
+        // Show legendary badge for all legendary NFTs (minted or not from LegendaryBank)
+        if (story.isLegendary || story.rarity === 'legendary') {
           badgeHtml = '<div class="story-badge legendary">⚡ LEGENDARY</div>';
-        } else if (isSpecial) {
-          badgeHtml = '<div class="story-badge">✨ SPECIAL</div>';
         }
 
-        // Create image HTML with SVG support
         let imageHtml = '';
         if (story.image && story.image.startsWith('data:image/svg+xml;base64,')) {
           try {
             const base64Svg = story.image.replace('data:image/svg+xml;base64,', '');
-            const svg = atob(base64Svg);
-            // Wrap SVG in a div to control sizing
+            let svg = atob(base64Svg);
+            
+            // Make filter IDs unique by adding story ID
+            svg = svg.replace(/id="colorFilter"/g, `id="colorFilter-${story.id}"`);
+            svg = svg.replace(/filter="url\(#colorFilter\)"/g, `filter="url(#colorFilter-${story.id})"`);
+            
             imageHtml = `<div class="story-thumbnail">${svg}</div>`;
           } catch (e) {
-            console.error('Failed to decode SVG:', e);
-            // Fallback to img tag
-            imageHtml = `<img src="${story.image}" alt="${story.name}" class="story-thumbnail">`;
+            imageHtml = `<img src="${story.image}" alt="${story.title}" class="story-thumbnail">`;
           }
+        } else if (story.image === '/assets/monsters/question.svg') {
+          // Special handling for question.svg to match size
+          imageHtml = `<img src="${story.image}" alt="${story.title}" class="story-thumbnail" style="object-fit: contain; padding: 20px;">`;
         } else {
-          // For non-base64 SVG images, use img tag
-          imageHtml = `<img src="${story.image}" alt="${story.name}" class="story-thumbnail">`;
+          imageHtml = `<img src="${story.image}" alt="${story.title}" class="story-thumbnail">`;
         }
-
-        // Always add token ID to the display name for consistency
-        const displayName = `${story.name} #${storyId}`;
 
         card.innerHTML = `
           ${badgeHtml}
           ${imageHtml}
-          <div class="story-title">${displayName}</div>
-          <div class="story-excerpt">${story.description}</div>
+          <div class="story-title">#${story.id} ${story.title}</div>
+          <div class="story-excerpt">${story.excerpt}</div>
           <div class="story-meta">
-            <span class="story-id">ID: ${storyId}</span>
-            <span>${rarity.charAt(0).toUpperCase() + rarity.slice(1)}</span>
+            <span class="story-id">ID: ${story.id}</span>
+            <span>${story.rarity.charAt(0).toUpperCase() + story.rarity.slice(1)}</span>
           </div>
         `;
 
-        card.onclick = () => {
-          window.location.href = `generate.html?id=${storyId}`;
-        };
+        // Only add click handler for minted NFTs or non-legendary
+        if (story.image !== '/assets/monsters/question.svg') {
+          card.onclick = () => {
+            window.location.href = `generate.html?id=${story.id}`;
+          };
+        } else {
+          // Add visual feedback that it's not clickable
+          card.style.cursor = 'not-allowed';
+          card.style.opacity = '0.8';
+        }
 
         return card;
       }
 
-      // Connect wallet function
-      async function connectWallet() {
-        try {
-          await walletManager.connect('polygon');
-        } catch (error) {
-          console.error('Failed to connect wallet:', error);
-          alert('Failed to connect wallet');
-        }
-      }
+      function displayStories() {
+        const storiesGrid = document.getElementById('storiesGrid');
+        storiesGrid.innerHTML = '';
 
-      // Load owned NFTs
-      async function loadOwnedNFTs() {
-        if (!userAddress || !contractManager) {
-          console.log('Cannot load NFTs - userAddress:', userAddress, 'contractManager:', contractManager);
+        const storiesToShow = filteredStories.slice(0, displayCount);
+
+        if (storiesToShow.length === 0) {
+          storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC; grid-column: 1/-1;">No essays found for this filter.</p>';
           return;
         }
 
-        let bankedNFTContract = contractManager.getContract('bankedNFT');
-
-        // If we have the full ABI loaded, create a new contract instance
-        if (BANKED_NFT_ABI && BANKED_NFT_ABI.length > 30) {
-          console.log('Creating BankedNFT contract with loaded ABI');
-          const deployment = await (await fetch('/config/deployment.json')).json();
-          const bankedNftAddress = deployment.contracts.BankedNFT;
-          bankedNFTContract = new ethers.Contract(bankedNftAddress, BANKED_NFT_ABI, provider);
-        } else if (!bankedNFTContract) {
-          console.log('BankedNFT contract not found and no ABI loaded');
-          return;
-        }
-
-        console.log('BankedNFT contract:', bankedNFTContract);
-        console.log('Has tokenOfOwnerByIndex:', typeof bankedNFTContract.tokenOfOwnerByIndex === 'function');
-        console.log('Contract functions:', Object.keys(bankedNFTContract.functions || {}));
-
-        try {
-          console.log('Loading NFTs for address:', userAddress);
-          const balance = await bankedNFTContract.balanceOf(userAddress);
-          console.log('Balance:', balance.toString());
-
-          ownedTokenIds = [];
-
-          // Use ERC721Enumerable tokenOfOwnerByIndex
-          for (let i = 0; i < balance; i++) {
-            try {
-              const tokenId = await bankedNFTContract.tokenOfOwnerByIndex(userAddress, i);
-              const tokenIdNumber = tokenId.toNumber();
-              ownedTokenIds.push(tokenIdNumber);
-              console.log(`Found owned token at index ${i}: ${tokenIdNumber}`);
-            } catch (error) {
-              console.error(`Error getting token at index ${i}:`, error);
-            }
-          }
-
-          console.log(`User owns ${ownedTokenIds.length} NFTs:`, ownedTokenIds);
-
-          // Load the metadata for owned NFTs
-          if (ownedTokenIds.length > 0 && currentFilter === 'own') {
-            await loadOwnedNFTsMetadata();
-          }
-        } catch (error) {
-          console.error('Failed to load owned NFTs:', error);
-          console.error('Error details:', error.message);
-
-          // Don't show alert for CALL_EXCEPTION errors, just log
-          if (error.code === 'CALL_EXCEPTION') {
-            console.log('Contract not available on current network');
-            ownedTokenIds = []; // Clear owned tokens
-          }
-        }
+        storiesToShow.forEach(story => {
+          const card = createStoryCard(story);
+          storiesGrid.appendChild(card);
+        });
       }
 
-      // Load metadata for owned NFTs
-      async function loadOwnedNFTsMetadata() {
-        const promises = ownedTokenIds.map((tokenId) => generateMetadataFromBlockchain(tokenId));
-
-        try {
-          const ownedStories = await Promise.all(promises);
-          // Replace loadedStories with owned stories when viewing "own" filter
-          if (currentFilter === 'own') {
-            loadedStories = ownedStories;
-            displayStories();
-          }
-        } catch (error) {
-          console.error('Failed to load owned NFT metadata:', error);
-        }
-      }
-
-      // Filter stories
       async function filterStories(filter) {
-        const previousFilter = currentFilter;
         currentFilter = filter;
         displayCount = 12;
 
         // Update active button
-        document.querySelectorAll('.filter-button').forEach((btn) => {
+        document.querySelectorAll('.filter-button').forEach(btn => {
           btn.classList.remove('active');
         });
         event.target.classList.add('active');
 
-        // Show wallet connection status for "Own" filter
-        const walletStatus = document.getElementById('walletStatus');
-        if (filter === 'own') {
-          walletStatus.style.display = 'block';
-          if (!userAddress) {
-            document.getElementById('storiesGrid').innerHTML =
-              '<p style="text-align: center; color: #A78BFA;">Please connect your wallet to view your NFTs</p>';
+        // Handle legendary filter
+        if (filter === 'legendary') {
+          await loadLegendaryStories();
+          return;
+        }
+
+        // Filter stories
+        if (filter === 'all') {
+          filteredStories = [...allStories];
+        } else {
+          filteredStories = allStories.filter(story => story.rarity === filter);
+        }
+
+        displayStories();
+      }
+
+      // Get cached legendary IDs
+      function getCachedLegendaryIds() {
+        try {
+          const cached = localStorage.getItem(LEGENDARY_CACHE_KEY);
+          if (!cached) return null;
+          
+          const data = JSON.parse(cached);
+          const now = new Date().getTime();
+          const expiry = LEGENDARY_CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+          
+          if (data.version !== LEGENDARY_CACHE_VERSION || now - data.timestamp > expiry) {
+            localStorage.removeItem(LEGENDARY_CACHE_KEY);
+            return null;
+          }
+          
+          return data.tokenIds;
+        } catch (error) {
+          console.error('Legendary cache read error:', error);
+          return null;
+        }
+      }
+
+      function setCachedLegendaryIds(tokenIds) {
+        try {
+          const data = {
+            version: LEGENDARY_CACHE_VERSION,
+            timestamp: new Date().getTime(),
+            tokenIds: tokenIds
+          };
+          localStorage.setItem(LEGENDARY_CACHE_KEY, JSON.stringify(data));
+        } catch (error) {
+          console.error('Legendary cache write error:', error);
+        }
+      }
+
+      // Load legendary stories from LegendaryBank
+      async function loadLegendaryStories() {
+        const storiesGrid = document.getElementById('storiesGrid');
+        
+        // Check cache first
+        const cachedIds = getCachedLegendaryIds();
+        if (cachedIds && cachedIds.length > 0) {
+          console.log(`[${new Date().toISOString()}] Using cached legendary IDs: ${cachedIds.length} items`);
+          legendaryTokenIds = cachedIds;
+          
+          // Check which ones are minted
+          const legendaryStories = cachedIds.map(id => {
+            const mintedStory = allStories.find(s => s.id === id);
+            
+            if (mintedStory) {
+              // Use actual metadata for minted legendary
+              return mintedStory;
+            } else {
+              // Use question.svg for unminted legendary
+              return {
+                id: id,
+                title: `Legendary NFT`,
+                excerpt: `This legendary NFT #${id} has not been revealed yet.`,
+                rarity: 'legendary',
+                image: '/assets/monsters/question.svg',
+                isLegendary: true
+              };
+            }
+          });
+          
+          filteredStories = legendaryStories;
+          displayStories();
+          return;
+        }
+
+        // No cache, load from blockchain
+        storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading legendary essays...</p>';
+
+        if (!contracts.legendaryBank) {
+          if (!await initializeContracts()) {
+            storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Failed to connect to blockchain.</p>';
             return;
           }
-        } else {
-          walletStatus.style.display = 'none';
         }
 
-        // Reset pagination when switching filters
-        if (filter !== previousFilter) {
-          currentPage = 0;
-          hasMoreToLoad = true;
-        }
+        try {
+          console.log(`[${new Date().toISOString()}] Starting getLegendaryCount()`);
+          const count = await contracts.legendaryBank.getLegendaryCount();
+          console.log(`[${new Date().toISOString()}] Completed getLegendaryCount(): ${count.toString()}`);
+          const total = count.toNumber();
 
-        // For legendary filter, load all legendary NFTs (minted or not)
-        if (filter === 'legendary' && legendaryTokenIds.length > 0) {
-          const storiesGrid = document.getElementById('storiesGrid');
-          storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">Loading legendary essays...</p>';
-
-          // Use cache for legendary NFTs too
-          const promises = legendaryTokenIds.map((tokenId) => {
-            if (metadataCache.has(tokenId)) {
-              return Promise.resolve(metadataCache.get(tokenId));
-            }
-            return generateMetadataFromBlockchain(tokenId).then((metadata) => {
-              metadataCache.set(tokenId, metadata);
-              return metadata;
-            });
-          });
-
-          try {
-            loadedStories = await Promise.all(promises);
-            displayStories();
-          } catch (error) {
-            console.error('Failed to load legendary stories:', error);
-            displayStories();
+          if (total === 0) {
+            storiesGrid.innerHTML = '<p style="text-align: center; color: #C084FC;">No legendary NFTs registered yet.</p>';
+            return;
           }
-        } else if (filter === 'all' && currentPage === 0) {
-          // For "Minted", load first batch
-          loadedStories = [];
-          await loadNextBatch();
-        } else {
+
+          legendaryTokenIds = [];
+          const legendaryStories = [];
+
+          // Load all legendary token IDs in parallel
+          console.log(`[${new Date().toISOString()}] Starting to fetch ${total} legendary IDs in parallel`);
+          
+          const promises = [];
+          for (let i = 0; i < total; i++) {
+            promises.push(contracts.legendaryBank.legendaryIds(i));
+          }
+          
+          const tokenIds = await Promise.all(promises);
+          console.log(`[${new Date().toISOString()}] Completed fetching all legendary IDs in parallel`);
+          
+          // Check which ones are minted
+          const mintedIds = allStories.map(s => s.id);
+          
+          // Process results
+          for (let index = 0; index < tokenIds.length; index++) {
+            const id = tokenIds[index].toNumber();
+            legendaryTokenIds.push(id);
+            console.log(`legendaryIds(${index}): ${id}`);
+
+            // Check if this legendary is minted
+            const mintedStory = allStories.find(s => s.id === id);
+            
+            if (mintedStory) {
+              // Use actual metadata for minted legendary
+              legendaryStories.push(mintedStory);
+            } else {
+              // Use question.svg for unminted legendary
+              legendaryStories.push({
+                id: id,
+                title: `Legendary NFT`,
+                excerpt: `This legendary NFT #${id} has not been revealed yet.`,
+                rarity: 'legendary',
+                image: '/assets/monsters/question.svg',
+                isLegendary: true
+              });
+            }
+          }
+
+          // Cache the legendary IDs
+          setCachedLegendaryIds(legendaryTokenIds);
+          
+          filteredStories = legendaryStories;
           displayStories();
+
+        } catch (error) {
+          console.error('Failed to load legendary stories:', error);
+          storiesGrid.innerHTML = '<p style="text-align: center; color: #EF4444;">Failed to load legendary NFTs.</p>';
         }
       }
 
-      // Load more stories
-      async function loadMoreStories() {
-        if (currentFilter === 'all' && hasMoreToLoad) {
-          // For "Minted", load next batch from blockchain
-          await loadNextBatch();
-        } else {
-          // For other filters, just show more of already loaded stories
-          displayCount += 12;
-          displayStories();
-        }
+      function loadMoreStories() {
+        displayCount += 12;
+        displayStories();
       }
 
-      // Load stories on page load
-      window.addEventListener('DOMContentLoaded', async () => {
-        // Initialize UI Components
-        initializeUIStyles();
-
-        // Load ABIs first
-        await loadABIs();
-
-        // Initialize WalletManager
-        await initializeWalletManager();
-
-        // Initialize provider for read-only operations
-        if (!provider) {
-          try {
-            // Load blockchain config to get RPC URL
-            const response = await fetch('/config/blockchain.json');
-            if (!response.ok) {
-              throw new Error('Failed to load blockchain.json');
-            }
-            const blockchainConfig = await response.json();
-            const defaultNetwork = blockchainConfig.defaultNetwork;
-            const networkConfig = blockchainConfig.networks[defaultNetwork];
-            
-            if (!networkConfig || !networkConfig.rpcUrl) {
-              throw new Error('Network configuration not found');
-            }
-            
-            // ethers v5
-            provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
-            console.log(`Initialized JsonRpcProvider for ${defaultNetwork}`);
-          } catch (error) {
-            console.error('Failed to initialize provider:', error);
-            throw error;
-          }
-        }
-
-        // Initialize ContractManager with provider
-        if (!contractManager) {
-          contractManager = new ContractManager();
-        }
-        await contractManager.initialize(provider, 'deployment', null); // null signer for read-only
-        console.log('ContractManager initialized with provider');
-
-        // Check if wallet already connected
-        if (walletManager && walletManager.isWalletConnected()) {
-          provider = walletManager.getProvider();
-          const signer = walletManager.getSigner();
-          if (signer) {
-            contractManager.updateSigner(signer);
-          }
-        }
-
-        // Load legendary token IDs
-        await loadLegendaryTokenIds();
-
-        // Check if wallet status should be shown (for 'own' filter)
-        const walletStatus = document.getElementById('walletStatus');
-        if (currentFilter === 'own') {
-          walletStatus.style.display = 'block';
-        }
-
-        // Load first batch of stories
-        loadRandomStories();
+      // Initial load on page ready
+      window.addEventListener('DOMContentLoaded', () => {
+        loadAllStories();
       });
     </script>
   </body>

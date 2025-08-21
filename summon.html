@@ -443,7 +443,6 @@
         transform: translateY(-2px);
       }
 
-
       /* Loading Spinner */
       .spinner {
         border: 3px solid rgba(255, 255, 255, 0.1);
@@ -516,7 +515,6 @@
           padding: 0.6rem 1rem;
           font-size: 0.9rem;
         }
-
       }
     </style>
   </head>
@@ -540,7 +538,6 @@
         <div class="wallet-address" id="walletAddress"></div>
         <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect MetaMask</button>
       </div>
-
 
       <!-- Mint Section -->
       <div class="mint-section" id="mintSection" style="display: none">
@@ -586,9 +583,7 @@
 
       <!-- Navigation -->
       <div class="nav-links">
-        <a href="index.html" class="nav-link">
-          ← Back to Home
-        </a>
+        <a href="index.html" class="nav-link"> ← Back to Home </a>
         <a
           href="https://opensea.io/ja/collection/something-dark-is-awakening"
           class="nav-link"
@@ -755,26 +750,10 @@
           const openseaLink = document.getElementById('openseaLink');
           const basescanLink = document.getElementById('polygonscanLink');
 
-          if (contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000') {
-            // Update links based on network
-            if (chainIdDecimal === 8453) {
-              // Base Mainnet
-              openseaLink.href = `https://opensea.io/assets/base/${contractAddress}`;
-              basescanLink.href = `https://polygonscan.com/address/${contractAddress}`;
-            } else if (chainIdDecimal === 84532) {
-              // Base Sepolia Testnet
-              openseaLink.href = `https://testnets.opensea.io/assets/base-sepolia/${contractAddress}`;
-              basescanLink.href = `https://sepolia.polygonscan.com/address/${contractAddress}`;
-            } else if (chainIdDecimal === 137) {
-              // Polygon Mainnet
-              openseaLink.textContent = 'View on OpenSea';
-              openseaLink.href = `https://opensea.io/item/matic/${contractAddress}`;
-              basescanLink.textContent = 'View on PolygonScan';
-              basescanLink.href = `https://polygonscan.com/address/${contractAddress}`;
-            }
-
-            console.log(`External links updated for contract: ${contractAddress}`);
-          }
+          openseaLink.textContent = 'View on OpenSea';
+          openseaLink.href = `https://opensea.io/collection/the-mythical-cursed-nightmare`;
+          basescanLink.textContent = 'View on PolygonScan';
+          basescanLink.href = `https://polygonscan.com/address/${contractAddress}`;
         } catch (error) {
           console.error('Failed to update external links:', error);
         }
@@ -935,10 +914,10 @@
           // Debug info
           console.log('Minting on network:', contractManager.networkId);
           console.log('Contract address:', contractManager.getContractAddress('bankedNFT'));
-          
+
           const mintFee = await bankedNFTContract.mintFee();
           console.log('Mint fee:', mintFee.toString());
-          
+
           const tx = await bankedNFTContract.mint({ value: mintFee });
           const receipt = await tx.wait();
 
@@ -964,9 +943,9 @@
             message: error.message,
             code: error.code,
             data: error.data,
-            reason: error.reason
+            reason: error.reason,
           });
-          
+
           let errorMessage = 'The summoning ritual failed. ';
 
           if (error.message && error.message.includes('insufficient funds')) {
@@ -1095,7 +1074,6 @@
         }, 3000);
       }
 
-
       // Initialize
       document.addEventListener('DOMContentLoaded', async () => {
         // Check browser and show MetaMask warning
@@ -1119,7 +1097,6 @@
         loadSettings();
         createParticles();
         rotatePreviewImages();
-
 
         // Check if wallet is already connected
         if (window.ethereum && window.ethereum.selectedAddress) {

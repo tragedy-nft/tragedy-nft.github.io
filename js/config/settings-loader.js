@@ -11,7 +11,7 @@ class SettingsLoader {
 
   async load() {
     if (this.loaded) return this.settings;
-    
+
     try {
       const response = await fetch('/config/settings.json');
       if (!response.ok) {
@@ -31,24 +31,24 @@ class SettingsLoader {
     return {
       social: {
         twitter: {
-          url: "https://x.com/mythOfTragedy",
-          title: "X",
-          enabled: true
+          url: 'https://x.com/mythOfTragedy',
+          title: 'X',
+          enabled: true,
         },
         discord: {
-          url: "https://discord.gg/sQ2nxm7w",
-          title: "Discord",
-          enabled: true
+          url: 'https://discord.gg/wunxU8cy',
+          title: 'Discord',
+          enabled: true,
         },
         opensea: {
-          url: "https://opensea.io/0xe8dA4B6E9dF0e8f2eE6898E44ca1D45a27ED7d0A",
-          title: "OpenSea",
-          enabled: true
-        }
+          url: 'https://opensea.io/collection/the-mythical-cursed-nightmare',
+          title: 'OpenSea',
+          enabled: true,
+        },
       },
       deeplink: {
-        domain: "tragedy-nft.github.io"
-      }
+        domain: 'tragedy-nft.github.io',
+      },
     };
   }
 
@@ -59,13 +59,13 @@ class SettingsLoader {
       .map(([key, value]) => ({
         key,
         url: value.url,
-        title: value.title
+        title: value.title,
       }));
   }
 
   async getDeeplinkDomain() {
     const settings = await this.load();
-    return settings.deeplink?.domain || "tragedy-nft.github.io";
+    return settings.deeplink?.domain || 'tragedy-nft.github.io';
   }
 }
 
@@ -78,10 +78,14 @@ async function renderSocialLinks(containerId) {
   if (!container) return;
 
   const socialLinks = await settingsLoader.getSocialLinks();
-  
-  container.innerHTML = socialLinks.map(link => `
+
+  container.innerHTML = socialLinks
+    .map(
+      (link) => `
     <a href="${link.url}" class="social-link" title="${link.title}" target="_blank">
       <span>${link.title}</span>
     </a>
-  `).join('');
+  `
+    )
+    .join('');
 }
