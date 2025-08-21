@@ -312,6 +312,21 @@
         line-height: 1.6;
         font-style: italic;
         text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        position: relative;
+        min-height: 100px;
+      }
+
+      .price-reason-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .price-reason-text.active {
+        opacity: 1;
       }
 
       .quantity-selector {
@@ -565,7 +580,7 @@
           <div class="price-display">
             <div class="price-label">Price</div>
             <div class="price-value" id="priceDisplay">33 POL</div>
-            <div class="price-reason">
+            <div class="price-reason" id="priceReason">
               33 POL - The Master Number of Transformation<br />
               <span style="font-size: 0.8em; opacity: 0.9">
                 At 33, souls reach a crossroads between light and shadow.<br />
@@ -759,6 +774,105 @@
         }
       }
 
+      // Text switching animation
+      function startTextSwitching() {
+        const originalText = document.getElementById('originalText');
+        const discountText = document.getElementById('discountText');
+
+        if (!originalText || !discountText) return;
+
+        // Start with discount text visible
+        originalText.classList.remove('active');
+        discountText.classList.add('active');
+        let showingOriginal = false;
+
+        setInterval(() => {
+          if (showingOriginal) {
+            originalText.classList.remove('active');
+            discountText.classList.add('active');
+          } else {
+            discountText.classList.remove('active');
+            originalText.classList.add('active');
+          }
+          showingOriginal = !showingOriginal;
+        }, 5000);
+      }
+
+      // Animate price countdown
+      function animatePriceCountdown(startPrice, endPrice) {
+        const priceDisplay = document.getElementById('priceDisplay');
+        const duration = 6000; // 6 seconds
+        const fps = 60;
+        const totalFrames = (duration / 1000) * fps;
+        const priceDecrement = (startPrice - endPrice) / totalFrames;
+        let currentPrice = startPrice;
+        let frame = 0;
+
+        const animate = () => {
+          frame++;
+          currentPrice = startPrice - priceDecrement * frame;
+
+          // Easing function for smoother animation
+          const progress = frame / totalFrames;
+          const easedProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+          currentPrice = startPrice - (startPrice - endPrice) * easedProgress;
+
+          if (frame >= totalFrames) {
+            currentPrice = endPrice;
+          }
+
+          priceDisplay.textContent = `${currentPrice.toFixed(2)} POL`;
+
+          if (frame < totalFrames) {
+            requestAnimationFrame(animate);
+          } else {
+            // Final display with proper decimal places
+            if (endPrice % 1 === 0) {
+              priceDisplay.textContent = `${endPrice} POL`;
+            } else {
+              priceDisplay.textContent = `${endPrice.toFixed(1)} POL`;
+            }
+
+            // Update price reason text after countdown
+            const priceReason = document.getElementById('priceReason');
+            if (priceReason) {
+              // Calculate discount percentage
+              const discountPercentage = Math.round(((33 - endPrice) / 33) * 100);
+
+              // Create two text elements for switching
+              const originalText = `
+                <div class="price-reason-text" id="originalText">
+                  33 POL - The Master Number of Transformation<br />
+                  <span style="font-size: 0.8em; opacity: 0.9">
+                    At 33, souls reach a crossroads between light and shadow.<br />
+                    In Japanese tradition, 33 marks spiritual awakening.<br />
+                    But what awakens in the digital realm... may be nightmares.
+                  </span>
+                </div>
+              `;
+
+              const discountText = `
+                <div class="price-reason-text" id="discountText">
+                  ${endPrice.toFixed(1)} POL - Limited Time Early Bird Special!<br />
+                  <span style="font-size: 0.8em; opacity: 0.9">
+                    🔥 Exclusive launch price - Save ${discountPercentage}%!<br />
+                    Original price: 33 POL → Now only ${endPrice.toFixed(1)} POL<br />
+                    Don't miss this rare opportunity to summon your nightmare.
+                  </span>
+                </div>
+              `;
+
+              priceReason.innerHTML = originalText + discountText;
+
+              // Start text switching animation
+              startTextSwitching();
+            }
+          }
+        };
+
+        animate();
+      }
+
       // Connect/Disconnect wallet
       async function connectWallet() {
         const connectBtn = document.getElementById('connectBtn');
@@ -844,10 +958,18 @@
               const priceWei = await bankedNFTContract.mintFee();
               // Handle both ethers v5 and v6
               const formatEther = ethers.formatEther || (ethers.utils && ethers.utils.formatEther);
-              nftPrice = parseFloat(formatEther(priceWei));
+              const actualPrice = parseFloat(formatEther(priceWei));
+
+              // Wait 1 second before starting countdown
+              setTimeout(() => {
+                // Animate price countdown from 33 to actual price
+                animatePriceCountdown(33, actualPrice);
+              }, 3000);
+              nftPrice = actualPrice;
             }
+          } else {
+            document.getElementById('priceDisplay').textContent = `${nftPrice} POL`;
           }
-          document.getElementById('priceDisplay').textContent = `${nftPrice} POL`;
         } catch (error) {
           console.error('Failed to update supply info:', error);
 
