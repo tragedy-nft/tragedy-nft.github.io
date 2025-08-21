@@ -1,6 +1,6 @@
 # The Mythical Cursed-Nightmare: Frontend
 
-> "Adding cursed developers to a late nightmare project makes it later."  
+> "Adding cursed developers to a late nightmare project makes it later."
 > — Inspired by Frederick P. Brooks Jr.
 
 A dark fantasy NFT collection frontend showcasing 10,000 algorithmically generated tragic essays. This is an homage to "The Mythical Man-Month" but explores the dark patterns of generative art through an immersive web experience.
@@ -14,8 +14,8 @@ Each NFT represents a unique combination of four cursed elements:
 - **Realm**: The stage where tragedy unfolds (10 types)
 - **Curse**: The force that drives the narrative (10 types)
 
-**Total Supply**: 10,000 unique combinations  
-**Generation**: Deterministic based on token ID  
+**Total Supply**: 10,000 unique combinations
+**Generation**: Deterministic based on token ID
 **Storage**: Fully on-chain metadata and SVG images
 
 ## 🏗️ Architecture
@@ -47,7 +47,7 @@ frontend/
 ├── generate.html          # NFT preview and generation
 ├── story.html             # Project lore and background
 ├── essays.html            # Collection essays page
-├── manifest.html          # Project manifesto
+├── manifesto.html          # Project manifesto
 ├── campaign.html          # SBT campaign page
 ├── cache-test.html        # RPC cache testing interface
 ├── viewer/
