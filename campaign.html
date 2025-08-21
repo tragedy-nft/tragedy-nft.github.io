@@ -207,6 +207,24 @@
         gap: 8px;
       }
 
+      .opensea-button {
+        background: rgba(147, 51, 234, 0.2);
+        border: 1px solid rgba(147, 51, 234, 0.4);
+        border-radius: 6px;
+        padding: 4px 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #c084fc;
+      }
+      .opensea-button:hover {
+        background: rgba(147, 51, 234, 0.3);
+        transform: translateY(-1px);
+      }
+
       .copy-button {
         background: rgba(147, 51, 234, 0.2);
         border: 1px solid rgba(147, 51, 234, 0.4);
@@ -452,11 +470,17 @@
                 <div class="contract-address-wrapper">
                   <a
                     id="contractAddressLink"
-                    href="https://opensea.io/collection/the-mythical-cursed-nightmare"
+                    href="https://polygonscan.com/address/0x800472c573b2f195d3f282e9befdb7bb7db30b8d"
                     target="_blank"
                     style="color: #60a5fa; text-decoration: none"
                     >Loading...</a
                   >
+                  <button
+                    class="opensea-button"
+                    onclick="window.location.href='https://opensea.io/collection/something-dark-is-awakening'"
+                  >
+                    <span id="oslink">opensea</span>
+                  </button>
                   <button class="copy-button" onclick="copyContractAddress()">
                     <span id="copyText">Copy</span>
                   </button>

@@ -9,6 +9,7 @@ This directory contains configuration files for the Myth of Tragedy frontend app
 Network configurations for blockchain connectivity.
 
 Structure:
+
 ```json
 {
   "networks": {
@@ -35,6 +36,7 @@ Structure:
 Contract deployment addresses for different networks.
 
 Structure:
+
 ```json
 {
   "version": "1.0.0",
@@ -57,6 +59,7 @@ Structure:
 Application-specific settings and contract addresses.
 
 Structure:
+
 ```json
 {
   "contracts": {
@@ -77,11 +80,12 @@ Structure:
 Campaign-specific configuration for SBT minting.
 
 Structure:
+
 ```json
 {
   "active": true,
-  "startDate": "2024-08-01T00:00:00Z",
-  "endDate": "2024-08-31T23:59:59Z",
+  "startDate": "2025-08-01T00:00:00Z",
+  "endDate": "2025-08-31T23:59:59Z",
   "contractAddress": "0x...",
   "chainId": 137,
   "features": {

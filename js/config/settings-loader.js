@@ -36,7 +36,7 @@ class SettingsLoader {
           enabled: true,
         },
         discord: {
-          url: 'https://discord.gg/wunxU8cy',
+          url: 'https://discord.gg/rSWSwYqT',
           title: 'Discord',
           enabled: true,
         },

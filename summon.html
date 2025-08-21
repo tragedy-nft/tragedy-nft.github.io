@@ -312,21 +312,24 @@
         line-height: 1.6;
         font-style: italic;
         text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        position: relative;
-        min-height: 100px;
       }
 
       .price-reason-text {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
       }
 
       .price-reason-text.active {
-        opacity: 1;
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       .quantity-selector {
@@ -516,6 +519,14 @@
           font-size: 2rem;
         }
 
+        .price-reason {
+          font-size: 0.85rem;
+        }
+
+        .price-reason-text span {
+          font-size: 0.75em !important;
+        }
+
         .mint-btn {
           font-size: 1.1rem;
           padding: 1.2rem 2rem;
@@ -608,7 +619,7 @@
           View on OpenSea
         </a>
         <a
-          href="https://polygonscan.com/address/"
+          href="https://polygonscan.com/address/0xc60270e1de7a9ffec6cf0056a5f6918f0f11199c"
           id="polygonscanLink"
           class="nav-link"
           id="basescanLink"
